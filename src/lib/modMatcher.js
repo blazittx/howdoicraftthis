@@ -1,3 +1,5 @@
+import { normalizeItemClass } from './itemClass.js';
+
 let indexPromise = null;
 
 export function loadCraftIndex() {
@@ -99,7 +101,7 @@ export function matchMod(index, modText, item) {
   const ilvl = item.itemLevel ?? 83;
   const nums = extractNumbers(modText);
   const primaryVal = nums[0] ?? null;
-  const itemClass = item.itemClass?.replace(/s$/, '') || getItemClass(index, item.baseName);
+  const itemClass = normalizeItemClass(item.itemClass) || getItemClass(index, item.baseName);
 
   let best = null;
   for (const mod of index.mods) {
@@ -146,9 +148,7 @@ export function matchMod(index, modText, item) {
       (e.itemClass === item.itemClass ||
         e.itemClass === itemClass ||
         e.itemClass === getItemClass(index, item.baseName) ||
-        // Wands vs Wand
-        e.itemClass + 's' === item.itemClass ||
-        e.itemClass === item.itemClass?.replace(/s$/, ''))
+        normalizeItemClass(e.itemClass) === itemClass)
   );
 
   // Broader essence lookup by scanning all essences whose mod matches text

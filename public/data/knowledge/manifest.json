@@ -1,1 +1,71 @@
-{"built_at":"2026-08-12T20:38:04.318Z","game":"poe1","files":["mods-natural-prefix-suffix.json","mods-essence-only.json","mods-crafted-bench.json","mods-unveiled.json","mods-veiled-placeholders.json","mods-influence.json","mods-delve.json","mods-eldritch-implicits.json","mods-enchantments.json","mods-jewels.json","mods-flasks.json","mods-remainder.json","essences.json","fossils.json","crafting-bench.json","base-items.json","item-classes.json","tags.json","mod-types.json","harvest-reforge-official.json","metacrafts-official.json","cannot-roll-official.json","craft-operators-official.json","coverage.json"],"category_counts":{"natural_prefix_suffix":2465,"essence_only":458,"crafted":1637,"unveiled":258,"veiled_placeholders":22,"influence":1446,"delve":186,"eldritch_implicits":4086,"enchantments":1656,"jewels":1025,"flasks":246,"remainder":26863,"essences":106,"fossils":445,"crafting_bench":765,"bases":4957},"missing_or_partial":["Harvest add/remove (sacred lifeforce) & non-reforge harvest","Recombinators","Allflame / Kingsmarch boat crafting (Settlers)","Beastcrafting recipes","Hellscape / Scourge / Crucible / Necropolis special crafts","Live trade market prices"]}
+{
+  "built_at": "2026-08-12T16:00:54.143Z",
+  "dataVersion": "2026-08-12T16:00:54.143Z",
+  "game": "poe1",
+  "gameVersion": "3.29",
+  "league": "3.29",
+  "rulesetVersion": "3.29",
+  "operatorDatasetVersion": "1.0.0",
+  "gitCommit": null,
+  "repoe": {
+    "source": "https://repoe-fork.github.io",
+    "url": "https://repoe-fork.github.io",
+    "hash": null,
+    "fetchedAt": "2026-08-12T16:00:54.143Z",
+    "gameVersion": "3.29",
+    "league": "3.29",
+    "note": "Pin a local snapshot for reproducible tests (§33). Re-run npm run build:knowledge to refresh hash."
+  },
+  "marketTrade": {
+    "status": "stub",
+    "phase": 1,
+    "note": "Item/base trade prices unknown — never invent premiums. See src/lib/pricing/trade.js"
+  },
+  "files": [
+    "mods-natural-prefix-suffix.json",
+    "mods-essence-only.json",
+    "mods-crafted-bench.json",
+    "mods-unveiled.json",
+    "mods-veiled-placeholders.json",
+    "mods-influence.json",
+    "mods-delve.json",
+    "mods-eldritch-implicits.json",
+    "mods-enchantments.json",
+    "essences.json",
+    "fossils.json",
+    "crafting-bench.json",
+    "base-items.json",
+    "item-classes.json",
+    "tags.json",
+    "mod-types.json",
+    "harvest-reforge-official.json",
+    "metacrafts-official.json",
+    "cannot-roll-official.json",
+    "operators.json",
+    "coverage.json"
+  ],
+  "category_counts": {
+    "natural_prefix_suffix": 2465,
+    "essence_only": 458,
+    "crafted": 1637,
+    "unveiled": 258,
+    "veiled_placeholders": 22,
+    "influence": 1446,
+    "delve": 186,
+    "eldritch_implicits": 4086,
+    "enchantments": 1656,
+    "essences": 106,
+    "fossils": 445,
+    "crafting_bench": 765,
+    "bases": 4957
+  },
+  "missing_or_partial": [
+    "Harvest add/remove (sacred lifeforce) & non-reforge harvest",
+    "Recombinators",
+    "Allflame / Kingsmarch boat crafting (Settlers)",
+    "Beastcrafting recipes",
+    "Hellscape / Scourge / Crucible / Necropolis special crafts",
+    "Currency orb exact behaviour tables",
+    "Live trade market prices"
+  ]
+}

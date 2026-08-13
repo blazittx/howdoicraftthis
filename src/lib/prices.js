@@ -3,6 +3,8 @@
  * Loaded once with the knowledge base — not fetched per craft query.
  */
 
+import { formatMultiCost, multiDimensionCost } from './pricing/costs.js';
+
 const STALE_MS = 24 * 60 * 60 * 1000;
 const FETCH_TIP = 'Run npm run fetch-prices to refresh public/data/prices/daily.json';
 
@@ -24,15 +26,19 @@ export function pricesStatus(snapshot) {
   }
   const age = pricesAgeMs(snapshot);
   const stale = age > STALE_MS;
+  const ageDays = age / (24 * 60 * 60 * 1000);
+  const ageLabel =
+    ageDays >= 1 ? `${Math.floor(ageDays)} day(s) old` : `${Math.max(1, Math.round(age / 3600000))}h old`;
   return {
     ok: true,
     stale,
     missing: false,
     ageMs: age,
+    ageLabel,
     league: snapshot.league,
     fetchedAt: snapshot.fetchedAt,
-    tip: stale ? `Price snapshot is older than 1 day. ${FETCH_TIP}` : null,
-    message: stale ? `Price snapshot is older than 1 day. ${FETCH_TIP}` : null,
+    tip: stale ? `Price snapshot is ${ageLabel}. ${FETCH_TIP}` : null,
+    message: stale ? `Prices are ${ageLabel}. Cost ranking may have changed. ${FETCH_TIP}` : null,
   };
 }
 
@@ -90,13 +96,28 @@ export function chaosToMirrors(chaos, prices) {
  * Primary total in Divines; hover details = chaos + mirror (needs prices.divine / prices.mirror).
  * @returns {{ primary: string, tipLines: string[], convertible: boolean }}
  */
-export function formatCostCookie(chaosTotal, prices) {
+export function formatCostCookie(chaosTotal, prices, dims = null) {
+  if (dims) {
+    const multi = formatMultiCost(dims);
+    const div = chaosToDivines(dims.chaosEquivalent, prices);
+    const tipLines = [multi];
+    if (dims.chaosEquivalent != null) {
+      const mir = chaosToMirrors(dims.chaosEquivalent, prices);
+      if (mir != null) tipLines.push(`~${mir} Mirror`);
+    }
+    return {
+      primary: div != null ? `~${div} Div` : multi,
+      tipLines,
+      convertible: div != null,
+      multi,
+    };
+  }
   if (chaosTotal == null) {
     return { primary: 'unknown', tipLines: [], convertible: false };
   }
   const div = chaosToDivines(chaosTotal, prices);
   const mir = chaosToMirrors(chaosTotal, prices);
-  const chaosLabel = `~${chaosTotal}c`;
+  const chaosLabel = `~${Math.round(chaosTotal * 100) / 100}c`;
   const tipLines = [chaosLabel];
   if (mir != null) tipLines.push(`~${mir} Mirror`);
   else tipLines.push('Mirror price missing from daily snapshot');
@@ -113,3 +134,5 @@ export function formatCostCookie(chaosTotal, prices) {
   }
   return { primary: `~${div} Div`, tipLines, convertible: true };
 }
+
+export { multiDimensionCost, formatMultiCost };

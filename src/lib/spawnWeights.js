@@ -17,6 +17,9 @@
  *   independently → P(hit) = 1 − (1−p)³. (Not combinatorial C(N,3) / “1 in 5”.)
  */
 
+import { expectedAttempts } from './expected.js';
+import { harvestRespectsCannotRoll, getRuleset } from './ruleset.js';
+
 function toGroupSet(groups) {
   if (!groups) return new Set();
   return groups instanceof Set ? groups : new Set(groups);
@@ -71,8 +74,10 @@ export function generationPoolWeight(kb, baseTags, ilvl, generation, occupiedGro
   return Math.max(total, 1);
 }
 
-/** Family key: flat vs % defences stay distinct (BaseLocalDefences ≠ only via groups). */
+/** Family key: prefer KB familyId (§35); else groups+text heuristics. */
 export function modLineKey(mod) {
+  if (mod.familyId) return mod.familyId;
+  if (mod.match?.familyId) return mod.match.familyId;
   const text = (mod.text ?? '').toLowerCase();
   const groups = [...(mod.groups ?? [])].sort().join('+');
   const isPct = /\bincreased\b/.test(text);
@@ -382,6 +387,91 @@ export function harvestPoolWeight(kb, baseTags, ilvl, generation, harvest, modMa
 }
 
 /**
+ * Currently eligible Harvest-tagged mods (state-dependent): groups, tags, ilvl, base weights.
+ * Occupied / blocked groups are removed. Used to discover pool collapse (not hardcoded 100%).
+ */
+export function harvestEligiblePool(kb, baseTags, ilvl, generation, harvest, modMatchesHarvest, occupiedGroups = []) {
+  const ban = toGroupSet(occupiedGroups);
+  const rows = [];
+  for (const mod of spawnableMods(kb, baseTags)) {
+    if (mod.generation !== generation) continue;
+    if ((mod.required_level ?? 0) > ilvl) continue;
+    if (blockedByOccupied(mod, ban)) continue;
+    if (!modMatchesHarvest(mod, harvest)) continue;
+    const w = kb.weightOnTags(mod, baseTags);
+    if (!(w > 0)) continue;
+    rows.push({
+      id: mod.id,
+      name: mod.name,
+      text: (mod.text ?? '').split('\n')[0],
+      weight: w,
+      groups: mod.groups ?? [],
+      tags: mod.tags ?? [],
+      required_level: mod.required_level ?? 0,
+    });
+  }
+  rows.sort((a, b) => b.weight - a.weight || (b.required_level ?? 0) - (a.required_level ?? 0));
+  const total = rows.reduce((s, r) => s + r.weight, 0);
+  return { total, rows };
+}
+
+/**
+ * Currently eligible mods for a mechanical state. Occupied groups, ilvl, tags, cannot-roll.
+ * `desired` is not an input — optimizer-only.
+ */
+export function getEligibleMods(kb, state, opts = {}) {
+  const generation = opts.generation;
+  const requiredTags = (opts.requiredTags ?? []).map((t) => String(t).toLowerCase().replace(/\s+/g, '_'));
+  const forbiddenTags = (opts.forbiddenTags ?? []).map((t) => String(t).toLowerCase().replace(/\s+/g, '_'));
+  const method = opts.method ?? 'natural';
+  const rules = opts.rules ?? getRuleset();
+  const baseTags = state?.baseTags ?? opts.baseTags ?? [];
+  const ilvl = state?.itemLevel ?? opts.ilvl ?? 1;
+  const occupied = toGroupSet(
+    opts.occupiedGroups ?? collectOccupiedGroups([...(state?.prefixes ?? []), ...(state?.suffixes ?? [])])
+  );
+  if (harvestRespectsCannotRoll(rules) && (method === 'harvest' || method === 'harvest-reforge')) {
+    for (const m of state?.metacrafts ?? []) {
+      const s = String(m).toLowerCase();
+      if (s.includes('cannot roll attack')) forbiddenTags.push('attack');
+      if (s.includes('cannot roll caster')) forbiddenTags.push('caster');
+    }
+  }
+  const rows = [];
+  for (const mod of spawnableMods(kb, baseTags)) {
+    if (generation && mod.generation !== generation) continue;
+    if ((mod.required_level ?? 0) > ilvl) continue;
+    if (blockedByOccupied(mod, occupied)) continue;
+    const tags = (mod.tags ?? []).map((t) => String(t).toLowerCase().replace(/\s+/g, '_'));
+    if (requiredTags.length && !requiredTags.some((t) => tags.includes(t))) continue;
+    if (forbiddenTags.some((t) => tags.includes(t))) continue;
+    const w = kb.weightOnTags?.(mod, baseTags) ?? 0;
+    if (!(w > 0)) continue;
+    rows.push({
+      id: mod.id,
+      name: mod.name,
+      text: (mod.text ?? '').split('\n')[0],
+      generation: mod.generation,
+      groups: mod.groups ?? [],
+      tags: mod.tags ?? [],
+      weight: w,
+      required_level: mod.required_level ?? 0,
+    });
+  }
+  rows.sort((a, b) => b.weight - a.weight || (b.required_level ?? 0) - (a.required_level ?? 0));
+  const total = rows.reduce((s, r) => s + r.weight, 0);
+  return { total, rows };
+}
+
+export function formatEligiblePool(pool, harvestName = 'Harvest', limit = 12) {
+  if (!pool?.rows?.length) return `Eligible ${harvestName} pool (current state): empty.`;
+  const show = pool.rows.slice(0, limit);
+  const more = pool.rows.length > limit ? `; +${pool.rows.length - limit} more` : '';
+  const lines = show.map((r) => `${r.text} ${r.weight}`).join('; ');
+  return `Eligible ${harvestName} pool (current state, weight ${pool.total}): ${lines}${more}.`;
+}
+
+/**
  * Odds that a harvest-forced tagged roll is this goal (tier+higher) among the harvest tag pool.
  * `occupiedGroups` excludes already-filled affix groups from the pool.
  */
@@ -451,7 +541,7 @@ export function essenceFishExpected(kb, baseTags, ilvl, generation, goalMods, ex
     goals,
     zeroWeight: goals.filter((g) => !(g.hitWeight > 0)),
     pAll: goals.length && positive.length < goals.length ? 0 : Math.max(pAll, 1e-15),
-    expected: goals.length && positive.length < goals.length ? 5000 : Math.ceil(1 / Math.max(pAll, 1e-15)),
+    expected: goals.length && positive.length < goals.length ? 5000 : expectedAttempts(pAll, 5000),
     weightSummary: formatGoalsWeights(goals),
   };
 }
@@ -474,22 +564,28 @@ export function combineEssenceFishParts(parts) {
     zeroWeight,
     parts: list,
     pAll: impossible ? 0 : Math.max(pAll, 1e-15),
-    expected: impossible ? 5000 : Math.ceil(1 / Math.max(pAll, 1e-15)),
+    expected: impossible ? 5000 : expectedAttempts(pAll, 5000),
     weightSummary: formatGoalsWeights(goals),
   };
 }
 
-/** Fish goals grouped by generation, each against its own pool. */
+/** Fish goals grouped by generation, each against its own pool.
+ * `extraRolls` may be a number or `{ prefix, suffix }` from affix-count distributions.
+ */
 export function multiGenEssenceFishExpected(kb, baseTags, ilvl, goalMods, extraRolls = 2, occupiedGroups = []) {
   const byGen = { prefix: [], suffix: [] };
   for (const g of goalMods ?? []) {
     const gen = g.gen ?? g.match?.generation;
     if (gen === 'prefix' || gen === 'suffix') byGen[gen].push(g);
   }
+  const rollsOf = (gen) =>
+    typeof extraRolls === 'object' && extraRolls
+      ? Number(extraRolls[gen] ?? 2)
+      : Number(extraRolls ?? 2);
   const parts = [];
   for (const gen of ['prefix', 'suffix']) {
     if (!byGen[gen].length) continue;
-    parts.push(essenceFishExpected(kb, baseTags, ilvl, gen, byGen[gen], extraRolls, occupiedGroups));
+    parts.push(essenceFishExpected(kb, baseTags, ilvl, gen, byGen[gen], rollsOf(gen), occupiedGroups));
   }
   return combineEssenceFishParts(parts);
 }
@@ -499,10 +595,10 @@ export function altExpected(kb, baseTags, ilvl, goal, occupiedGroups = []) {
   const gen = goal.gen ?? goal.match?.generation ?? 'prefix';
   const pool = generationPoolWeight(kb, baseTags, ilvl, gen, occupiedGroups);
   const o = goalOdds(kb, baseTags, ilvl, goal, pool, gen);
-  const expected = Math.max(1, Math.ceil(1 / Math.max(o.pRoll, 1e-12)));
+  const expected = expectedAttempts(o.pRoll, 5000);
   return {
     ...o,
-    expected: Math.min(expected, 5000),
+    expected: Number.isFinite(expected) ? expected : 5000,
     weightSummary: formatWeight(o.hitWeight, o.poolWeight),
   };
 }
@@ -527,10 +623,10 @@ export function exaltExpected(kb, baseTags, ilvl, goal, occupiedGroups = []) {
   const gen = goal.gen ?? goal.match?.generation ?? 'prefix';
   const pool = generationPoolWeight(kb, baseTags, ilvl, gen, occupiedGroups);
   const o = goalOdds(kb, baseTags, ilvl, goal, pool, gen);
-  const expected = Math.max(1, Math.ceil(1 / Math.max(o.pRoll, 1e-12)));
+  const expected = expectedAttempts(o.pRoll, 5000);
   return {
     ...o,
-    expected: Math.min(expected, 5000),
+    expected: Number.isFinite(expected) ? expected : 5000,
     weightSummary: formatWeight(o.hitWeight, o.poolWeight),
   };
 }
@@ -581,7 +677,7 @@ export function influenceSlamExpected(kb, baseTags, ilvl, goal, influence, occup
     if (w > 0) hitWeight += w;
   }
   const pRoll = hitWeight > 0 ? hitWeight / pool : 0;
-  const expected = Math.min(Math.max(1, Math.ceil(1 / Math.max(pRoll, 1e-12))), 500);
+  const expected = expectedAttempts(pRoll, 500);
   return {
     hitWeight,
     poolWeight: pool,
@@ -661,23 +757,21 @@ export function unveilExpected(kb, baseTags, ilvl, goal, occupiedGroups = [], ch
   let p = 0;
   let pRoll = 0;
   let approx = false;
+  let unknown = false;
   if (hitWeight > 0 && poolWeight > 0) {
     p = hitWeight / poolWeight;
     pRoll = weightedHitInChoices(outcomes, hitKey, choices);
   } else {
-    // Unknown exact row: uniform p = 1/N, then 3 independent rolls.
-    const n = Math.max(poolSize, 15);
-    p = 1 / n;
-    pRoll = 1 - (1 - p) ** choices;
+    unknown = true;
     approx = true;
   }
 
-  const expected = Math.min(Math.max(1, Math.ceil(1 / Math.max(pRoll, 1e-12))), 200);
-  const anyPct = (pRoll * 100).toFixed(pRoll >= 0.1 ? 1 : 2);
-  const frac = approx
-    ? `1/${Math.max(poolSize, 15)}`
-    : `${hitWeight}/${poolWeight}`;
-  const weightSummary = `${choices}× (${frac}) → ~${anyPct}%/unveil (~${expected} expected)`;
+  const expected = unknown ? Infinity : expectedAttempts(pRoll, 200);
+  const anyPct = unknown ? '?' : (pRoll * 100).toFixed(pRoll >= 0.1 ? 1 : 2);
+  const frac = unknown ? 'unranked' : `${hitWeight}/${poolWeight}`;
+  const weightSummary = unknown
+    ? `unveil probability unknown — unranked`
+    : `${choices}× (${frac}) → ~${anyPct}%/unveil (~${expected} expected)`;
 
   return {
     pRoll,
@@ -688,6 +782,7 @@ export function unveilExpected(kb, baseTags, ilvl, goal, occupiedGroups = [], ch
     choices,
     expected,
     approx,
+    unknown,
     weightSummary,
     weightLine: weightSummary,
   };

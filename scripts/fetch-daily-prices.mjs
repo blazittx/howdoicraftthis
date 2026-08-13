@@ -55,6 +55,8 @@ const CURRENCY_MAP = {
   'vivid-crystallised-lifeforce': 'vivid-lifeforce',
   'primal-crystallised-lifeforce': 'primal-lifeforce',
   'sacred-crystallised-lifeforce': 'sacred-lifeforce',
+  gold: 'gold',
+  'thaumaturgic-dust': 'thaumaturgic-dust',
 };
 
 const STASH_NAME_MAP = {
@@ -64,6 +66,8 @@ const STASH_NAME_MAP = {
   'Vivid Crystallised Lifeforce': 'vivid-lifeforce',
   'Primal Crystallised Lifeforce': 'primal-lifeforce',
   'Sacred Crystallised Lifeforce': 'sacred-lifeforce',
+  Gold: 'gold',
+  'Thaumaturgic Dust': 'thaumaturgic-dust',
 };
 
 const FOSSIL_MAP = {

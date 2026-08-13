@@ -1,0 +1,53 @@
+=== howdoicraftthis test suite ===
+KB loaded
+OK: parser tests passed
+PASS  parser (7ms)
+OK: knowledge consistency tests passed
+PASS  knowledge (25ms)
+OK: weights tests passed
+PASS  weights (73ms)
+OK: mechanics tests passed
+PASS  mechanics (29ms)
+OK: harvest tests passed
+PASS  harvest (8ms)
+OK: essence tests passed
+PASS  essence (7ms)
+OK: fossils tests passed
+PASS  fossils (204ms)
+OK: unveil tests passed
+PASS  unveil (2ms)
+OK: eldritch tests passed
+PASS  eldritch (5ms)
+OK: recombinator tests passed
+PASS  recombinator (40ms)
+OK: optimizer tests passed
+PASS  optimizer (25ms)
+OK: sanity / ╬úp=1 tests passed
+PASS  sanity (6ms)
+OK: monte carlo tests passed (n=100000; set MC_TRIALS=1000000 for 1M)
+PASS  monteCarlo (19ms)
+OK: regression invariant tests passed
+PASS  regression (6ms)
+OK: benchmarks passed
+  - kinetic-wand: Fracture buy ÔåÆ Zeal ÔåÆ Harvest ÔåÆ Unveil ÔåÆ Bench (5 steps, high-variance, cost=4847.1)
+  - triple-es-regalia: Fracture 42% increased Energy Shield  ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench (4 steps, high-variance, cost=3240.91)
+  - five-mod-amulet: Fracture +48% to Lightning Resistance (5 steps, high-variance, cost=87159.03)
+PASS  benchmarks (3420ms)
+---
+passed=15 skipped=0 failed=0 elapsed=4146ms
+  [PASS] parser
+  [PASS] knowledge
+  [PASS] weights
+  [PASS] mechanics
+  [PASS] harvest
+  [PASS] essence
+  [PASS] fossils
+  [PASS] unveil
+  [PASS] eldritch
+  [PASS] recombinator
+  [PASS] optimizer
+  [PASS] sanity
+  [PASS] monteCarlo
+  [PASS] regression
+  [PASS] benchmarks
+EXIT:0

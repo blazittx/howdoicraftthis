@@ -1,0 +1,30 @@
+{
+  "version": "3.28",
+  "league": "3.28",
+  "notes": "Inherits 3.27 harvest cannot-roll behaviour.",
+  "harvest": {
+    "guaranteedReforgeRespectsCannotRoll": true,
+    "since": "3.27",
+    "cannotRollTags": {
+      "cannot-roll-attack": ["attack"],
+      "cannot-roll-caster": ["caster"]
+    }
+  },
+  "recombinator": {
+    "exclusivePenalty": true,
+    "cannotIncreaseFractured": true,
+    "ev": "experimental"
+  },
+  "veiledExalted": {
+    "removesOneAddsOne": true
+  },
+  "annul": {
+    "uniformAmongRemovable": true,
+    "respectsFractured": true
+  },
+  "eldritch": {
+    "chaosSideFromDominance": true,
+    "exarch": "prefix",
+    "eater": "suffix"
+  }
+}

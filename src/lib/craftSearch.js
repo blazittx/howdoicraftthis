@@ -1,3 +1,7 @@
+/**
+ * @deprecated §64 — legacy dual recipe/probability path. Production uses planner/optimizer + V(S).
+ * Do not import for new code. Kept only for static regression scans.
+ */
 import {
   METACRAFT,
   DEFAULT_PRICES,
@@ -12,6 +16,7 @@ import {
   modMatchesHarvest,
 } from './craftKnowledge.js';
 import { getPoolWeights } from './modMatcher.js';
+import { expectedAttempts, formatAttemptsDisplay } from './expected.js';
 
 function short(mod) {
   return String(mod.text ?? '')
@@ -61,25 +66,13 @@ function buyBaseStep(enriched, minIlvl, drivers) {
   };
 }
 
-function guessEssenceName(mod, enriched) {
-  const text = mod.text ?? '';
-  const cls = (enriched.itemClass ?? '') + (enriched.baseName ?? '');
-  if (/attack speed/i.test(text)) return 'Deafening Essence of Zeal';
-  if (/cast speed/i.test(text)) return 'Deafening Essence of Zeal';
-  if (/to Strength/i.test(text)) return 'Deafening Essence of Rage';
-  if (/to maximum Life/i.test(text)) return 'Deafening Essence of Greed';
-  if (/Fire Resistance/i.test(text)) return 'Deafening Essence of Anger';
-  if (/Energy Shield/i.test(text)) return 'Deafening Essence of Misery';
-  return 'Deafening Essence';
-}
-
-/** Alt until one target mod on magic, with expected attempts from weights. */
 function altForMod(index, enriched, mod) {
   const tags = enriched.tags;
   const ilvl = enriched.itemLevel ?? 83;
   const pool = getPoolWeights(index, tags, ilvl, enriched.influenced ?? []);
   const w = mod.meta?.weight || 100;
-  const rolls = Math.ceil(pool.total / w);
+  const p = pool.total > 0 ? w / pool.total : 0;
+  const rolls = expectedAttempts(p);
   return {
     operator: 'altSpam',
     currency: 'alteration',
@@ -188,13 +181,19 @@ function recipeFractureEssenceHarvest(enriched, index, minIlvl, drivers) {
   if (primary) {
     parts.push('Essence');
     lockSide = genOf(primary) === 'prefix' ? 'prefix' : 'suffix';
-    const name = primary.meta?.essences?.[0]?.name || guessEssenceName(primary, enriched);
+    const name = primary.meta?.essences?.[0]?.name;
+    if (!name) return null;
     const key = essencePriceKey(name);
     const sameSide = natural.filter(
       (m) => genOf(m) === genOf(primary) && m !== primary && !veiledMods.includes(m)
     );
     const harvestHit = findHarvestForMods(sameSide);
-    const attempts = 20;
+    const pFish = sameSide.reduce((acc, m) => {
+      const hit = m.hitWeight ?? m.meta?.weight ?? 0;
+      const pool = m.poolWeight ?? 1;
+      return acc * (hit > 0 ? hit / pool : 1);
+    }, 1);
+    const attempts = sameSide.length ? expectedAttempts(pFish) : 1;
     mergeCost(costs, { [key]: attempts });
     steps.push({
       operator: 'essenceSpam',
@@ -208,7 +207,7 @@ function recipeFractureEssenceHarvest(enriched, index, minIlvl, drivers) {
         genOf(primary) === 'suffix'
           ? 'No unwanted prefixes (fractured prefixes OK).'
           : 'No unwanted suffixes.',
-        `~${attempts} essences expected.`,
+        `~${formatAttemptsDisplay(attempts)} essences expected.`,
       ].join(' '),
       targetMods: [short(primary), ...(harvestHit?.matched.map(short) ?? [])],
       cost: { [key]: attempts },
@@ -227,7 +226,7 @@ function recipeFractureEssenceHarvest(enriched, index, minIlvl, drivers) {
     const target = findVeiledTarget(vm);
     const meta = lockSide === 'suffix' ? METACRAFT.suffixesCannotBeChanged : METACRAFT.prefixesCannotBeChanged;
     const odds = target?.unveilOdds ?? 1 - (14 / 15) ** 3;
-    const unveils = Math.ceil(1 / odds);
+    const unveils = expectedAttempts(odds);
     // Metacraft locks the finished side → Veiled Chaos reforges the open side (standard).
     const c = { divine: meta.cost.divine * unveils, 'veiled-chaos': unveils };
     mergeCost(costs, c);
@@ -554,8 +553,8 @@ function recipeHonestExalt(enriched, index, minIlvl, drivers) {
 }
 
 /**
- * Run all recipe generators, sort by expected chaos cost, return best + alternatives.
- * Yields to event loop between recipes so UI can show "searching…".
+ * Heuristic recipe generators (fixtures / macros). Not the ranked planner —
+ * generateCraftSteps uses deterministicPlanner + V(state).
  */
 export async function searchCraftPlans(enriched, index, onProgress) {
   const allMods = [

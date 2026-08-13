@@ -1,0 +1,30 @@
+{
+  "version": "3.26",
+  "league": "3.26",
+  "notes": "Pre-3.27: guaranteed Harvest reforges do NOT respect Cannot Roll Attack/Caster.",
+  "harvest": {
+    "guaranteedReforgeRespectsCannotRoll": false,
+    "since": null,
+    "cannotRollTags": {
+      "cannot-roll-attack": ["attack"],
+      "cannot-roll-caster": ["caster"]
+    }
+  },
+  "recombinator": {
+    "exclusivePenalty": true,
+    "cannotIncreaseFractured": true,
+    "ev": "experimental"
+  },
+  "veiledExalted": {
+    "removesOneAddsOne": true
+  },
+  "annul": {
+    "uniformAmongRemovable": true,
+    "respectsFractured": true
+  },
+  "eldritch": {
+    "chaosSideFromDominance": true,
+    "exarch": "prefix",
+    "eater": "suffix"
+  }
+}

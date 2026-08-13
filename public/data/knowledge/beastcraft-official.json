@@ -1,0 +1,61 @@
+{
+  "source": "PoE Wiki Bestiary / Maxroll Beastcrafting / PoEDB",
+  "built_for": "poe1",
+  "note": "Curated beast recipes used by mechanics. Metamods Prefixes/Suffixes Cannot Be Changed apply to which side can be removed/added.",
+  "recipes": [
+    {
+      "id": "add-prefix-remove-suffix",
+      "name": "Add a Prefix, Remove a Random Suffix",
+      "beast": "Farric Wolf Alpha",
+      "kind": "add-prefix-remove-suffix",
+      "requires": {
+        "rarity": "Rare",
+        "openPrefix": true
+      },
+      "components": ["Farric Wolf Alpha", "any-rare", "any-rare", "any-rare"],
+      "respectsMetamods": true,
+      "notes": "Fails/blocked if no open prefix or suffixes locked by SCBC with no removable suffix."
+    },
+    {
+      "id": "add-suffix-remove-prefix",
+      "name": "Add a Suffix, Remove a Random Prefix",
+      "beast": "Farric Lynx Alpha",
+      "kind": "add-suffix-remove-prefix",
+      "requires": {
+        "rarity": "Rare",
+        "openSuffix": true
+      },
+      "components": ["Farric Lynx Alpha", "any-rare", "any-rare", "any-rare"],
+      "respectsMetamods": true
+    },
+    {
+      "id": "split-two",
+      "name": "Split into Two (half the mods each)",
+      "beast": "Fenumal Plagued Arachnid",
+      "kind": "split",
+      "parts": 2,
+      "requires": {
+        "rarity": "Rare",
+        "notSplit": true,
+        "notInfluenced": true
+      },
+      "components": ["Fenumal Plagued Arachnid", "any-rare", "any-rare", "any-rare"],
+      "notes": "Applies Split flag — cannot split again. Influenced items ineligible."
+    },
+    {
+      "id": "split-three",
+      "name": "Split into Three (two mods each)",
+      "beast": "Fenumal Plagued Arachnid + The Black Mórrígan",
+      "kind": "split",
+      "parts": 3,
+      "requires": {
+        "rarity": "Rare",
+        "exactModCount": 6,
+        "notSplit": true,
+        "notInfluenced": true
+      },
+      "components": ["Fenumal Plagued Arachnid", "The Black Mórrígan"],
+      "notes": "Input must have exactly 6 explicits."
+    }
+  ]
+}

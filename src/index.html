@@ -93,15 +93,31 @@
       ></textarea>
 
       <section id="results" class="results hidden">
+        <div id="price-stale-banner" class="price-stale-banner hidden" role="status"></div>
         <div id="item-summary" class="item-summary"></div>
+        <div id="plan-meta" class="plan-meta hidden"></div>
+
+        <div class="plan-options" id="plan-options">
+          <label class="plan-opt" title="Keep fracture / essence / veiled source flags when replanning">
+            <input type="checkbox" id="opt-preserve-special" checked />
+            <span>Preserve special sources</span>
+          </label>
+          <label class="plan-opt" title="Show solver state, Q values, prune reasons when the planner provides them">
+            <input type="checkbox" id="opt-solver-debug" />
+            <span>Solver debug</span>
+          </label>
+        </div>
 
         <div class="plan-block">
           <div class="section-label">Steps</div>
           <div id="steps-container" class="steps-container"></div>
         </div>
 
+        <div id="stages-panel" class="stages-panel hidden"></div>
         <div id="cost-panel" class="cost-panel hidden"></div>
         <div id="alternatives-panel" class="alternatives-panel hidden"></div>
+        <div id="rejected-panel" class="rejected-panel hidden"></div>
+        <div id="solver-debug-panel" class="solver-debug-panel hidden"></div>
         <div id="tips-container" class="tips-container"></div>
 
         <div class="results-toolbar">

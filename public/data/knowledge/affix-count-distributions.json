@@ -1,0 +1,77 @@
+{
+  "source": "PoE Wiki / community crafting tables. Approximate historical distributions — not invented item recipes.",
+  "built_for": "poe1",
+  "note": "P(prefixCount, suffixCount) or total-affix mass for methods that reforge whole rares. Σp ≈ 1 per method.",
+  "methods": {
+    "alchemy": {
+      "description": "Orb of Alchemy on Normal → Rare",
+      "byTotal": [
+        { "n": 4, "p": 0.5 },
+        { "n": 5, "p": 0.33 },
+        { "n": 6, "p": 0.17 }
+      ]
+    },
+    "chaos": {
+      "description": "Chaos Orb reforge Rare",
+      "byTotal": [
+        { "n": 4, "p": 0.5 },
+        { "n": 5, "p": 0.33 },
+        { "n": 6, "p": 0.17 }
+      ]
+    },
+    "veiled-chaos": {
+      "description": "Veiled Chaos Orb — rare reforge including a veiled mod",
+      "byTotal": [
+        { "n": 4, "p": 0.5 },
+        { "n": 5, "p": 0.33 },
+        { "n": 6, "p": 0.17 }
+      ],
+      "guaranteesVeiled": true
+    },
+    "harvest-reforge": {
+      "description": "Harvest reforge including tag (unlocked side or full)",
+      "byTotal": [
+        { "n": 4, "p": 0.5 },
+        { "n": 5, "p": 0.33 },
+        { "n": 6, "p": 0.17 }
+      ]
+    },
+    "fossil": {
+      "description": "Resonator fossil craft — affix count from socket count + resonator rules",
+      "bySockets": {
+        "1": [{ "n": 4, "p": 0.5 }, { "n": 5, "p": 0.33 }, { "n": 6, "p": 0.17 }],
+        "2": [{ "n": 4, "p": 0.5 }, { "n": 5, "p": 0.33 }, { "n": 6, "p": 0.17 }],
+        "3": [{ "n": 4, "p": 0.4 }, { "n": 5, "p": 0.4 }, { "n": 6, "p": 0.2 }],
+        "4": [{ "n": 4, "p": 0.35 }, { "n": 5, "p": 0.4 }, { "n": 6, "p": 0.25 }]
+      }
+    },
+    "essence": {
+      "description": "Essence → Rare with guaranteed mod; remaining rolls use natural rare distribution minus 1",
+      "byTotal": [
+        { "n": 4, "p": 0.5 },
+        { "n": 5, "p": 0.33 },
+        { "n": 6, "p": 0.17 }
+      ],
+      "guaranteedMods": 1
+    },
+    "exalt": {
+      "description": "Exalted Orb adds exactly one affix",
+      "added": 1
+    },
+    "regal": {
+      "description": "Regal Orb Magic → Rare adds exactly one affix",
+      "added": 1
+    },
+    "alteration": {
+      "description": "Orb of Alteration on Magic — 1 prefix + 1 suffix or single affix",
+      "magic": [
+        { "prefixes": 1, "suffixes": 0, "p": 0.5 },
+        { "prefixes": 0, "suffixes": 1, "p": 0.5 }
+      ]
+    },
+    "aug": {
+      "description": "Orb of Augmentation adds the missing Magic side",
+      "added": 1
+    }
+  }
+}

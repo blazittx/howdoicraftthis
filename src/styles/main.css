@@ -1193,6 +1193,9 @@ button:disabled {
 .step-card.step-done .step-detail,
 .step-card.step-done .step-weights,
 .step-card.step-done .step-cost,
+.step-card.step-done .step-risk,
+.step-card.step-done .raw-cost-formula,
+.step-card.step-done .step-pool,
 .step-card.step-done .step-num {
   color: var(--text-muted, #8a8a8a);
 }
@@ -1300,6 +1303,37 @@ button:disabled {
   color: #ff9f7a;
 }
 
+.step-card.step-donor {
+  border-left: 2px solid color-mix(in srgb, var(--gold) 45%, transparent);
+}
+
+.step-card.step-recomb {
+  border-left: 2px solid color-mix(in srgb, var(--accent, #6fcf97) 55%, transparent);
+}
+
+.step-fallbacks {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.method-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.mc-row {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.mc-row.mc-win {
+  color: var(--gold);
+}
+
 .cost-panel {
   padding: 1rem 0 1.25rem;
   margin-bottom: 1.25rem;
@@ -1307,6 +1341,256 @@ button:disabled {
   border-bottom: 1px solid transparent;
   background: none;
   border-radius: 0;
+}
+
+.price-stale-banner {
+  margin: 0 0 1rem;
+  padding: 0.55rem 0.75rem;
+  border-left: 3px solid var(--gold);
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.price-stale-banner strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.plan-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  margin: 0 0 0.85rem;
+}
+
+.plan-meta-chip {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.plan-meta-chip + .plan-meta-chip::before {
+  content: '·';
+  margin-right: 0.55rem;
+  color: var(--border);
+}
+
+.plan-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1.1rem;
+  margin: 0 0 1rem;
+}
+
+.plan-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+}
+
+.plan-opt input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--gold);
+}
+
+.step-risk {
+  margin: 0.2rem 0 0.35rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.raw-cost-formula {
+  margin: 0.15rem 0 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-family: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
+  overflow-wrap: anywhere;
+}
+
+.raw-cost-label {
+  display: inline-block;
+  margin-right: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.step-pool {
+  margin: 0.45rem 0 0.15rem;
+  font-size: 0.8rem;
+}
+
+.step-pool summary {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-weight: 500;
+  list-style: none;
+}
+
+.step-pool summary::-webkit-details-marker {
+  display: none;
+}
+
+.step-pool summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.3rem;
+  transition: transform 0.12s ease;
+}
+
+.step-pool[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.pool-meta {
+  margin-left: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.pool-list {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  max-height: 12rem;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pool-list li {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr;
+  gap: 0.35rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.pool-w {
+  font-variant-numeric: tabular-nums;
+  color: var(--gold-dim);
+  font-weight: 600;
+}
+
+.pool-more {
+  grid-template-columns: 1fr !important;
+  font-style: italic;
+}
+
+.stages-panel,
+.rejected-panel,
+.solver-debug-panel {
+  margin-bottom: 1.25rem;
+}
+
+.stages-panel h4,
+.rejected-panel h4,
+.solver-debug-panel h4 {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.stage-list,
+.rejected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.stage-item,
+.rejected-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.1rem 1rem;
+  font-size: 0.86rem;
+}
+
+.stage-name,
+.rejected-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stage-summary,
+.rejected-why {
+  grid-column: 1;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.rejected-cost {
+  grid-row: span 2;
+  align-self: center;
+  color: var(--text-dim);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.debug-block {
+  margin-bottom: 0.75rem;
+}
+
+.debug-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.debug-pre {
+  margin: 0;
+  padding: 0.5rem 0.6rem;
+  max-height: 14rem;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--text-dim);
+  background: color-mix(in srgb, var(--surface, #1a1a1a) 80%, transparent);
+  border: 1px solid var(--border);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.debug-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.debug-missing {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.cost-item--nontradable .cost-chaos {
+  font-size: 0.78rem;
+  color: var(--text-dim);
 }
 
 .app.has-item .cost-panel {
@@ -1679,6 +1963,34 @@ button:disabled {
   .alt-cost {
     grid-row: auto;
     align-self: start;
+  }
+
+  .stage-item,
+  .rejected-item {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .rejected-cost {
+    grid-row: auto;
+    align-self: start;
+  }
+
+  .plan-options {
+    gap: 0.65rem 0.85rem;
+  }
+
+  .plan-opt {
+    min-height: 2rem;
+  }
+
+  .pool-list {
+    max-height: 10rem;
+  }
+
+  .debug-pre {
+    max-height: 10rem;
+    font-size: 0.68rem;
   }
 
   .step-weights {

@@ -4,6 +4,7 @@
  * Also attaches daily prices from /data/prices/daily.json (if present).
  */
 import { loadDailyPrices, pricesFetchTip } from './prices.js';
+import { applyOfficialHarvestCosts } from './craftKnowledge.js';
 
 let kbPromise = null;
 
@@ -25,10 +26,17 @@ const FILES = [
   'crafting-bench.json',
   'base-items.json',
   'harvest-reforge-official.json',
+  'harvest-menu-official.json',
+  'beastcraft-official.json',
+  'affix-count-distributions.json',
+  'operators-preconditions.json',
   'metacrafts-official.json',
   'cannot-roll-official.json',
   'craft-operators-official.json',
+  'operators.json',
+  'recombinators-official.json',
   'coverage.json',
+  'manifest.json',
 ];
 
 /** Synthetic base tags encoding cannot-roll constraints for weightOnTags. */
@@ -54,6 +62,15 @@ async function fetchJson(path) {
   if (!r.ok) {
     // New category dumps may be absent until `npm run build:knowledge`
     if (/mods-(jewels|flasks|remainder)\.json$/.test(path)) return { count: 0, mods: [] };
+    if (
+      /harvest-menu-official|beastcraft-official|affix-count-distributions|operators-preconditions|operators\.json|manifest\.json/.test(
+        path
+      )
+    ) {
+      return path === 'manifest.json'
+        ? null
+        : { crafts: [], recipes: [], methods: {}, operators: [], sourceCompatibility: {}, count: 0 };
+    }
     throw new Error(`Knowledge base missing ${path}. Run: npm run build:knowledge`);
   }
   return r.json();
@@ -350,6 +367,7 @@ export async function loadKnowledgeBase() {
         essencesByModId.get(modId).push({ ...e, itemClass });
       }
     }
+    applyOfficialHarvestCosts(data['harvest-reforge-official.json']);
 
     const benchByModId = new Map();
     for (const opt of data['crafting-bench.json'].options ?? []) {
@@ -383,10 +401,30 @@ export async function loadKnowledgeBase() {
       benchByModId,
       basesByName,
       harvest: data['harvest-reforge-official.json'],
+      harvestMenu: data['harvest-menu-official.json'],
+      beastcraft: data['beastcraft-official.json'],
+      affixCounts: data['affix-count-distributions.json'],
+      preconditions: data['operators-preconditions.json'],
       metacrafts: data['metacrafts-official.json'].crafts ?? [],
       cannotRoll,
       operators: data['craft-operators-official.json'],
+      operatorsCanonical: data['operators.json'],
+      recombinator: data['recombinators-official.json'],
       coverage: data['coverage.json'],
+      manifest: data['manifest.json'],
+      dataVersion: data['manifest.json']?.dataVersion ?? data['coverage.json']?.dataVersion ?? data['coverage.json']?.built_at,
+      rulesetVersion: data['manifest.json']?.rulesetVersion ?? data['coverage.json']?.rulesetVersion ?? '3.29',
+      versionWarnings: (() => {
+        const warnings = [];
+        const expected = '3.29';
+        const repoeV = data['manifest.json']?.repoe?.gameVersion ?? data['coverage.json']?.repoe?.gameVersion;
+        if (!repoeV) {
+          warnings.push('RePoE snapshot game version not verified');
+        } else if (String(repoeV) !== expected) {
+          warnings.push(`RePoE data version ${repoeV} ≠ expected ${expected}`);
+        }
+        return warnings;
+      })(),
       prices: pricePack.prices,
       priceSnapshot: pricePack.snapshot,
       priceStatus: pricePack.status,
@@ -405,6 +443,7 @@ export async function loadKnowledgeBase() {
 
 /** For tests */
 export function loadKnowledgeBaseFrom(obj) {
+  applyOfficialHarvestCosts(obj?.harvest);
   kbPromise = Promise.resolve(obj);
   return kbPromise;
 }

@@ -6,7 +6,10 @@ import {
   effectiveBaseTags,
   resolveCannotRoll,
 } from './knowledgeLoader.js';
-import { planCraft, formatCostBreakdown } from './sideCompletionPlanner.js';
+import { planCraft } from './planner/optimizer.js';
+import { formatCostBreakdown } from './craftKnowledge.js';
+import { assemblePlan } from './planSchema.js';
+import { rulesetVersion } from './ruleset.js';
 
 export const CURRENCY = {
   transmute: { name: 'Orb of Transmutation', short: 'Transmute', color: '#7eb8da' },
@@ -41,6 +44,8 @@ export const CURRENCY = {
   'shaper-exalt': { name: "Shaper's Exalted Orb", short: "Shaper's Exalt", color: '#9b59b6' },
   'elder-exalt': { name: "Elder's Exalted Orb", short: "Elder's Exalt", color: '#8e44ad' },
   chaos: { name: 'Chaos Orb', short: 'Chaos', color: '#d4af37' },
+  gold: { name: 'Gold', short: 'Gold', color: '#c9a227' },
+  'thaumaturgic-dust': { name: 'Thaumaturgic Dust', short: 'Dust', color: '#6b9bd1' },
 };
 
 function styleCurrency(key) {
@@ -57,6 +62,10 @@ function styleCurrency(key) {
 }
 
 function toStep(raw) {
+  const attempts =
+    raw.attemptsExpected ??
+    raw.attempts ??
+    (raw.chance > 0 && raw.chance < 1 ? 1 / raw.chance : raw.chance >= 1 ? 1 : null);
   return {
     step: raw.step,
     currency: styleCurrency(raw.currency),
@@ -75,6 +84,19 @@ function toStep(raw) {
     progressDone: raw.progressDone,
     preferEnabled: raw.preferEnabled,
     fractureSave: raw.fractureSave,
+    stage: raw.stage,
+    fallbacks: raw.fallbacks,
+    recombMeta: raw.recombMeta,
+    recipe: raw.recipe ?? raw.miniPlan?.recipe ?? null,
+    eligiblePool: raw.eligiblePool,
+    eligiblePoolTotal: raw.eligiblePoolTotal,
+    attemptsExpected: attempts,
+    attempts,
+    riskyFailures: raw.riskyFailures ?? raw.risk?.riskyFailures ?? null,
+    restartProbability:
+      raw.restartProbability ?? raw.restartProb ?? raw.risk?.restartRequiredProbability ?? null,
+    risk: raw.risk ?? null,
+    rawCostFormula: raw.rawCostFormula ?? raw.costFormula ?? null,
   };
 }
 
@@ -94,29 +116,35 @@ export async function generateCraftSteps(item, onProgress, opts = {}) {
 
   if (item.rarity === 'Unique') {
     return {
-      method: 'unique',
-      methodName: 'Unique',
-      summary: 'Unique items are obtained from drops, divination cards, or chance — not crafted with this pipeline.',
+      ...assemblePlan(
+        {
+          method: 'unique',
+          methodName: 'Unique',
+          id: 'unique',
+          name: 'Unique',
+          steps: [
+            toStep({
+              step: 1,
+              currency: 'alchemy',
+              action: 'Obtain via drop or trade',
+              detail: 'Uniques are not target-craftable with standard rare crafting.',
+              targetMods: [],
+              cost: {},
+            }),
+          ],
+          costs: {},
+          costBreakdown: [],
+          totalCost: 0,
+          alternatives: [],
+          tips: ['Buy from trade unless you enjoy gambling chance orbs.'],
+        },
+        { kb, opts, unmatched: [], alternatives: [], methodName: 'Unique' }
+      ),
       artUrl,
       artFallbackUrl,
       artFlags,
       artGlow,
-      steps: [
-        toStep({
-          step: 1,
-          currency: 'alchemy',
-          action: 'Obtain via drop or trade',
-          detail: 'Uniques are not target-craftable with standard rare crafting.',
-          targetMods: [],
-          cost: {},
-        }),
-      ],
-      costs: {},
-      costBreakdown: [],
-      totalCost: 0,
-      alternatives: [],
       modAnalysis: [],
-      tips: ['Buy from trade unless you enjoy gambling chance orbs.'],
     };
   }
 
@@ -280,63 +308,104 @@ export async function generateCraftSteps(item, onProgress, opts = {}) {
     });
   }
 
+  const altMapped = (alternatives ?? []).map((a) => ({
+    id: a.id,
+    name: a.name,
+    description: a.description,
+    why: a.why ?? a.reason ?? a.description,
+    totalCost: a.unranked || unmatched.length ? null : a.totalCost,
+    unranked: !!(a.unranked || unmatched.length),
+    costBreakdown: a.costBreakdown ?? formatCostBreakdown(a.costs ?? {}, kb.prices),
+  }));
+
+  const assembled = assemblePlan(
+    {
+      ...best,
+      method: best.id,
+      methodName: best.name,
+      steps: best.steps.map(toStep),
+      costs: best.costs,
+      costBreakdown: best.costBreakdown ?? formatCostBreakdown(best.costs, kb.prices),
+      totalCost: unmatched.length ? null : best.totalCost,
+      alternatives: altMapped,
+      tips: best.tips,
+      methodComparison: best.methodComparison ?? null,
+      experimental: !!best.experimental,
+      validation: best.validation,
+      priceStatus: best.priceStatus ?? kb.priceStatus,
+      pricesTip: best.pricesTip ?? kb.pricesTip,
+      preferFractureAvailable: !!best.preferFractureAvailable,
+      preferFractureEnabled:
+        best.preferFractureEnabled == null ? opts.preferFracture !== false : best.preferFractureEnabled,
+      classified: (classified ?? []).map((m) => ({
+        text: m.text,
+        short: m.short,
+        gen: m.gen,
+        groups: m.groups ?? [],
+        familyId: m.match?.familyId ?? m.familyId ?? null,
+        method: m.method,
+        ofEssence: m.ofEssence,
+        crafted: m.crafted,
+        fractured: m.fractured,
+        veiled: m.veiled,
+        match: m.match?.id
+          ? { id: m.match.id, source: m.match.source ?? null, familyId: m.match.familyId ?? null }
+          : null,
+        hitWeight: m.hitWeight,
+        poolWeight: m.poolWeight,
+        reqLevel: m.reqLevel,
+        tags: m.tags,
+        harvests: m.harvests,
+        weight: m.weight,
+        tier: m.tier,
+        tierMode: opts.tierMode ?? 'atLeast',
+      })),
+    },
+    {
+      kb,
+      opts: {
+        ...opts,
+        tierMode: opts.tierMode ?? 'atLeast',
+        preserveSpecialSources: opts.preserveSpecialSources ?? true,
+        objective: opts.objective ?? opts.objectiveProfile ?? 'minChaos',
+        solverDebug: !!(opts.solverDebug || opts.debug),
+        debug: !!(opts.solverDebug || opts.debug),
+      },
+      unmatched,
+      alternatives: altMapped,
+      minIlvl,
+      methodName: best.name,
+    }
+  );
+
   return {
-    method: best.id,
-    methodName: best.name,
-    summary:
-      best.totalCost == null
-        ? `Deterministic plan: ${best.name} — cost unknown (min base ilvl ${minIlvl}). Run npm run fetch-prices.`
-        : `Deterministic plan: ${best.name} — ~${best.totalCost}c expected (min base ilvl ${minIlvl})`,
+    ...assembled,
     artUrl,
     artFallbackUrl,
     artFlags,
     artGlow,
-    steps: best.steps.map(toStep),
-    costs: best.costs,
-    costBreakdown: best.costBreakdown ?? formatCostBreakdown(best.costs, kb.prices),
-    totalCost: best.totalCost,
     minIlvl,
     ilvlDrivers: drivers,
     baseTags,
-    classified: (classified ?? []).map((m) => ({
-      text: m.text,
-      short: m.short,
-      gen: m.gen,
-      groups: m.groups ?? [],
-      method: m.method,
-      ofEssence: m.ofEssence,
-      crafted: m.crafted,
-      fractured: m.fractured,
-      veiled: m.veiled,
-      match: m.match?.id ? { id: m.match.id, source: m.match.source ?? null } : null,
-      hitWeight: m.hitWeight,
-      poolWeight: m.poolWeight,
-      reqLevel: m.reqLevel,
-      tags: m.tags,
-      harvests: m.harvests,
-      weight: m.weight,
-      tier: m.tier,
+    modAnalysis: modAnalysis.map((m) => ({
+      ...m,
+      unsupported: unmatched.some((u) => u.text === m.text),
+      tierMode: opts.tierMode ?? 'atLeast',
     })),
-    alternatives: (alternatives ?? []).map((a) => ({
-      id: a.id,
-      name: a.name,
-      description: a.description,
-      totalCost: a.totalCost,
-      costBreakdown: a.costBreakdown ?? formatCostBreakdown(a.costs ?? {}, kb.prices),
-    })),
-    modAnalysis,
-    priceStatus: best.priceStatus ?? kb.priceStatus,
-    pricesTip: best.pricesTip ?? kb.pricesTip,
     tips: [
       `Recommended base ilvl ${minIlvl}+ (from mod required_level in knowledge base${drivers?.[0] ? `: ${drivers[0].text}` : ''}).`,
       ...(best.tips ?? []).slice(0, 5),
-      ...(unmatched.length ? [`${unmatched.length} mod(s) not matched in knowledge base — those steps are approximate.`] : []),
+      ...(unmatched.length
+        ? [
+            `${unmatched.length} unsupported target modifier(s) — EV omitted (no guessed probabilities).`,
+          ]
+        : []),
+      ...(assembled.priceStaleness?.stale ? [assembled.priceStaleness.message] : []),
+      ...(assembled.versionAssertions?.warnings ?? []),
       ...(coverage?.missing_or_partial?.length
         ? [`KB gaps (not used): ${coverage.missing_or_partial.slice(0, 3).join('; ')}.`]
         : []),
     ],
-    preferFractureAvailable: !!best.preferFractureAvailable,
-    preferFractureEnabled:
-      best.preferFractureEnabled == null ? opts.preferFracture !== false : best.preferFractureEnabled,
+    rulesetVersion: assembled.rulesetVersion ?? rulesetVersion(),
   };
 }

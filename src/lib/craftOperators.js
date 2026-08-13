@@ -1,3 +1,4 @@
+import { expectedAttempts, formatAttemptsDisplay } from './expected.js';
 import {
   METACRAFT,
   essencePriceKey,
@@ -9,7 +10,7 @@ import { getPoolWeights } from './modMatcher.js';
 
 function expectedRolls(targetWeight, poolWeight) {
   if (!targetWeight || !poolWeight) return null;
-  return Math.max(1, Math.ceil(poolWeight / targetWeight));
+  return expectedAttempts(targetWeight / poolWeight);
 }
 
 function mergeCost(into, add) {
@@ -43,10 +44,10 @@ export function stepBuyFractured(baseName, ilvl, fracturedMods) {
   };
 }
 
-export function stepEssenceSpam(essenceName, guaranteedMod, secondaryGoals, cleanSide) {
+export function stepEssenceSpam(essenceName, guaranteedMod, secondaryGoals, cleanSide, expected) {
   const key = essencePriceKey(essenceName);
   const secondary = secondaryGoals.map(label);
-  const attempts = secondaryGoals.length ? 40 : 15;
+  const attempts = expected != null && Number.isFinite(expected) ? expected : null;
   return {
     operator: 'essenceSpam',
     currency: 'essence',
@@ -61,12 +62,14 @@ export function stepEssenceSpam(essenceName, guaranteedMod, secondaryGoals, clea
         : cleanSide === 'suffix'
           ? 'Make sure there are no unwanted suffixes.'
           : '',
-      `~${attempts} essences expected on average (rough).`,
+      attempts != null
+        ? `~${formatAttemptsDisplay(attempts)} essences expected (from spawn weights).`
+        : 'Expected attempts from spawn-weight EV (not a fixed count).',
     ]
       .filter(Boolean)
       .join(' '),
     targetMods: [label(guaranteedMod), ...secondary],
-    cost: { [key]: attempts },
+    cost: attempts != null ? { [key]: attempts } : { [key]: null },
   };
 }
 
@@ -80,9 +83,7 @@ export function stepHarvestWithMetacraft(lockSide, harvest, targetMods) {
     detail: [
       `Craft "${meta.name}" (${meta.cost.divine} Divine), then use Harvest: ${harvest.detail}.`,
       `This reforges the unlocked side while protecting locked mods. Go for T1/T2 on: ${targetMods.map(label).join(', ')}.`,
-      targetMods.length >= 2
-        ? 'With a Critical reforge and suffixes locked, hitting crit chance or multi in-tier is effectively guaranteed each craft — repeat until both desired crit mods are present (re-apply metacraft each time).'
-        : 'Repeat until the target hits; re-apply metacraft after each reforge.',
+      'Repeat until the target hits; re-apply metacraft after each reforge. Odds come from the current eligible harvest pool (occupied groups removed) — not a hardcoded guarantee.',
     ].join(' '),
     targetMods: targetMods.map(label),
     cost: {
@@ -100,7 +101,7 @@ export function stepHarvestWithMetacraft(lockSide, harvest, targetMods) {
 export function stepVeiledWithMetacraft(lockSide, veiledTarget, mod, { useChaos = true } = {}) {
   const meta = lockSide === 'suffix' ? METACRAFT.suffixesCannotBeChanged : METACRAFT.prefixesCannotBeChanged;
   const odds = veiledTarget?.unveilOdds ?? 1 - (14 / 15) ** 3;
-  const unveils = Math.ceil(1 / odds);
+  const unveils = expectedAttempts(odds);
   const orbName = useChaos ? 'Veiled Chaos' : 'Veiled Exalt';
   const orbKey = useChaos ? 'veiled-chaos' : 'veiled';
   return {
@@ -184,8 +185,8 @@ export function planAltRegalExalt(enriched, index) {
   if (essenceMod?.meta?.essences?.length) {
     const ess = essenceMod.meta.essences[0];
     const key = essencePriceKey(ess.name);
-    mergeCost(costs, { [key]: 25 });
-    steps.push(stepEssenceSpam(ess.name, essenceMod, [], null));
+    steps.push(stepEssenceSpam(ess.name, essenceMod, [], null, 1));
+    mergeCost(costs, { [key]: 1 });
   } else {
     mergeCost(costs, { transmute: 1, alteration: 80 });
     steps.push({

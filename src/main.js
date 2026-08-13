@@ -32,10 +32,17 @@ const errorEl = document.getElementById('error');
 const itemSummary = document.getElementById('item-summary');
 const costPanel = document.getElementById('cost-panel');
 const alternativesPanel = document.getElementById('alternatives-panel');
+const rejectedPanel = document.getElementById('rejected-panel');
+const stagesPanel = document.getElementById('stages-panel');
+const solverDebugPanel = document.getElementById('solver-debug-panel');
+const planMetaEl = document.getElementById('plan-meta');
+const priceStaleBanner = document.getElementById('price-stale-banner');
 const stepsContainer = document.getElementById('steps-container');
 const tipsContainer = document.getElementById('tips-container');
 const exportBtn = document.getElementById('export-btn');
 const exportStatus = document.getElementById('export-status');
+const optPreserveSpecial = document.getElementById('opt-preserve-special');
+const optSolverDebug = document.getElementById('opt-solver-debug');
 
 const tabPaste = document.getElementById('tab-paste');
 const tabBuild = document.getElementById('tab-build');
@@ -63,6 +70,10 @@ let lastExport = null;
 let hitKeys = new Set();
 /** Prefer fractured base when plan offers preferFracture (default on). */
 let preferFractureEnabled = true;
+/** §78 — keep fracture/essence/veiled source properties when replanning. */
+let preserveSpecialEnabled = true;
+/** §52–55 — show solver-debug panel when plan provides debug fields. */
+let solverDebugEnabled = false;
 let analyzing = false;
 
 /** Builder state */
@@ -296,18 +307,281 @@ function currencyImg(key, cls = 'currency-icon') {
   return `<img class="${cls}" src="${escapeHtml(url)}" alt="" width="18" height="18" loading="lazy" decoding="async" onerror="this.remove()" />`;
 }
 
+function isDustKey(k) {
+  return /dust/i.test(String(k ?? ''));
+}
+
+/** Serialize §31 confidence object for UI / craft-plan dump (never "[object Object]"). */
+function formatConfidence(conf) {
+  if (conf == null || conf === '') return null;
+  if (typeof conf === 'string' || typeof conf === 'number') return String(conf);
+  if (typeof conf === 'object') {
+    if (typeof conf.summary === 'string' && conf.summary) return conf.summary;
+    const bits = [];
+    if (conf.mechanics != null) bits.push(`mechanics=${conf.mechanics}`);
+    if (conf.probabilities != null) bits.push(`probabilities=${conf.probabilities}`);
+    if (conf.prices != null) bits.push(`prices=${conf.prices}`);
+    if (bits.length) return bits.join(', ');
+    try {
+      return JSON.stringify(conf);
+    } catch {
+      return 'unknown';
+    }
+  }
+  return String(conf);
+}
+
+function formatNtAmount(n) {
+  if (n == null || !Number.isFinite(n)) return '?';
+  if (n >= 1000) return `~${Math.round(n / 1000)}k`;
+  return String(Math.round(n));
+}
+
+function formatCountDisplay(n, key) {
+  if (n == null || !Number.isFinite(n)) return '?';
+  if (key === 'gold' || isDustKey(key)) return formatNtAmount(n);
+  if (/essence/i.test(String(key ?? ''))) {
+    if (n >= 100) return String(Math.round(n));
+    if (n >= 10) return n.toFixed(1);
+    if (n >= 1) return n.toFixed(2);
+    return n.toFixed(3);
+  }
+  return String(Math.ceil(n));
+}
+
+function pickNonTradable(plan, kind) {
+  const nt = plan.nonTradableCosts;
+  if (nt && typeof nt === 'object') {
+    if (kind === 'gold' && 'gold' in nt) return nt.gold;
+    if (kind === 'dust') {
+      if ('dust' in nt) return nt.dust;
+      if ('thaumaturgicDust' in nt) return nt.thaumaturgicDust;
+      if ('thaumaturgic-dust' in nt) return nt['thaumaturgic-dust'];
+      if ('recombinating-dust' in nt) return nt['recombinating-dust'];
+    }
+  }
+  const costs = plan.costs ?? {};
+  if (kind === 'gold' && 'gold' in costs) return costs.gold;
+  if (kind === 'dust') {
+    for (const k of Object.keys(costs)) {
+      if (isDustKey(k)) return costs[k];
+    }
+  }
+  let sum = 0;
+  let saw = false;
+  let unknown = false;
+  for (const s of plan.steps ?? []) {
+    const c = s.cost ?? {};
+    if (kind === 'gold' && 'gold' in c) {
+      saw = true;
+      if (c.gold == null || !Number.isFinite(c.gold)) unknown = true;
+      else sum += c.gold;
+    }
+    if (kind === 'dust') {
+      for (const [k, v] of Object.entries(c)) {
+        if (!isDustKey(k)) continue;
+        saw = true;
+        if (v == null || !Number.isFinite(v)) unknown = true;
+        else sum += v;
+      }
+    }
+  }
+  if (!saw) return undefined;
+  return unknown ? null : sum;
+}
+
+function planUsesNonTradables(plan) {
+  if (plan.nonTradableCosts && typeof plan.nonTradableCosts === 'object') return true;
+  if (plan.method === 'recombinator' || /recombinator/i.test(plan.methodName ?? '')) return true;
+  const costs = plan.costs ?? {};
+  if ('gold' in costs || Object.keys(costs).some(isDustKey)) return true;
+  return (plan.steps ?? []).some((s) => {
+    const c = s.cost ?? {};
+    return 'gold' in c || Object.keys(c).some(isDustKey);
+  });
+}
+
+/** §26 — chaos + gold + dust; never pretends unknown dust is free. */
+function formatMultiCurrencyTotal(plan) {
+  const chaos =
+    plan.totalExpectedTradableCostChaos ?? plan.expectedTradableCost ?? plan.totalCost;
+  const chaosLabel = chaos == null || !Number.isFinite(chaos) ? '?c' : `${Math.round(chaos * 100) / 100}c`;
+  if (!planUsesNonTradables(plan)) return chaosLabel;
+  const gold = plan.expectedGold ?? pickNonTradable(plan, 'gold');
+  const dust = plan.expectedDust ?? pickNonTradable(plan, 'dust');
+  const g = formatNtAmount(gold);
+  const d = formatNtAmount(dust);
+  return `${chaosLabel} + ${g} Gold + ${d} Dust`;
+}
+
+function formatEconomicsBlock(plan) {
+  if (plan.economicsDisplay) return plan.economicsDisplay;
+  if (!planUsesNonTradables(plan) && plan.dustChaosEquivalent == null) return null;
+  const lines = [];
+  if (plan.economicsInvalid || plan.economics?.economicsInvalid || plan.impracticalReason) {
+    lines.push(`Status: invalid / EV unresolved`);
+    const why = plan.impracticalReason ?? plan.economics?.impracticalReason;
+    if (why) lines.push(why);
+  }
+  const tradable = plan.totalExpectedTradableCostChaos ?? plan.totalCost;
+  const incomplete = plan.totalIncomplete || plan.economics?.totalIncomplete;
+  if (tradable != null && Number.isFinite(tradable)) {
+    if (incomplete) {
+      lines.push(`Known-component EV: ~${Math.round(tradable).toLocaleString()}c`);
+      lines.push(`Base acquisition: unknown`);
+      lines.push(`Total EV: >=${Math.round(tradable).toLocaleString()}c`);
+    } else {
+      lines.push(`Expected tradable cost: ${Math.round(tradable).toLocaleString()}c`);
+    }
+  }
+  if (plan.grossDonorConstructionEV != null || plan.economics?.grossDonorConstructionEV != null) {
+    const g = plan.grossDonorConstructionEV ?? plan.economics.grossDonorConstructionEV;
+    lines.push(`Gross donor construction: ~${Math.round(g).toLocaleString()}c`);
+  }
+  if (plan.expectedNonRecombCraftingChaos != null || plan.economics?.expectedNonRecombCraftingChaos != null) {
+    const c = plan.expectedNonRecombCraftingChaos ?? plan.economics.expectedNonRecombCraftingChaos;
+    lines.push(`Expected non-recomb crafting: ~${Math.round(c).toLocaleString()}c`);
+  }
+  if (plan.expectedGold != null || plan.expectedDust != null) {
+    const g =
+      plan.expectedGold == null
+        ? '?'
+        : plan.expectedGold >= 1000
+          ? `${Math.round(plan.expectedGold / 1000)}k`
+          : String(Math.round(plan.expectedGold));
+    const d =
+      plan.expectedDust == null
+        ? '?'
+        : plan.expectedDust >= 1000
+          ? `${Math.round(plan.expectedDust / 1000)}k`
+          : String(Math.round(plan.expectedDust));
+    lines.push(`Expected recombination resources: ${g} Gold + ${d} Dust`);
+  }
+  const E = plan.expectedTotalRecombinationsUntilFinished ?? plan.expectedRecombinationAttempts;
+  if (E != null) lines.push(`Expected recombinations until finished: ${E}`);
+  const mass = plan.outcomeMass ?? plan.economics?.outcomeMass;
+  if (mass) {
+    lines.push(
+      `Transitions: ${fmtPct(mass.final)} final · ${fmtPct(mass.salvageBenchOnly)} bench · ${fmtPct(mass.salvageCraftNoRecomb)} craft · ${fmtPct(mass.salvageRequiringAnotherRecombination)} recomb-again · ${fmtPct(mass.brickRestart)} restart`
+    );
+  }
+  if (plan.dustChaosEquivalent != null) {
+    lines.push(`Dust equivalent: ~${Math.round(plan.dustChaosEquivalent)}c`);
+  }
+  if (plan.goldOpportunityChaosEquivalent != null) {
+    lines.push(
+      `Gold opportunity cost: ~${Math.round(plan.goldOpportunityChaosEquivalent)}c (opportunity estimate, not market)`
+    );
+  }
+  if (plan.totalExpectedEconomicCostChaos != null && !plan.economicsInvalid && !plan.economics?.economicsInvalid) {
+    lines.push(
+      incomplete
+        ? `Economic EV (currency only): ~${Math.round(plan.totalExpectedEconomicCostChaos).toLocaleString()}c — total incomplete`
+        : `Economic EV: ~${Math.round(plan.totalExpectedEconomicCostChaos).toLocaleString()}c`
+    );
+  }
+  if (
+    tradable != null &&
+    Number.isFinite(tradable) &&
+    plan.totalExpectedEconomicCostChaos != null &&
+    Number.isFinite(plan.totalExpectedEconomicCostChaos) &&
+    !plan.economicsInvalid &&
+    !plan.economics?.economicsInvalid
+  ) {
+    const dustInTradable = plan.economics?.dustCountedInTradable === true;
+    const dustAdd = dustInTradable ? 0 : plan.dustChaosEquivalent ?? 0;
+    const goldAdd = plan.goldOpportunityChaosEquivalent ?? 0;
+    lines.push(
+      `Reconcile: ${Math.round(tradable)}c + ${Math.round(dustAdd)}c dust + ${Math.round(goldAdd)}c gold = ${Math.round(tradable + dustAdd + goldAdd)}c`
+    );
+  }
+  if (plan.directFinalProbabilityPerRecombination != null) {
+    lines.push(`Direct final/recomb: ${fmtPct(plan.directFinalProbabilityPerRecombination)}`);
+  }
+  if (plan.eventualCompletionProbability != null) {
+    lines.push(`Eventual completion: ${fmtPct(plan.eventualCompletionProbability)}`);
+  }
+  return lines.length ? lines.join('\n') : null;
+}
+
+function fmtPct(p) {
+  if (p == null || !Number.isFinite(p)) return null;
+  return `${(p * 100).toFixed(p < 0.01 ? 2 : 1)}%`;
+}
+
+function fmtNum(n) {
+  if (n == null || !Number.isFinite(n)) return '?';
+  return String(Math.round(n * 100) / 100);
+}
+
+function renderPriceStaleBanner(plan) {
+  if (!priceStaleBanner) return;
+  const st = plan.priceStatus;
+  const fetched =
+    plan.pricesFetchedAt ?? st?.fetchedAt ?? kbCache?.priceStatus?.fetchedAt ?? null;
+  const stale = !!(st?.stale || st?.missing);
+  if (!stale) {
+    priceStaleBanner.classList.add('hidden');
+    priceStaleBanner.innerHTML = '';
+    return;
+  }
+  priceStaleBanner.classList.remove('hidden');
+  const msg =
+    st?.message ||
+    st?.tip ||
+    plan.pricesTip ||
+    'Price snapshot is stale or missing. Run npm run fetch-prices.';
+  const when = fetched ? ` Last fetched: ${escapeHtml(String(fetched))}.` : '';
+  priceStaleBanner.innerHTML = `<strong>Prices stale</strong> — ${escapeHtml(msg)}${when}`;
+}
+
+function renderPlanMeta(plan) {
+  if (!planMetaEl) return;
+  const bits = [];
+  // §31–32 confidence + provenance
+  const conf = formatConfidence(plan.confidence ?? plan.provenance?.confidence);
+  if (conf) {
+    bits.push(`<span class="plan-meta-chip">Confidence: ${escapeHtml(conf)}</span>`);
+  }
+  const rules = plan.rulesVersion ?? plan.rulesetVersion ?? plan.provenance?.rulesVersion;
+  if (rules) bits.push(`<span class="plan-meta-chip">Rules ${escapeHtml(String(rules))}</span>`);
+  const data = plan.dataVersion ?? plan.provenance?.dataVersion;
+  if (data) bits.push(`<span class="plan-meta-chip">Data ${escapeHtml(String(data))}</span>`);
+  const fetched = plan.pricesFetchedAt ?? plan.priceStatus?.fetchedAt ?? plan.provenance?.pricesFetchedAt;
+  if (fetched) bits.push(`<span class="plan-meta-chip">Prices ${escapeHtml(String(fetched))}</span>`);
+  const src = plan.provenance?.source ?? plan.provenance?.label;
+  if (src) bits.push(`<span class="plan-meta-chip">${escapeHtml(String(src))}</span>`);
+  const cls = plan.classification?.label ?? plan.classification?.id;
+  if (cls) bits.push(`<span class="plan-meta-chip">${escapeHtml(String(cls))}</span>`);
+  if (!bits.length) {
+    planMetaEl.classList.add('hidden');
+    planMetaEl.innerHTML = '';
+    return;
+  }
+  planMetaEl.classList.remove('hidden');
+  planMetaEl.innerHTML = bits.join('');
+}
+
 function renderCostPanel(plan) {
   const unknown = plan.totalCost == null;
-  if (!plan.costBreakdown?.length && !unknown && !plan.priceStatus?.missing) {
+  const usesNt = planUsesNonTradables(plan);
+  if (!plan.costBreakdown?.length && !unknown && !plan.priceStatus?.missing && !usesNt) {
     costPanel.classList.add('hidden');
     return;
   }
   costPanel.classList.remove('hidden');
   const prices = kbCache?.prices ?? plan.prices ?? null;
   const cookie = formatCostCookie(unknown ? null : plan.totalCost, prices);
+  const primary = usesNt ? formatMultiCurrencyTotal(plan) : cookie.primary;
+  const tipLines = [...(cookie.tipLines ?? [])];
+  if (usesNt && cookie.primary && cookie.primary !== primary) tipLines.unshift(cookie.primary);
+  const ecoBlock = formatEconomicsBlock(plan);
+  if (ecoBlock) {
+    for (const line of ecoBlock.split('\n')) tipLines.push(line);
+  }
   const tipHtml =
-    cookie.tipLines.length > 0
-      ? `<span class="cost-cookie-tip" role="tooltip">${cookie.tipLines
+    tipLines.length > 0
+      ? `<span class="cost-cookie-tip" role="tooltip">${tipLines
           .map((line) => `<span>${escapeHtml(line)}</span>`)
           .join('')}</span>`
       : '';
@@ -317,10 +591,32 @@ function renderCostPanel(plan) {
       : plan.priceStatus?.stale
         ? `<p class="cost-tip">${escapeHtml(plan.priceStatus.message || plan.pricesTip || '')}</p>`
         : '';
+  // Non-tradable rows: always show ? when amount unknown (never 0 as free)
+  const ntExtra = usesNt
+    ? [
+        { key: 'gold', label: 'Gold', count: pickNonTradable(plan, 'gold') },
+        { key: 'thaumaturgic-dust', label: 'Thaumaturgic Dust', count: pickNonTradable(plan, 'dust') },
+      ]
+        .filter((row) => {
+          const inBreakdown = (plan.costBreakdown ?? []).some(
+            (c) => c.key === row.key || (row.key.includes('dust') && isDustKey(c.key))
+          );
+          return !inBreakdown;
+        })
+        .map(
+          (c) => `
+        <div class="cost-item cost-item--nontradable">
+          <span class="cost-count">${formatCountDisplay(c.count, c.key)}×</span>
+          <span class="cost-label">${currencyImg(c.key)}${escapeHtml(c.label)}</span>
+          <span class="cost-chaos">${c.count == null || !Number.isFinite(c.count) ? 'unpublished' : 'approximate'}</span>
+        </div>`
+        )
+        .join('')
+    : '';
   costPanel.innerHTML = `
     <div class="cost-header">
       <h3>Estimated cost</h3>
-      <span class="cost-total cost-cookie" tabindex="0">${escapeHtml(cookie.primary)}${tipHtml}</span>
+      <span class="cost-total cost-cookie" tabindex="0">${escapeHtml(primary)}${tipHtml}</span>
     </div>
     ${tip}
     <div class="cost-grid">
@@ -328,9 +624,98 @@ function renderCostPanel(plan) {
         .map(
           (c) => `
         <div class="cost-item">
-          <span class="cost-count">${c.count}×</span>
+          <span class="cost-count">${c.count == null ? '?' : formatCountDisplay(c.count, c.key)}×</span>
           <span class="cost-label">${currencyImg(c.key)}${escapeHtml(c.label)}</span>
           <span class="cost-chaos">${c.unknown || c.chaos == null ? '?' : `${c.chaos}c`}</span>
+        </div>`
+        )
+        .join('')}
+      ${ntExtra}
+    </div>
+  `;
+}
+
+function renderFallbacks(s) {
+  if (!s.fallbacks?.length) return '';
+  return `<ul class="step-fallbacks">${s.fallbacks
+    .slice(0, 4)
+    .map((f) => {
+      const keep = Array.isArray(f.have) ? f.have.length : 0;
+      return `<li>${escapeHtml(`${(f.p * 100).toFixed(1)}% keep ${keep} desired — finish remaining (~${Math.round(f.ev ?? 0)}c)`)}</li>`;
+    })
+    .join('')}</ul>`;
+}
+
+/** §27 — attempts / risky failures / restart probability when present. */
+function renderStepRisk(s) {
+  const bits = [];
+  if (s.attempts != null) bits.push(`~${fmtNum(s.attempts)} attempts`);
+  if (s.riskyFailures != null) bits.push(`${fmtNum(s.riskyFailures)} risky failures`);
+  const restart = s.restartProbability ?? s.restartProb ?? s.pRestart;
+  const rp = fmtPct(restart);
+  if (rp) bits.push(`${rp} restart`);
+  if (!bits.length) return '';
+  return `<p class="step-risk">${bits.map((b) => escapeHtml(b)).join(' · ')}</p>`;
+}
+
+/** §90 — raw cost formula on a step/stage when present. */
+function renderRawCostFormula(obj) {
+  const formula = obj?.rawCostFormula ?? obj?.costFormula ?? obj?.formula;
+  if (!formula) return '';
+  return `<p class="raw-cost-formula"><span class="raw-cost-label">Cost</span> ${escapeHtml(String(formula))}</p>`;
+}
+
+/** §55 — Show eligible pool UI per step. */
+function renderEligiblePool(s) {
+  const pool = s.eligiblePool;
+  if (!pool?.length) return '';
+  const total = s.eligiblePoolTotal ?? pool.reduce((a, r) => a + (r.weight ?? 0), 0);
+  const rows = pool.slice(0, 40);
+  const more = pool.length > rows.length ? `<li class="pool-more">… +${pool.length - rows.length} more</li>` : '';
+  return `<details class="step-pool">
+    <summary>Show eligible pool <span class="pool-meta">${pool.length} mods · Σw ${fmtNum(total)}</span></summary>
+    <ul class="pool-list">${rows
+      .map((r) => {
+        const label = r.text || r.name || r.id || '?';
+        const w = r.weight != null ? fmtNum(r.weight) : '?';
+        return `<li><span class="pool-w">${w}</span> ${escapeHtml(String(label))}</li>`;
+      })
+      .join('')}${more}</ul>
+  </details>`;
+}
+
+function renderAlternatives(plan) {
+  const cmp = plan.methodComparison;
+  const alts = plan.alternatives ?? [];
+  if (!alts.length && !cmp) {
+    alternativesPanel.classList.add('hidden');
+    return;
+  }
+  alternativesPanel.classList.remove('hidden');
+  const cmpHtml = cmp
+    ? `<div class="method-compare">
+        ${['recombinator', 'sequential', 'fracture']
+          .map((id) => {
+            const row = cmp[id];
+            if (!row) return '';
+            const win = cmp.winner === id;
+            const cost = row.cost == null ? '?' : `~${Math.round(row.cost)}c`;
+            return `<div class="mc-row${win ? ' mc-win' : ''}"><strong>${escapeHtml(row.name ?? id)}</strong> ${cost} — ${escapeHtml(row.why ?? '')}</div>`;
+          })
+          .join('')}
+      </div>`
+    : '';
+  alternativesPanel.innerHTML = `
+    <h4>Other methods considered</h4>
+    ${cmpHtml}
+    <div class="alt-list">
+      ${alts
+        .map(
+          (a) => `
+        <div class="alt-item">
+          <div class="alt-name">${escapeHtml(a.name)}</div>
+          <div class="alt-desc">${escapeHtml(a.description ?? a.whyLost ?? a.why ?? '')}</div>
+          <div class="alt-cost">${a.totalCost == null ? 'cost ?' : `~${a.totalCost}c`}</div>
         </div>`
         )
         .join('')}
@@ -338,27 +723,126 @@ function renderCostPanel(plan) {
   `;
 }
 
-function renderAlternatives(plan) {
-  if (!plan.alternatives?.length) {
-    alternativesPanel.classList.add('hidden');
+/** §52 — rejected strategies with why-lost. */
+function renderRejected(plan) {
+  if (!rejectedPanel) return;
+  const rejected = plan.rejectedStrategies ?? plan.rejected ?? [];
+  if (!rejected.length) {
+    rejectedPanel.classList.add('hidden');
+    rejectedPanel.innerHTML = '';
     return;
   }
-  alternativesPanel.classList.remove('hidden');
-  alternativesPanel.innerHTML = `
-    <h4>Other methods considered</h4>
-    <div class="alt-list">
-      ${plan.alternatives
-        .map(
-          (a) => `
-        <div class="alt-item">
-          <div class="alt-name">${escapeHtml(a.name)}</div>
-          <div class="alt-desc">${escapeHtml(a.description)}</div>
-          <div class="alt-cost">${a.totalCost == null ? 'cost ?' : `~${a.totalCost}c`}</div>
-        </div>`
-        )
+  rejectedPanel.classList.remove('hidden');
+  rejectedPanel.innerHTML = `
+    <h4>Rejected strategies</h4>
+    <div class="rejected-list">
+      ${rejected
+        .map((r) => {
+          const why = r.whyLost ?? r.why ?? r.reason ?? r.description ?? '';
+          const cost =
+            r.totalCost != null
+              ? `~${Math.round(r.totalCost)}c`
+              : r.cost != null
+                ? `~${Math.round(r.cost)}c`
+                : '';
+          return `<div class="rejected-item">
+            <div class="rejected-name">${escapeHtml(r.name ?? r.id ?? 'Strategy')}</div>
+            <div class="rejected-why">${escapeHtml(why)}</div>
+            ${cost ? `<div class="rejected-cost">${escapeHtml(cost)}</div>` : ''}
+          </div>`;
+        })
         .join('')}
     </div>
   `;
+}
+
+/** §90 — stage blocks with raw cost formula. */
+function renderStages(plan) {
+  if (!stagesPanel) return;
+  const stages = plan.stages;
+  if (!stages?.length) {
+    stagesPanel.classList.add('hidden');
+    stagesPanel.innerHTML = '';
+    return;
+  }
+  stagesPanel.classList.remove('hidden');
+  stagesPanel.innerHTML = `
+    <h4>Stages</h4>
+    <div class="stage-list">
+      ${stages
+        .map((st, i) => {
+          const name = st.name ?? st.id ?? `Stage ${i + 1}`;
+          const risk = [];
+          if (st.attempts != null) risk.push(`~${fmtNum(st.attempts)} attempts`);
+          if (st.riskyFailures != null) risk.push(`${fmtNum(st.riskyFailures)} risky failures`);
+          const rp = fmtPct(st.restartProbability ?? st.restartProb);
+          if (rp) risk.push(`${rp} restart`);
+          return `<div class="stage-item">
+            <div class="stage-name">${escapeHtml(String(name))}</div>
+            ${st.summary ? `<p class="stage-summary">${escapeHtml(st.summary)}</p>` : ''}
+            ${renderRawCostFormula(st)}
+            ${risk.length ? `<p class="step-risk">${risk.map((b) => escapeHtml(b)).join(' · ')}</p>` : ''}
+          </div>`;
+        })
+        .join('')}
+    </div>
+  `;
+}
+
+/**
+ * §53–54 solver-debug panel. Only renders fields the planner actually provided —
+ * never invents Q-values or prune reasons.
+ */
+function renderSolverDebug(plan) {
+  if (!solverDebugPanel) return;
+  const dbg = plan.solverDebug ?? plan.debug ?? null;
+  if (!solverDebugEnabled || !dbg) {
+    solverDebugPanel.classList.add('hidden');
+    solverDebugPanel.innerHTML = '';
+    return;
+  }
+  solverDebugPanel.classList.remove('hidden');
+  const sections = [];
+  if (dbg.state != null) {
+    const text = typeof dbg.state === 'string' ? dbg.state : JSON.stringify(dbg.state, null, 2);
+    sections.push(`<div class="debug-block"><div class="debug-label">State</div><pre class="debug-pre">${escapeHtml(text)}</pre></div>`);
+  }
+  if (dbg.qValues != null) {
+    // TODO: render richer Q table when planner emits structured {op,q} rows
+    const text = typeof dbg.qValues === 'string' ? dbg.qValues : JSON.stringify(dbg.qValues, null, 2);
+    sections.push(`<div class="debug-block"><div class="debug-label">Q values</div><pre class="debug-pre">${escapeHtml(text)}</pre></div>`);
+  } else {
+    sections.push(`<div class="debug-block muted"><div class="debug-label">Q values</div><p class="debug-missing">Not provided by planner</p></div>`);
+  }
+  if (dbg.pruneReasons != null) {
+    const list = Array.isArray(dbg.pruneReasons)
+      ? `<ul class="debug-list">${dbg.pruneReasons.map((p) => `<li>${escapeHtml(typeof p === 'string' ? p : JSON.stringify(p))}</li>`).join('')}</ul>`
+      : `<pre class="debug-pre">${escapeHtml(JSON.stringify(dbg.pruneReasons, null, 2))}</pre>`;
+    sections.push(`<div class="debug-block"><div class="debug-label">Prune reasons</div>${list}</div>`);
+  }
+  if (dbg.stateEvDebug != null) {
+    const text = Array.isArray(dbg.stateEvDebug)
+      ? dbg.stateEvDebug.join('\n')
+      : typeof dbg.stateEvDebug === 'string'
+        ? dbg.stateEvDebug
+        : JSON.stringify(dbg.stateEvDebug, null, 2);
+    sections.push(
+      `<div class="debug-block"><div class="debug-label">State EV</div><pre class="debug-pre">${escapeHtml(text)}</pre></div>`
+    );
+  }
+  if (dbg.recombEconomics != null) {
+    sections.push(
+      `<div class="debug-block"><div class="debug-label">Recomb economics</div><pre class="debug-pre">${escapeHtml(JSON.stringify(dbg.recombEconomics, null, 2))}</pre></div>`
+    );
+  }
+  if (dbg.poolComposition != null) {
+    const text =
+      typeof dbg.poolComposition === 'string'
+        ? dbg.poolComposition
+        : JSON.stringify(dbg.poolComposition, null, 2);
+    sections.push(`<div class="debug-block"><div class="debug-label">Pool composition</div><pre class="debug-pre">${escapeHtml(text)}</pre></div>`);
+  }
+  solverDebugPanel.innerHTML = `<h4>Solver debug</h4>${sections.join('')}`;
 }
 
 function formatStepCost(cost) {
@@ -384,12 +868,18 @@ function formatStepCost(cost) {
     'eldritch-annul': 'Eldritch Annul',
     'eldritch-ichor': 'Ichor',
     'eldritch-ember': 'Ember',
+    gold: 'Gold',
+    'thaumaturgic-dust': 'Dust',
+    'recombinating-dust': 'Dust',
+    dust: 'Dust',
+    chaos: 'Chaos',
   };
   return Object.entries(cost ?? {})
-    .filter(([, n]) => n > 0)
+    .filter(([, n]) => n == null || n > 0)
     .map(([k, n]) => {
       const label = labels[k] ?? k;
-      return `<span class="step-cost-part">${currencyImg(k, 'currency-icon currency-icon--sm')}${Math.ceil(n)}× ${escapeHtml(label)}</span>`;
+      const amt = formatCountDisplay(n, k);
+      return `<span class="step-cost-part">${currencyImg(k, 'currency-icon currency-icon--sm')}${amt}× ${escapeHtml(label)}</span>`;
     })
     .join('<span class="step-cost-sep"> · </span>');
 }
@@ -408,11 +898,16 @@ function renderSteps(steps) {
   stepsContainer.innerHTML = steps
     .map(
       (s) => `
-    <article class="step-card${s.fallback ? ' step-fallback' : ''}${s.progressDone ? ' step-done' : ''}${s.operator === 'preferFracture' ? ' step-prefer-frac' : ''}">
+    <article class="step-card${s.fallback ? ' step-fallback' : ''}${s.progressDone ? ' step-done' : ''}${s.operator === 'preferFracture' ? ' step-prefer-frac' : ''}${s.stage === 'donor' ? ' step-donor' : ''}${s.operator === 'recombine' ? ' step-recomb' : ''}">
       <div class="step-num">${s.step}</div>
       <div class="step-body">
         <span class="step-currency"${s.progressDone ? '' : ` style="color: ${s.currency.color}"`}>${currencyImg(s.currency.key || s.currency.short)}${escapeHtml(s.currency.short)}</span>
         ${s.chanceLabel ? `<span class="step-chance">${escapeHtml(s.chanceLabel)}</span>` : ''}
+        ${
+          s.expectedCostChaos != null && Number.isFinite(s.expectedCostChaos)
+            ? `<span class="step-chance step-cost-ev">EV ~${Math.round(s.expectedCostChaos)}c</span>`
+            : ''
+        }
         ${renderPreferFractureToggle(s)}
         <h3>${escapeHtml(s.action)}</h3>
         <p class="step-detail">${escapeHtml(s.detail)}</p>
@@ -421,8 +916,12 @@ function renderSteps(steps) {
             ? `<p class="step-weights"><span class="step-weights-label">Weights</span> ${escapeHtml(s.weightLine)}</p>`
             : ''
         }
+        ${renderStepRisk(s)}
+        ${renderRawCostFormula(s)}
         ${renderTargetList(s)}
+        ${renderFallbacks(s)}
         ${formatStepCost(s.cost) ? `<div class="step-cost">${formatStepCost(s.cost)}</div>` : ''}
+        ${renderEligiblePool(s)}
       </div>
     </article>
   `
@@ -472,7 +971,12 @@ async function applyProgressView() {
   let view;
   if (canPrefer) {
     const prev = lastExport.plan;
-    plan = await generateCraftSteps(lastExport.item, null, { preferFracture: preferFractureEnabled });
+    // preserveSpecialSources + solverDebug wired into plan schema
+    plan = await generateCraftSteps(lastExport.item, null, {
+      preferFracture: preferFractureEnabled,
+      preserveSpecialSources: preserveSpecialEnabled,
+      solverDebug: solverDebugEnabled,
+    });
     // Keep art / display fields from the prior analyze
     plan.artUrl = prev.artUrl;
     plan.artFallbackUrl = prev.artFallbackUrl;
@@ -484,11 +988,22 @@ async function applyProgressView() {
     view = await replanFromProgress(lastExport.item, plan, hitKeys);
   }
   lastExport.view = view;
-  renderSummary(lastExport.item, plan);
+  renderPlanView(lastExport.item, plan, view);
+}
+
+function renderPlanView(item, plan, view) {
+  renderPriceStaleBanner(plan);
+  renderSummary(item, plan);
+  renderPlanMeta(plan);
   renderCostPanel(plan);
+  renderStages(plan);
   renderAlternatives(plan);
-  renderSteps(view.steps);
+  renderRejected(plan);
+  renderSolverDebug(plan);
+  renderSteps(view?.steps ?? plan.steps ?? []);
   renderTips(plan.tips);
+  if (optPreserveSpecial) optPreserveSpecial.checked = preserveSpecialEnabled;
+  if (optSolverDebug) optSolverDebug.checked = solverDebugEnabled;
 }
 
 function toggleHitKey(key) {
@@ -513,6 +1028,52 @@ stepsContainer.addEventListener('change', (e) => {
   applyProgressView();
 });
 
+optPreserveSpecial?.addEventListener('change', () => {
+  preserveSpecialEnabled = !!optPreserveSpecial.checked;
+  // Re-plan so planner can honor special-source preservation when supported
+  if (!lastExport?.item) return;
+  (async () => {
+    const prev = lastExport.plan;
+    const plan = await generateCraftSteps(lastExport.item, null, {
+      preferFracture: preferFractureEnabled,
+      preserveSpecialSources: preserveSpecialEnabled,
+      solverDebug: solverDebugEnabled,
+    });
+    plan.artUrl = prev?.artUrl;
+    plan.artFallbackUrl = prev?.artFallbackUrl;
+    plan.artFlags = prev?.artFlags;
+    plan.artGlow = prev?.artGlow;
+    const view = await replanFromProgress(lastExport.item, plan, hitKeys);
+    lastExport.plan = plan;
+    lastExport.view = view;
+    renderPlanView(lastExport.item, plan, view);
+  })().catch((err) => console.error(err));
+});
+
+optSolverDebug?.addEventListener('change', () => {
+  solverDebugEnabled = !!optSolverDebug.checked;
+  if (!lastExport?.item) {
+    if (lastExport?.plan) renderSolverDebug(lastExport.plan);
+    return;
+  }
+  (async () => {
+    const prev = lastExport.plan;
+    const plan = await generateCraftSteps(lastExport.item, null, {
+      preferFracture: preferFractureEnabled,
+      preserveSpecialSources: preserveSpecialEnabled,
+      solverDebug: solverDebugEnabled,
+    });
+    plan.artUrl = prev?.artUrl;
+    plan.artFallbackUrl = prev?.artFallbackUrl;
+    plan.artFlags = prev?.artFlags;
+    plan.artGlow = prev?.artGlow;
+    const view = await replanFromProgress(lastExport.item, plan, hitKeys);
+    lastExport.plan = plan;
+    lastExport.view = view;
+    renderPlanView(lastExport.item, plan, view);
+  })().catch((err) => console.error(err));
+});
+
 stepsContainer.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const li = e.target.closest?.('.step-targets li[data-mod-key]');
@@ -534,9 +1095,20 @@ function renderTips(tips) {
 }
 
 function formatCostLine(cost) {
+  const labels = {
+    gold: 'Gold',
+    'thaumaturgic-dust': 'Thaumaturgic Dust',
+    chaos: 'Chaos',
+    alteration: 'Alt',
+    essence: 'Essence',
+    'essence-deafening': 'Deafening Essence',
+  };
   return Object.entries(cost ?? {})
-    .filter(([, n]) => n > 0)
-    .map(([k, n]) => `${Math.ceil(n)}x ${k}`)
+    .filter(([, n]) => n == null || n > 0)
+    .map(([k, n]) => {
+      const amt = formatCountDisplay(n, k);
+      return `${amt}× ${labels[k] ?? k}`;
+    })
     .join(', ');
 }
 
@@ -582,14 +1154,105 @@ export function buildFeedbackExport(item, plan, rawItemText) {
     lines.push('ilvlDrivers:');
     for (const d of plan.ilvlDrivers) lines.push(`  - ilvl ${d.req}: ${d.text}`);
   }
-  lines.push(`totalCostChaos: ${plan.totalCost}`);
+  lines.push(`totalCostChaos: ${plan.totalCost == null ? '?' : Math.round(plan.totalCost * 100) / 100}`);
+  if (plan.economicsInvalid || plan.economics?.economicsInvalid) {
+    lines.push(`economicsStatus: invalid / EV unresolved`);
+    const why = plan.impracticalReason ?? plan.economics?.impracticalReason;
+    if (why) lines.push(`economicsReason: ${why}`);
+  }
+  if (plan.totalIncomplete || plan.economics?.totalIncomplete) {
+    lines.push(`totalIncomplete: true (base/market acquisition unknown)`);
+  }
+  if (plan.totalExpectedTradableCostChaos != null) {
+    lines.push(
+      `totalExpectedTradableCostChaos: ${Math.round(plan.totalExpectedTradableCostChaos * 100) / 100}`
+    );
+  }
+  if (plan.totalExpectedEconomicCostChaos != null) {
+    lines.push(
+      `totalExpectedEconomicCostChaos: ${Math.round(plan.totalExpectedEconomicCostChaos * 100) / 100}`
+    );
+  }
+  if (plan.expectedDonorCostChaos != null) {
+    lines.push(`expectedDonorCostChaos: ${Math.round(plan.expectedDonorCostChaos * 100) / 100}`);
+  }
+  if (plan.grossDonorConstructionEV != null || plan.economics?.grossDonorConstructionEV != null) {
+    lines.push(
+      `grossDonorConstructionEV: ${Math.round((plan.grossDonorConstructionEV ?? plan.economics.grossDonorConstructionEV) * 100) / 100}`
+    );
+  }
+  if (plan.expectedSalvageCredit != null || plan.economics?.expectedSalvageCredit != null) {
+    lines.push(
+      `expectedSalvageCredit: ${Math.round((plan.expectedSalvageCredit ?? plan.economics.expectedSalvageCredit) * 100) / 100}`
+    );
+  }
+  if (plan.expectedRecombinationAttempts != null) {
+    lines.push(`expectedRecombinationAttempts: ${plan.expectedRecombinationAttempts}`);
+  }
+  if (plan.expectedTotalRecombinationsUntilFinished != null) {
+    lines.push(
+      `expectedTotalRecombinationsUntilFinished: ${plan.expectedTotalRecombinationsUntilFinished}`
+    );
+  }
+  if (plan.expectedFullDonorARebuilds != null || plan.expectedFullDonorBRebuilds != null) {
+    lines.push(
+      `expectedFullDonorRebuilds: A=${plan.expectedFullDonorARebuilds ?? '?'} B=${plan.expectedFullDonorBRebuilds ?? '?'}`
+    );
+  }
+  const om = plan.outcomeMass ?? plan.economics?.outcomeMass;
+  if (om) {
+    lines.push(
+      `outcomeMass: final=${om.final} bench=${om.salvageBenchOnly} craft=${om.salvageCraftNoRecomb} recombAgain=${om.salvageRequiringAnotherRecombination} restart=${om.brickRestart} sum=${om.sum}`
+    );
+  }
+  if (plan.directFinalProbabilityPerRecombination != null) {
+    lines.push(
+      `directFinalProbabilityPerRecombination: ${plan.directFinalProbabilityPerRecombination}`
+    );
+  }
+  if (plan.eventualCompletionProbability != null) {
+    lines.push(`eventualCompletionProbability: ${plan.eventualCompletionProbability}`);
+  }
+  if (plan.expectedGold != null || plan.expectedDust != null) {
+    lines.push(
+      `expectedGold: ${plan.expectedGold ?? '?'}; expectedDust: ${plan.expectedDust ?? '?'}`
+    );
+  }
+  if (plan.dustChaosEquivalent != null) {
+    lines.push(`dustChaosEquivalent: ${plan.dustChaosEquivalent}`);
+  }
+  if (plan.goldOpportunityChaosEquivalent != null) {
+    lines.push(
+      `goldOpportunityChaosEquivalent: ${plan.goldOpportunityChaosEquivalent} (opportunity, not market)`
+    );
+  }
+  const ecoBlock = formatEconomicsBlock(plan);
+  if (ecoBlock) {
+    lines.push('economics:');
+    for (const line of ecoBlock.split('\n')) lines.push(`  ${line}`);
+  }
+  if (planUsesNonTradables(plan)) {
+    lines.push(`totalCostDisplay: ${formatMultiCurrencyTotal(plan)}`);
+  }
+  const confDump = formatConfidence(plan.confidence);
+  if (confDump) lines.push(`confidence: ${confDump}`);
+  if (plan.rulesVersion ?? plan.rulesetVersion) {
+    lines.push(`rulesVersion: ${plan.rulesVersion ?? plan.rulesetVersion}`);
+  }
+  if (plan.dataVersion) lines.push(`dataVersion: ${plan.dataVersion}`);
+  if (plan.pricesFetchedAt ?? plan.priceStatus?.fetchedAt) {
+    lines.push(`pricesFetchedAt: ${plan.pricesFetchedAt ?? plan.priceStatus.fetchedAt}`);
+  }
   if (plan.preferFractureAvailable || plan.steps?.some((s) => s.operator === 'preferFracture')) {
     lines.push(`preferFracture: ${plan.preferFractureEnabled !== false}`);
   }
+  lines.push(`preserveSpecialSources: ${preserveSpecialEnabled}`);
   if (plan.costBreakdown?.length) {
     lines.push('costBreakdown:');
     for (const c of plan.costBreakdown) {
-      lines.push(`  - ${c.count}x ${c.label} (${c.chaos}c)`);
+      lines.push(
+        `  - ${c.count == null ? '?' : formatCountDisplay(c.count, c.key)}x ${c.label} (${c.chaos == null ? '?' : `${c.chaos}c`})`
+      );
     }
   }
   lines.push('');
@@ -610,6 +1273,23 @@ export function buildFeedbackExport(item, plan, rawItemText) {
     lines.push(`action: ${s.action}`);
     lines.push(`detail: ${s.detail}`);
     if (s.chanceLabel) lines.push(`chance: ${s.chanceLabel}`);
+    if (s.successChancePerAttempt != null) {
+      lines.push(`successChancePerAttempt: ${s.successChancePerAttempt}`);
+    }
+    if (s.expectedAttempts != null) lines.push(`expectedAttempts: ${s.expectedAttempts}`);
+    if (s.expectedCostChaos != null) {
+      lines.push(`expectedCostChaos: ${Math.round(s.expectedCostChaos * 100) / 100}`);
+    }
+    if (s.directFinalProbabilityPerRecombination != null) {
+      lines.push(
+        `directFinalProbabilityPerRecombination: ${s.directFinalProbabilityPerRecombination}`
+      );
+    }
+    if (s.expectedTotalRecombinationsUntilFinished != null) {
+      lines.push(
+        `expectedTotalRecombinationsUntilFinished: ${s.expectedTotalRecombinationsUntilFinished}`
+      );
+    }
     if (s.weightLine) lines.push(`weights: ${s.weightLine}`);
     if (s.fallback) lines.push('fallback: true');
     if (s.targetMods?.length) {
@@ -624,6 +1304,13 @@ export function buildFeedbackExport(item, plan, rawItemText) {
     lines.push('## AlternativesConsidered');
     for (const a of plan.alternatives) {
       lines.push(`  - ${a.name}: ~${a.totalCost}c — ${a.description ?? ''}`);
+    }
+    lines.push('');
+  }
+  if (plan.rejectedStrategies?.length) {
+    lines.push('## RejectedStrategies');
+    for (const r of plan.rejectedStrategies) {
+      lines.push(`  - ${r.name ?? r.id}: ${r.whyLost ?? r.why ?? r.reason ?? ''}`);
     }
     lines.push('');
   }
@@ -683,16 +1370,16 @@ async function showPlan(item, raw) {
     else if (p.phase === 'searching' || p.phase === 'planning') {
       setLoading(true, p.total ? `Searching methods ${p.current}/${p.total}…` : 'Planning craft…');
     } else if (p.phase === 'done') setLoading(true, 'Picking cheapest…');
+  }, {
+    preferFracture: preferFractureEnabled,
+    preserveSpecialSources: preserveSpecialEnabled,
+    solverDebug: solverDebugEnabled,
   });
   hitKeys = new Set();
   preferFractureEnabled = true;
   const view = await replanFromProgress(item, plan, hitKeys);
   lastExport = { item, plan, view, raw };
-  renderSummary(item, plan);
-  renderCostPanel(plan);
-  renderAlternatives(plan);
-  renderSteps(view.steps);
-  renderTips(plan.tips);
+  renderPlanView(item, plan, view);
   // Keep Paste/Build tabs available for mid-process edits
   emptyState.classList.remove('hidden');
   results.classList.remove('hidden');
@@ -1247,6 +1934,10 @@ function clearResults() {
   lastExport = null;
   hitKeys = new Set();
   preferFractureEnabled = true;
+  preserveSpecialEnabled = true;
+  solverDebugEnabled = false;
+  if (optPreserveSpecial) optPreserveSpecial.checked = true;
+  if (optSolverDebug) optSolverDebug.checked = false;
   exportStatus.textContent = '';
   results.classList.add('hidden');
   emptyState.classList.remove('hidden');

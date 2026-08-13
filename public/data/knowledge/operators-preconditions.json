@@ -1,0 +1,96 @@
+{
+  "source": "Mechanics preconditions — curated from craft-operators-official + ruleset. Not invented crafts.",
+  "built_for": "poe1",
+  "operators": {
+    "exalt": {
+      "requires": ["rareOrMagicWithOpenAffix"],
+      "blockedBy": ["corrupted", "mirrored", "fullSide"]
+    },
+    "annul": {
+      "requires": ["hasRemovableAffix"],
+      "blockedBy": ["corrupted"]
+    },
+    "essence": {
+      "requires": ["itemClassInEssenceTable"],
+      "illegalWith": ["anyMetacraft"],
+      "reasonIllegal": "essence after metamod"
+    },
+    "harvest-reforge": {
+      "requires": ["rarityRare"],
+      "blockedBy": ["corrupted"]
+    },
+    "harvest-augment-remove": {
+      "requires": ["rarityRare", "nonInfluenced"],
+      "blockedBy": ["corrupted", "influenced"]
+    },
+    "harvest-remove": {
+      "requires": ["hasTaggedRemovable"],
+      "blockedBy": ["corrupted"]
+    },
+    "veiled-exalt": {
+      "requires": ["rarityRare"],
+      "blockedBy": ["corrupted"]
+    },
+    "veiled-chaos": {
+      "requires": ["rarityRare"],
+      "blockedBy": ["corrupted"]
+    },
+    "unveil": {
+      "requires": ["hasVeiledAffix"]
+    },
+    "eldritch-chaos": {
+      "requires": ["eldritchDominance", "eldritchSlot"],
+      "slots": ["Helmet", "Gloves", "Boots", "Body Armour"]
+    },
+    "eldritch-annul": {
+      "requires": ["eldritchDominance", "eldritchSlot"],
+      "slots": ["Helmet", "Gloves", "Boots", "Body Armour"]
+    },
+    "eldritch-exalt": {
+      "requires": ["eldritchDominance", "eldritchSlot", "openDominanceSide"],
+      "slots": ["Helmet", "Gloves", "Boots", "Body Armour"]
+    },
+    "setup-dominance": {
+      "requires": ["eldritchSlot"],
+      "slots": ["Helmet", "Gloves", "Boots", "Body Armour"]
+    },
+    "fossil": {
+      "requires": ["resonatorSockets"],
+      "blockedBy": ["corrupted"]
+    },
+    "beast-add-prefix-remove-suffix": {
+      "requires": ["rarityRare", "openPrefix", "hasRemovableSuffix"]
+    },
+    "beast-add-suffix-remove-prefix": {
+      "requires": ["rarityRare", "openSuffix", "hasRemovablePrefix"]
+    },
+    "beast-split": {
+      "requires": ["rarityRare", "notSplit", "notInfluenced"]
+    },
+    "UnpredictableRecombine": {
+      "requires": ["sameItemClass", "twoInputs"],
+      "blockedBy": ["corrupted", "mirrored", "unique"]
+    },
+    "PredictableRecombine": {
+      "requires": ["sameItemClass", "twoInputs", "displayedOrEmpiricalSuccessChance"],
+      "blockedBy": ["corrupted", "mirrored", "unique"],
+      "unrankedWithout": "successChance"
+    },
+    "bench": {
+      "requires": ["openCraftedSlot"],
+      "blockedBy": ["corrupted"]
+    }
+  },
+  "sourceCompatibility": {
+    "natural": ["exalt", "chaos", "harvest-reforge", "fossil", "eldritch-chaos", "eldritch-exalt", "essence", "alteration", "aug", "regal", "alchemy"],
+    "essence": ["essence"],
+    "essence_only": ["essence"],
+    "crafted": ["bench"],
+    "unveiled": ["unveil", "veiled-exalt", "veiled-chaos", "aisling"],
+    "veiled": ["unveil"],
+    "delve": ["fossil"],
+    "influence": ["influence-exalt", "exalt"],
+    "eldritch": ["setup-dominance"],
+    "bestiary": ["beast-add-prefix-remove-suffix", "beast-add-suffix-remove-prefix", "beast-split"]
+  }
+}

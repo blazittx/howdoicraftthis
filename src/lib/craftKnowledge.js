@@ -6,6 +6,15 @@
  * Do not invent crafts (there is NO "Reforge Energy Shield" — ES falls under Defence).
  */
 
+import {
+  COST_LABELS,
+  isNonTradableKey,
+  tradableChaosCost,
+  rawCostFormula,
+} from './pricing/costs.js';
+
+export { COST_LABELS, isNonTradableKey, rawCostFormula };
+
 export const METACRAFT = {
   suffixesCannotBeChanged: {
     id: 'scbc',
@@ -31,7 +40,8 @@ export const LIFEFORCE_PRICE_KEY = {
 
 /**
  * Official harvest "Reforge … including a X modifier" crafts only.
- * Cost = lifeforce amount × juice unit price from daily snapshot (not a flat harvest:N).
+ * Matching metadata lives here; lifeforce costs come from harvest-reforge-official.json
+ * via applyOfficialHarvestCosts (do not duplicate juice amounts in JS).
  */
 export const HARVEST_REFORGES = [
   {
@@ -42,7 +52,6 @@ export const HARVEST_REFORGES = [
     groups: ['FireResistance', 'FireDamage', 'FireDamagePercentage'],
     textHints: [/Fire Resistance/i, /Fire Damage/i, /to Level of all Fire/i],
     excludeText: [/Lightning Resistance/i, /Cold Resistance/i, /to all Elemental Resistances/i],
-    lifeforce: { wild: 50 },
   },
   {
     id: 'reforge-cold',
@@ -52,7 +61,6 @@ export const HARVEST_REFORGES = [
     groups: ['ColdResistance', 'ColdDamage', 'ColdDamagePercentage'],
     textHints: [/Cold Resistance/i, /Cold Damage/i, /to Level of all Cold/i],
     excludeText: [/Fire Resistance/i, /Lightning Resistance/i, /to all Elemental Resistances/i],
-    lifeforce: { vivid: 50 },
   },
   {
     id: 'reforge-lightning',
@@ -62,7 +70,6 @@ export const HARVEST_REFORGES = [
     groups: ['LightningResistance', 'LightningDamage', 'LightningDamagePercentage'],
     textHints: [/Lightning Resistance/i, /Lightning Damage/i, /to Level of all Lightning/i],
     excludeText: [/Fire Resistance/i, /Cold Resistance/i, /to all Elemental Resistances/i],
-    lifeforce: { primal: 50 },
   },
   {
     id: 'reforge-physical',
@@ -71,7 +78,6 @@ export const HARVEST_REFORGES = [
     tags: ['physical'],
     groups: ['PhysicalDamage', 'LocalPhysicalDamagePercent', 'IncreasedPhysicalDamage'],
     textHints: [/Physical Damage/i, /physical damage/i],
-    lifeforce: { vivid: 50 },
   },
   {
     id: 'reforge-life',
@@ -80,7 +86,6 @@ export const HARVEST_REFORGES = [
     tags: ['life'],
     groups: ['IncreasedLife', 'Life', 'HybridLife'],
     textHints: [/maximum Life/i, /Regenerate .+ Life per second/i, /Life per second/i],
-    lifeforce: { wild: 75 },
   },
   {
     // Official name is Defence — covers Armour / Evasion / Energy Shield / Ward (not Block/Spell Suppression)
@@ -101,7 +106,6 @@ export const HARVEST_REFORGES = [
       /to (Armour|Evasion Rating|maximum Energy Shield|Ward)/i,
       /Energy Shield Recharge/i,
     ],
-    lifeforce: { primal: 75 },
   },
   {
     id: 'reforge-chaos',
@@ -110,7 +114,6 @@ export const HARVEST_REFORGES = [
     tags: ['chaos'],
     groups: ['ChaosResistance', 'ChaosDamage'],
     textHints: [/Chaos Resistance/i, /Chaos Damage/i, /Penetrate .+ Chaos/i],
-    lifeforce: { vivid: 100 },
   },
   {
     id: 'reforge-attack',
@@ -119,7 +122,6 @@ export const HARVEST_REFORGES = [
     tags: ['attack'],
     groups: [],
     textHints: [/Attack Speed/i, /Accuracy Rating/i, /Adds .+ Physical Damage/i, /with this Weapon/i],
-    lifeforce: { wild: 75 },
   },
   {
     id: 'reforge-caster',
@@ -128,7 +130,6 @@ export const HARVEST_REFORGES = [
     tags: ['caster'],
     groups: [],
     textHints: [/Cast Speed/i, /Spell Damage/i, /to Level of all .+ Spell/i],
-    lifeforce: { primal: 75 },
   },
   {
     id: 'reforge-speed',
@@ -137,7 +138,6 @@ export const HARVEST_REFORGES = [
     tags: ['speed'],
     groups: ['IncreasedAttackSpeed', 'LocalIncreasedAttackSpeed', 'IncreasedCastSpeed', 'MovementVelocity'],
     textHints: [/Attack Speed/i, /Cast Speed/i, /Movement Speed/i],
-    lifeforce: { vivid: 150 },
   },
   {
     id: 'reforge-critical',
@@ -154,14 +154,27 @@ export const HARVEST_REFORGES = [
       'CriticalStrikeChanceWithSpells',
     ],
     textHints: [/critical strike chance/i, /critical strike multiplier/i],
-    lifeforce: { primal: 150 },
   },
 ];
+
+let officialHarvestById = new Map();
+
+/** Bind generated harvest-reforge-official.json costs onto matching metadata. */
+export function applyOfficialHarvestCosts(official) {
+  officialHarvestById = new Map((official?.crafts ?? []).map((c) => [c.id, c]));
+  for (const h of HARVEST_REFORGES) {
+    const o = officialHarvestById.get(h.id);
+    if (o?.lifeforce) h.lifeforce = o.lifeforce;
+    if (o?.name) h.name = o.name;
+    if (o?.detail) h.detail = o.detail;
+  }
+}
 
 /** Cost bag for N harvest reforges of this craft (juice only; Divines separate). */
 export function harvestCostBag(harvest, attempts = 1) {
   const bag = {};
-  for (const [color, amount] of Object.entries(harvest?.lifeforce ?? {})) {
+  const lf = officialHarvestById.get(harvest?.id)?.lifeforce ?? harvest?.lifeforce ?? {};
+  for (const [color, amount] of Object.entries(lf)) {
     const key = LIFEFORCE_PRICE_KEY[color] ?? `${color}-lifeforce`;
     bag[key] = (bag[key] ?? 0) + amount * attempts;
   }
@@ -202,8 +215,7 @@ export const VEILED_TARGETS = [
  */
 export const DEFAULT_PRICES = Object.freeze({});
 
-/** Typical extra chaos vs white base for buying already-influenced. Lean EV stand-in. */
-export const INFLUENCED_BASE_PREMIUM = 50;
+/** Influenced base trade price is unknown until a trade quote exists. Never invent a premium for ranked EV. */
 
 export const INFLUENCE_EXALTS = {
   Warlord: { key: 'warlord-exalt', name: "Warlord's Exalted Orb" },
@@ -242,78 +254,70 @@ export function requiredInfluences(item, mods = []) {
 
 /**
  * Buy influenced base vs slam influence exalt.
- * Heuristic: prefer orb when a single exalt is cheaper than INFLUENCED_BASE_PREMIUM;
- * prefer buy when multi-influence, paste already influenced, or orb ≥ premium.
- * Hard influence goals (`preferMidCraftSlam`): mid-craft influence exalt after opposite-side
- * fill — never lead with buy-influenced / influenced-fractured.
+ * Ranked EV never invents an influenced-base premium — that price is unknown until trade exists.
+ * Prefer known-cost orbs when priced. Multi-influence stays buy (unranked).
  */
 export function recommendInfluenceAcquisition(influences, prices, opts = {}) {
   const list = (influences ?? []).map(normalizeInfluence).filter(Boolean);
   if (!list.length) return null;
-  const premiumTotal = INFLUENCED_BASE_PREMIUM * list.length;
   const orbs = list.map((inf) => {
     const meta = INFLUENCE_EXALTS[inf];
     const unit = prices?.[meta.key];
     return { influence: inf, ...meta, unit: unit ?? null };
   });
+  const orbTotal = orbs.every((o) => o.unit != null) ? orbs.reduce((s, o) => s + o.unit, 0) : null;
 
   if (opts.preferMidCraftSlam && list.length === 1) {
-    const orbTotal = orbs.every((o) => o.unit != null) ? orbs.reduce((s, o) => s + o.unit, 0) : null;
     return {
       influences: list,
       orbs,
       orbTotal,
-      premiumTotal,
+      premiumTotal: null,
+      ranked: orbTotal != null,
       recommend: 'slam',
       reason:
         'hard influence goal — mid-craft influence exalt after opposite-side fill (avoid buying influenced / influenced-fractured)',
     };
   }
 
-  if (!prices) {
+  if (list.length > 1) {
     return {
       influences: list,
-      orbs: list.map((inf) => ({ influence: inf, ...INFLUENCE_EXALTS[inf], unit: null })),
-      orbTotal: null,
-      premiumTotal,
+      orbs,
+      orbTotal,
+      premiumTotal: null,
+      ranked: false,
       recommend: 'buy',
-      reason: 'prices unavailable — buy influenced base (run npm run fetch-prices)',
+      reason: 'multiple influences — buy influenced (orbs only add one each); influenced base unpriced until trade exists',
     };
   }
 
-  if (orbs.some((o) => o.unit == null)) {
+  if (orbTotal == null) {
     return {
       influences: list,
       orbs,
       orbTotal: null,
-      premiumTotal,
-      recommend: 'buy',
-      reason: 'influence exalt price missing from snapshot — buy influenced base',
+      premiumTotal: null,
+      ranked: false,
+      recommend: 'orb',
+      reason: 'influence exalt price missing — cannot rank buy vs slam; influenced base unpriced until trade exists',
     };
   }
-  const orbTotal = orbs.reduce((s, o) => s + o.unit, 0);
-  const multi = list.length > 1;
-  // Multi-influence needs Awakener / special bases — buy. Expensive orb → buy.
-  const preferBuy = multi || orbTotal >= premiumTotal;
-  const recommend = preferBuy ? 'buy' : 'orb';
 
   return {
     influences: list,
     orbs,
     orbTotal,
-    premiumTotal,
-    recommend,
-    reason: multi
-      ? 'multiple influences — buy influenced (orbs only add one each)'
-      : preferBuy
-        ? `influence exalt (~${Math.round(orbTotal)}c) ≥ typical influenced premium (~${premiumTotal}c)`
-        : `influence exalt (~${Math.round(orbTotal)}c) < typical influenced premium (~${premiumTotal}c)`,
+    premiumTotal: null,
+    ranked: true,
+    recommend: 'orb',
+    reason: `ranked EV uses ${orbs.map((o) => o.name).join(' + ')} (~${Math.round(orbTotal)}c); influenced base unpriced until trade exists`,
   };
 }
 
 export function formatInfluenceBaseStep(baseName, minIlvl, acquisition, opts = {}) {
   if (!acquisition) return null;
-  const { influences, orbs, recommend, reason, orbTotal, premiumTotal } = acquisition;
+  const { influences, orbs, recommend, reason, orbTotal } = acquisition;
   const label = influences.join(' + ');
   const fracturedMods = opts.fracturedMods ?? [];
   const fracSuffix = fracturedMods.length ? ` with: ${fracturedMods.join(', ')}` : '';
@@ -335,8 +339,11 @@ export function formatInfluenceBaseStep(baseName, minIlvl, acquisition, opts = {
   const whiteNoun = opts.fractured ? `fractured uninfluenced` : 'uninfluenced';
   const orbAction = `Buy ${whiteNoun} ${baseName} (ilvl ${minIlvl}+)${fracSuffix} → apply ${orbNames} once`;
 
-  const optionA = `Option A: Buy ${label} ${baseName} ilvl ${minIlvl}+ (~${Math.round(premiumTotal)}c typical influence premium)`;
-  const optionB = `Option B: Buy uninfluenced ${baseName} → apply ${orbNames} once (~${Math.round(orbTotal)}c)`;
+  const optionA = `Option A: Buy ${label} ${baseName} ilvl ${minIlvl}+ (influenced base price unknown — unranked)`;
+  const optionB =
+    orbTotal != null
+      ? `Option B: Buy uninfluenced ${baseName} → apply ${orbNames} once (~${Math.round(orbTotal)}c)`
+      : `Option B: Buy uninfluenced ${baseName} → apply ${orbNames} once (orb price unknown)`;
   const recLine =
     recommend === 'buy'
       ? `Recommended: Option A — ${reason}.`
@@ -441,75 +448,37 @@ export function minIlvlForMods(mods) {
 }
 
 /**
- * Expected chaos EV from a cost bag. Requires a loaded daily price snapshot.
- * Returns null if prices missing or any used key has no unit price (no fake defaults).
+ * Expected tradable chaos EV from a cost bag (§25–26).
+ * Gold / dust are excluded (non-tradeable dimensions) — never valued as 0c silently.
+ * Returns null if prices missing or any used tradable key has no unit price.
  */
 export function chaosCost(costs, prices) {
-  if (!prices) return null;
-  let total = 0;
-  for (const [key, count] of Object.entries(costs ?? {})) {
-    if (!count) continue;
-    if (key === 'bench') continue;
-    const unit = prices[key];
-    if (unit == null || !Number.isFinite(unit)) return null;
-    total += unit * count;
-  }
-  return Math.round(total * 100) / 100;
+  return tradableChaosCost(costs, prices);
 }
-
-const COST_LABELS = {
-  transmute: 'Transmute',
-  alteration: 'Alteration',
-  augmentation: 'Augmentation',
-  regal: 'Regal',
-  exalt: 'Exalt',
-  annul: 'Annul',
-  scour: 'Scour',
-  alchemy: 'Alchemy',
-  chaos: 'Chaos',
-  divine: 'Divine',
-  veiled: 'Veiled Exalt',
-  'veiled-chaos': 'Veiled Chaos',
-  'wild-lifeforce': 'Wild Lifeforce',
-  'vivid-lifeforce': 'Vivid Lifeforce',
-  'primal-lifeforce': 'Primal Lifeforce',
-  'sacred-lifeforce': 'Sacred Lifeforce',
-  fossil: 'Fossil',
-  'fossil-dense': 'Dense Fossil',
-  'fossil-hollow': 'Hollow Fossil',
-  essence: 'Essence',
-  'essence-deafening': 'Deafening Essence',
-  'essence-screaming': 'Screaming Essence',
-  'essence-shrieking': 'Shrieking Essence',
-  'essence-weeping': 'Weeping Essence',
-  'essence-wailing': 'Wailing Essence',
-  'essence-muttering': 'Muttering Essence',
-  bench: 'Bench',
-  'eldritch-chaos': 'Eldritch Chaos',
-  'eldritch-annul': 'Eldritch Annul',
-  'eldritch-exalt': 'Eldritch Exalt',
-  'eldritch-ichor': 'Eldritch Ichor',
-  'eldritch-ember': 'Eldritch Ember',
-  'warlord-exalt': "Warlord's Exalt",
-  'redeemer-exalt': "Redeemer's Exalt",
-  'crusader-exalt': "Crusader's Exalt",
-  'hunter-exalt': "Hunter's Exalt",
-  'shaper-exalt': "Shaper's Exalt",
-  'elder-exalt': "Elder's Exalt",
-};
 
 export function formatCostBreakdown(costs, prices) {
   return Object.entries(costs ?? {})
-    .filter(([, n]) => n > 0)
+    .filter(([, n]) => n == null || n > 0)
     .map(([key, count]) => {
-      const unit = prices?.[key];
-      const chaos = unit != null && Number.isFinite(unit) ? Math.round(count * unit * 100) / 100 : null;
+      const unknownAmt = count == null || !Number.isFinite(count);
+      const nonTradable = isNonTradableKey(key);
+      const unit = nonTradable ? null : prices?.[key];
+      const chaos =
+        !nonTradable && !unknownAmt && unit != null && Number.isFinite(unit)
+          ? Math.round(count * unit * 100) / 100
+          : null;
       return {
         key,
         label: COST_LABELS[key] ?? key,
-        count: Math.ceil(count),
+        count: unknownAmt ? null : Math.ceil(count),
         chaos,
-        unknown: chaos == null,
+        unknown: unknownAmt || (!nonTradable && chaos == null),
+        nonTradable,
+        formula: nonTradable
+          ? unknownAmt
+            ? `${COST_LABELS[key] ?? key} amount unpublished (?)`
+            : rawCostFormula(COST_LABELS[key] ?? key, count, null).replace(' × ?c = ?', ' (non-tradeable)')
+          : rawCostFormula(COST_LABELS[key] ?? key, count, unit),
       };
     })
     .sort((a, b) => (b.chaos ?? -1) - (a.chaos ?? -1));

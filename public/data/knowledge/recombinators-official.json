@@ -1,0 +1,242 @@
+{
+  "version": "3.29",
+  "league": "Curse of the Allflame",
+  "game": "poe1",
+  "modeled": ["UnpredictableRecombine", "PredictableRecombine"],
+  "empiricalDataset": "/data/recombinator/3.29.json",
+  "sampleSize": null,
+  "confidence": "mixed",
+  "rejectedModels": {
+    "sentinelCurrencyEra": "rejected — deleted in 3.26.0",
+    "independentFiftyPercentPerMod": "rejected — not how Unpredictable works"
+  },
+  "allflame": {
+    "supported": false,
+    "reason": "§51 intentionally unsupported"
+  },
+  "operators": [
+    {
+      "id": "UnpredictableRecombine",
+      "name": "Unpredictable Recombination",
+      "alwaysSucceeds": true,
+      "playerSelectsMods": false,
+      "costCurrencies": ["gold", "thaumaturgic-dust"],
+      "notes": "Random merge of pooled prefixes/suffixes. Physics in this file + empirical dataset."
+    },
+    {
+      "id": "PredictableRecombine",
+      "name": "Predictable Recombination",
+      "alwaysSucceeds": false,
+      "playerSelectsMods": true,
+      "successFormula": null,
+      "successSource": "in-game-displayed-or-empirical-sample",
+      "costCurrencies": ["gold", "thaumaturgic-dust"],
+      "notes": "Player picks mods; UI shows success %. Failure destroys both. Without a displayed/empirical chance → unranked (do not invent)."
+    }
+  ],
+  "sources": [
+    {
+      "id": "ggg-3.26.0",
+      "kind": "official",
+      "confidence": "confirmed",
+      "title": "Path of Exile 3.26.0 patch notes — Unpredictable Recombination",
+      "url": "https://www.pathofexile.com/forum/view-thread/3787013",
+      "notes": "Unpredictable always succeeds. Fewer modifiers on average when inputs use many modifiers that cannot normally roll (Veiled, Essence). Corrupted items cannot be recombinated. Predictable lets you choose mods with a fail chance that destroys both items. Sentinel currencies deleted."
+    },
+    {
+      "id": "poewiki-recombinator",
+      "kind": "community-wiki",
+      "confidence": "empirical",
+      "title": "PoE Wiki: Recombinator (Unpredictable overview + estimated count table)",
+      "url": "https://www.poewiki.net/wiki/Recombinator",
+      "notes": "Prefix/suffix pools independent. Estimated affix-count table. 50/50 base pick. 50/50 fill-order. Exclusive at most one. NNN ineligible on chosen base. Fractured cannot increase. Drop-only can transfer. Wiki flags the article as needing Predictable details."
+    },
+    {
+      "id": "ggg-3.25-rarer",
+      "kind": "official",
+      "confidence": "confirmed",
+      "title": "3.25 recombination: rarer modifiers much higher chance to be selected",
+      "url": "https://www.poewiki.net/wiki/Recombinator",
+      "notes": "Exact selection-weight formula unpublished. Model uses inverse-sqrt spawn weight as an approximation."
+    },
+    {
+      "id": "poewiki-recombinator-cost",
+      "kind": "community-wiki",
+      "confidence": "confirmed",
+      "title": "PoE Wiki: Recombinator costs Gold and Thaumaturgic Dust",
+      "url": "https://www.poewiki.net/wiki/Recombinator",
+      "notes": "Amount depends on item level and modifiers. No formula or table published."
+    },
+    {
+      "id": "maxroll-recombination-dust",
+      "kind": "community-guide",
+      "confidence": "empirical",
+      "title": "Maxroll Recombination Guide — empty 1-mod magics inflate dust",
+      "url": "https://maxroll.gg/poe/resources/recombination-guide",
+      "notes": "Slamming 1-mod (prefix-only or suffix-only) magics costs tens of thousands more dust than if you bench-craft any filler on the empty side."
+    },
+    {
+      "id": "ggg-3.27.0g-idol-cost",
+      "kind": "official",
+      "confidence": "confirmed",
+      "title": "3.27.0g Hotfix 2 — Idol recombination cost cut",
+      "url": "https://www.pathofexile.com/forum/view-thread/3910167",
+      "notes": "Idol-only: −75% Thaumaturgic Dust and −50% Gold. Does not publish a general gear formula and does not apply to helmets/weapons/armour."
+    },
+    {
+      "id": "forum-3925127-sample",
+      "kind": "player-report",
+      "confidence": "anecdotal",
+      "title": "Forum: one Unpredictable vs Predictable gold/dust readout",
+      "url": "https://www.pathofexile.com/forum/view-thread/3925127",
+      "notes": "One player: Unpredictable 12k gold / 25k dust; Predictable 10k gold / 27k dust at 6.58% (magic weapons). Not a formula. Not an armour/helmet table."
+    }
+  ],
+  "rules": {
+    "sameItemClass": { "confidence": "confirmed", "value": true },
+    "unpredictableAlwaysProducesItem": { "confidence": "confirmed", "value": true },
+    "corruptedIneligible": { "confidence": "confirmed", "value": true },
+    "mirroredIneligible": { "confidence": "confirmed", "value": true },
+    "uniqueIneligible": { "confidence": "confirmed", "value": true },
+    "influenceFromChosenBase": { "confidence": "empirical", "value": true },
+    "prefixSuffixIndependentCounts": { "confidence": "empirical", "value": true },
+    "baseSelection": { "confidence": "empirical", "A": 0.5, "B": 0.5 },
+    "fillFirst": { "confidence": "empirical", "prefix": 0.5, "suffix": 0.5 },
+    "exclusiveAtMostOne": { "confidence": "empirical", "value": true },
+    "fracturedCannotIncrease": { "confidence": "empirical", "value": true },
+    "fracturedDoesNotTransferOffBase": { "confidence": "empirical", "value": true },
+    "dropOnlyCanTransfer": { "confidence": "empirical", "value": true },
+    "ilvl": {
+      "confidence": "empirical",
+      "formula": "min(max(A,B), floor((A+B)/2)+2)"
+    },
+    "cannotNormallyRollFewerMods": {
+      "confidence": "confirmed-rule-approximate-magnitude",
+      "countWeight": 0.35,
+      "notes": "GGG confirmed fewer mods on average; no official weights. Cannot-normally-roll affixes contribute countWeight toward the count table instead of 1. Old exclusive-mod padding is not modelled as beneficial."
+    },
+    "selectionWeight": {
+      "confidence": "unknown-approximate",
+      "formula": "inverse_sqrt_spawn",
+      "notes": "3.25 says rarer mods are more likely; exact formula unknown. Spawn-less specials use weight 1."
+    },
+    "predictableSuccess": {
+      "confidence": "unknown",
+      "formula": null,
+      "source": "in-game-displayed-or-empirical-sample",
+      "notes": "Depends on amount and tier of chosen mods (GGG/wiki). Do not invent a table."
+    }
+  },
+  "countDistribution": {
+    "confidence": "empirical",
+    "source": "poewiki-recombinator",
+    "notes": "Estimated Unpredictable table on wiki (community). Not Sentinel-era PoEDB numbers. Pool 0 → always 0 affixes.",
+    "byPool": {
+      "1": { "0": 0.41, "1": 0.59 },
+      "2": { "1": 0.667, "2": 0.333 },
+      "3": { "1": 0.4, "2": 0.5, "3": 0.1 },
+      "4": { "1": 0.1, "2": 0.6, "3": 0.3 },
+      "5": { "2": 0.43, "3": 0.57 },
+      "6": { "2": 0.3, "3": 0.7 }
+    }
+  },
+  "cost": {
+    "confidence": "approximate",
+    "formula": null,
+    "currency": ["gold", "thaumaturgic-dust"],
+    "displayNames": {
+      "gold": "Gold",
+      "thaumaturgic-dust": "Thaumaturgic Dust"
+    },
+    "notes": "PoE1 Unpredictable spends Gold + Thaumaturgic Dust. No GGG closed-form. Physical amounts = user empirical Unpredictable band midpoints (~25k Gold · ~85k Dust). Never invent 12+2n+0.04*ilvl; never 0. opportunityCostChaos ranks EV when daily prices lack gold/dust units.",
+    "averageUnpredictable": {
+      "gold": 25000,
+      "goldBand": [15000, 35000],
+      "thaumaturgic-dust": 85000,
+      "dustBand": [50000, 120000],
+      "confidence": "approximate",
+      "source": "user empirical band 2026-08",
+      "notes": "Midpoints of anecdotal Unpredictable smash bands."
+    },
+    "opportunityCostChaos": {
+      "gold": 0.0002,
+      "thaumaturgic-dust": 0.00005,
+      "confidence": "approximate",
+      "source": "user empirical band 2026-08",
+      "notes": "Fallback unit chaos opportunity costs when daily.json has no gold/dust. Ranking only; display stays physical amounts."
+    },
+    "known": {
+      "currencies": { "confidence": "confirmed", "value": ["gold", "thaumaturgic-dust"], "source": "poewiki-recombinator-cost" },
+      "scalesWith": { "confidence": "confirmed", "value": ["itemLevel", "modifiers"], "source": "poewiki-recombinator-cost" },
+      "emptyMagicInflatesDust": {
+        "confidence": "empirical",
+        "source": "maxroll-recombination-dust",
+        "notes": "1-mod magics (empty opposite side) cost tens of thousands more dust; cheap bench filler on the empty side reduces it."
+      },
+      "exclusiveModsIncreaseDust": {
+        "confidence": "anecdotal",
+        "notes": "Essence / veiled / other cannot-normally-roll mods are reported to raise dust. No coefficient."
+      },
+      "predictableVsUnpredictable": {
+        "confidence": "anecdotal",
+        "source": "forum-3925127-sample",
+        "notes": "Costs differ between modes; not the same number. No published mapping."
+      },
+      "kingsmarchRank4": {
+        "confidence": "confirmed",
+        "value": "25% reduced Recombination Cost",
+        "source": "https://www.poewiki.net/wiki/Kingsmarch",
+        "notes": "Upgrade cost, not a smash formula. Unknown whether 3.29 hideout recombinator still applies this rank."
+      },
+      "patchHistory": {
+        "3.26": "No published gold/dust formula. Fewer-mods rule for cannot-normally-roll (physics, not cost). Sentinel currencies deleted.",
+        "3.27.0g": "Idol recombination only: −75% dust, −50% gold. Gear formula still unpublished.",
+        "3.29": "No published gear gold/dust formula. User empirical Unpredictable band midpoints used as approximate amounts."
+      }
+    },
+    "samples": [
+      {
+        "confidence": "approximate",
+        "source": "user empirical band 2026-08",
+        "mode": "unpredictable",
+        "role": "defaultAverage",
+        "preferredForRanking": true,
+        "item": "average Unpredictable smash (band midpoint)",
+        "gold": 25000,
+        "thaumaturgic-dust": 85000,
+        "goldBand": [15000, 35000],
+        "dustBand": [50000, 120000],
+        "notes": "Primary physical amounts for display + EV until a published table exists. Data-driven — swap this entry when better measurements exist; do not hardcode midpoints in planner logic."
+      },
+      {
+        "confidence": "anecdotal",
+        "source": "forum-3925127-sample",
+        "mode": "unpredictable",
+        "item": "magic weapons (not helmet/armour)",
+        "gold": 12000,
+        "thaumaturgic-dust": 25000,
+        "notes": "Single readout — secondary sample."
+      },
+      {
+        "confidence": "anecdotal",
+        "source": "forum-3925127-sample",
+        "mode": "predictable",
+        "item": "magic weapons (not helmet/armour)",
+        "gold": 10000,
+        "thaumaturgic-dust": 27000,
+        "successChance": 0.0658,
+        "notes": "Shows Predictable ≠ Unpredictable cost."
+      }
+    ]
+  },
+  "unknown": [
+    "Predictable success-by-tier table (not invented)",
+    "Exact 3.26 cannot-normally-roll magnitude",
+    "Exact modifier selection weights",
+    "Whether pool size >6 changes the count table",
+    "Whether Kingsmarch recombinator upgrades still apply in 3.29",
+    "Exact Gold / Thaumaturgic Dust formula (ilvl, item class, rarity, mod count, exclusive mods) — unpublished; no wiki table",
+    "Whether Predictable and Unpredictable share a closed-form cost relation",
+    "3.27 anecdotal 0-affix cases beyond the 3.26 fewer-mods rule"
+  ]
+}

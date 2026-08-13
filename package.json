@@ -14,7 +14,14 @@
     "preview": "vite preview",
     "electron": "electron .",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "test": "node scripts/test-deterministic.mjs"
+    "test": "node scripts/run-all-tests.mjs",
+    "test:unit": "node scripts/run-all-tests.mjs",
+    "test:phase1": "node scripts/test-phase1.mjs",
+    "test:mechanics": "node scripts/test-phase3-mechanics.mjs",
+    "test:deterministic": "node scripts/test-deterministic.mjs",
+    "test:recombinator": "node scripts/test-recombinator.mjs",
+    "test:benchmarks": "node -e \"import('./tests/helpers/harness.mjs').then(h=>{h.installFetchMock();return import('./benchmarks/run.mjs')}).then(m=>m.runBenchmarkTests())\"",
+    "test:mc": "node scripts/run-all-tests.mjs"
   },
   "keywords": ["path-of-exile", "crafting", "electron"],
   "license": "MIT",

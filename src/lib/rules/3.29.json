@@ -1,0 +1,30 @@
+{
+  "version": "3.29",
+  "league": "3.29",
+  "notes": "Versioned crafting ruleset. Harvest cannot-roll behaviour is 3.27+.",
+  "harvest": {
+    "guaranteedReforgeRespectsCannotRoll": true,
+    "since": "3.27",
+    "cannotRollTags": {
+      "cannot-roll-attack": ["attack"],
+      "cannot-roll-caster": ["caster"]
+    }
+  },
+  "recombinator": {
+    "exclusivePenalty": true,
+    "cannotIncreaseFractured": true,
+    "ev": "experimental"
+  },
+  "veiledExalted": {
+    "removesOneAddsOne": true
+  },
+  "annul": {
+    "uniformAmongRemovable": true,
+    "respectsFractured": true
+  },
+  "eldritch": {
+    "chaosSideFromDominance": true,
+    "exarch": "prefix",
+    "eater": "suffix"
+  }
+}

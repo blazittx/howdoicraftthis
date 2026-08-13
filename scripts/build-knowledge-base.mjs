@@ -9,13 +9,17 @@
  * Does NOT invent crafts. Systems without reliable dumps are listed in
  * coverage.json with status "missing" or "partial".
  */
-import { writeFileSync, mkdirSync } from 'fs';
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { createHash } from 'crypto';
+import { execSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, '../public/data/knowledge');
 const BASE = 'https://repoe-fork.github.io';
+const EXPECTED_GAME_VERSION = '3.29';
+const OPERATORS_VERSION = '1.0.0';
 
 const INFLUENCE_KEYS = {
   shaper: 'Shaper',
@@ -116,7 +120,27 @@ function write(name, data) {
   return { file: name, bytes, count: Array.isArray(data) ? data.length : data.count ?? Object.keys(data).length };
 }
 
+/** §35 canonical family id from generation + groups + stat ids (not display text). */
+function computeFamilyId(generation, groups, stats) {
+  const payload = JSON.stringify({
+    generation: generation ?? null,
+    groups: [...(groups ?? [])].map(String).sort(),
+    statIds: [...(stats ?? [])].map((s) => (typeof s === 'string' ? s : s?.id)).filter(Boolean).sort(),
+  });
+  const h = createHash('sha1').update(payload).digest('hex').slice(0, 12);
+  return `fam_${h}`;
+}
+
+function gitCommit() {
+  try {
+    return execSync('git rev-parse HEAD', { cwd: join(__dirname, '..'), encoding: 'utf8' }).trim();
+  } catch {
+    return null;
+  }
+}
+
 function compactMod(id, m) {
+  const stats = (m.stats ?? []).map((s) => ({ id: s.id, min: s.min, max: s.max }));
   return {
     id,
     name: m.name ?? null,
@@ -128,7 +152,8 @@ function compactMod(id, m) {
     tags: m.implicit_tags ?? [],
     required_level: m.required_level ?? 1,
     is_essence_only: !!m.is_essence_only,
-    stats: (m.stats ?? []).map((s) => ({ id: s.id, min: s.min, max: s.max })),
+    stats,
+    familyId: computeFamilyId(m.generation_type, m.groups, stats),
     // Keep weight-0 rows: PoE uses first matching tag (0 excludes before a later default).
     spawn_weights: m.spawn_weights ?? [],
     generation_weights: m.generation_weights ?? [],
@@ -149,6 +174,7 @@ function detectInfluences(spawnWeights) {
 
 async function main() {
   console.log('Fetching RePoE PoE1 data…');
+  const fetchedAt = new Date().toISOString();
   const [modsRaw, essencesRaw, fossilsRaw, benchRaw, basesRaw, itemClasses, modTypes, tags] = await Promise.all([
     fetchJson('mods.json'),
     fetchJson('essences.json'),
@@ -159,6 +185,20 @@ async function main() {
     fetchJson('mod_types.json'),
     fetchJson('tags.json'),
   ]);
+
+  const repoeHash = createHash('sha256')
+    .update(JSON.stringify({ mods: Object.keys(modsRaw).length, essences: Object.keys(essencesRaw).length }))
+    .digest('hex')
+    .slice(0, 16);
+  const repoProvenance = {
+    source: BASE,
+    url: BASE,
+    hash: repoeHash,
+    fetchedAt,
+    gameVersion: EXPECTED_GAME_VERSION,
+    league: EXPECTED_GAME_VERSION,
+    note: 'Content hash of export sizes — pin a local snapshot for reproducible tests (§33)',
+  };
 
   mkdirSync(OUT_DIR, { recursive: true });
   const files = [];
@@ -329,24 +369,130 @@ async function main() {
   files.push(
     write('harvest-reforge-official.json', {
       source: 'https://poedb.tw/us/Horticrafting',
+      sources: [
+        {
+          sourceType: 'community-doc',
+          url: 'https://poedb.tw/us/Horticrafting',
+          versionVerified: EXPECTED_GAME_VERSION,
+          retrievedAt: fetchedAt,
+        },
+      ],
       note: 'Only official "Reforge including X" crafts. Defence includes ES — no separate ES reforge.',
       crafts: HARVEST_REFORGES_OFFICIAL,
     })
   );
-  files.push(write('metacrafts-official.json', { crafts: METACRAFTS_OFFICIAL }));
+  files.push(
+    write('metacrafts-official.json', {
+      crafts: METACRAFTS_OFFICIAL,
+      sources: [
+        {
+          sourceType: 'community-doc',
+          url: 'https://www.poewiki.net/wiki/Metamod',
+          versionVerified: EXPECTED_GAME_VERSION,
+          retrievedAt: fetchedAt,
+        },
+      ],
+    })
+  );
   files.push(write('cannot-roll-official.json', CANNOT_ROLL_OFFICIAL));
 
-  // Craft operators — curated (Eldritch, fossils patterns, buyout). Keep in sync with public file if edited by hand.
-  const { readFileSync: readFs } = await import('fs');
+  // Craft operators — curated legacy file kept for UI notes; canonical schema is operators.json
   const opsPath = join(OUT_DIR, 'craft-operators-official.json');
+  let craftOpsExisting = null;
   try {
-    const existing = JSON.parse(readFs(opsPath, 'utf8'));
-    files.push(write('craft-operators-official.json', existing));
+    craftOpsExisting = JSON.parse(readFileSync(opsPath, 'utf8'));
+    files.push(write('craft-operators-official.json', craftOpsExisting));
   } catch {
     console.warn('  craft-operators-official.json missing — run once after creating it');
   }
 
-  // Coverage — honest about gaps
+  /** §57 canonical operators.json — single schema; harvest costs from official JSON only. */
+  const operators = [];
+  for (const h of HARVEST_REFORGES_OFFICIAL) {
+    const lf = h.lifeforce ?? {};
+    const cost = {};
+    for (const [color, amount] of Object.entries(lf)) {
+      cost[`${color}-lifeforce`] = amount;
+    }
+    operators.push({
+      id: h.id,
+      name: h.name,
+      requirements: { rarity: 'rare' },
+      cost,
+      effect: h.detail,
+      tags: [h.id.replace('reforge-', '')],
+      respectsMetamods: true,
+      sources: [
+        {
+          sourceType: 'community-doc',
+          url: 'https://poedb.tw/us/Horticrafting',
+          versionVerified: EXPECTED_GAME_VERSION,
+          retrievedAt: fetchedAt,
+        },
+      ],
+      version: EXPECTED_GAME_VERSION,
+    });
+  }
+  for (const m of METACRAFTS_OFFICIAL) {
+    const cost = {};
+    for (const [k, v] of Object.entries(m.cost ?? {})) {
+      cost[k.toLowerCase().includes('divine') ? 'divine' : k] = v;
+    }
+    operators.push({
+      id: m.id,
+      name: m.name,
+      requirements: { rarity: 'rare' },
+      cost,
+      effect: m.locks ? `Locks ${m.locks}` : m.name,
+      tags: m.blocked_tags ?? [],
+      respectsMetamods: false,
+      sources: [
+        {
+          sourceType: 'community-doc',
+          url: 'https://www.poewiki.net/wiki/Metamod',
+          versionVerified: EXPECTED_GAME_VERSION,
+          retrievedAt: fetchedAt,
+        },
+      ],
+      version: EXPECTED_GAME_VERSION,
+    });
+  }
+  for (const op of craftOpsExisting?.operators ?? []) {
+    operators.push({
+      id: op.id,
+      name: op.name,
+      requirements: {
+        itemClasses: op.slots ?? undefined,
+        note: op.requires ?? undefined,
+      },
+      cost: op.cost_key ? { [op.cost_key]: 1 } : op.cost ?? {},
+      effect: op.effect ?? op.notes ?? null,
+      tags: op.planner?.tags ?? [],
+      respectsMetamods: /veiled|harvest|eldritch/i.test(op.id),
+      sources: [
+        {
+          sourceType: op.wiki ? 'community-doc' : 'curated',
+          url: op.wiki ?? null,
+          versionVerified: EXPECTED_GAME_VERSION,
+          retrievedAt: fetchedAt,
+        },
+      ],
+      version: EXPECTED_GAME_VERSION,
+      planner: op.planner ?? null,
+      status: op.status ?? 'documented',
+    });
+  }
+  files.push(
+    write('operators.json', {
+      version: OPERATORS_VERSION,
+      rulesetVersion: EXPECTED_GAME_VERSION,
+      built_at: fetchedAt,
+      note: 'Canonical operator dataset. Prefer this over duplicating harvest costs in JS.',
+      operators,
+    })
+  );
+
+  // Coverage — honest about gaps + provenance (§33, §66)
   const categorizedModCount =
     natural.length +
     essenceOnly.length +
@@ -360,14 +506,26 @@ async function main() {
     jewelMods.length +
     flaskMods.length +
     remainder.length;
+  const gitSha = gitCommit();
   const coverage = {
     game: 'Path of Exile 1 only',
     repoE_version_hint: 'repoe-fork.github.io (live export)',
-    built_at: new Date().toISOString(),
+    built_at: fetchedAt,
+    dataVersion: fetchedAt,
+    rulesetVersion: EXPECTED_GAME_VERSION,
+    operatorDatasetVersion: OPERATORS_VERSION,
+    gitCommit: gitSha,
+    repoe: repoProvenance,
+    priceSnapshotNote: 'Plan attaches pricesFetchedAt from public/data/prices/daily.json at runtime',
+    marketTrade: {
+      status: 'stub',
+      phase: 1,
+      note: 'Item/base trade prices unknown — never invent premiums (e.g. 50c influenced). See src/lib/pricing/trade.js',
+    },
     repoe_mod_total: Object.keys(modsRaw).length,
     knowledge_mod_total: categorizedModCount,
     note:
-      'knowledge_mod_total should equal repoe_mod_total — every RePoE mod is written into a category file (remainder holds uniques/implicits/monster/area/etc.).',
+      'knowledge_mod_total should equal repoe_mod_total — every RePoE mod is written into a category file (remainder holds uniques/implicits/monster/area/etc.). Mods include familyId (§35).',
     fully_covered_from_repoe: [
       'Natural prefix/suffix mods + spawn weights',
       'Essence-only mods',
@@ -391,6 +549,8 @@ async function main() {
       'Common metacrafts (Prefixes/Suffixes Cannot Be Changed, etc.)',
       'Cannot-roll constraints (caster/attack tag blocks + legacy level-28 cap) — cannot-roll-official.json',
       'Craft operators (Eldritch chaos/annul/exalt, Dense/Hollow fossils, veiled, buyout heuristic) — craft-operators-official.json',
+      'Normalized operators.json (§57)',
+      'Recombinator Unpredictable physics (3.29 sourced tables) — recombinators-official.json',
     ],
     missing_or_partial: [
       {
@@ -401,7 +561,7 @@ async function main() {
       {
         system: 'Recombinators',
         status: 'partial',
-        note: 'Operator documented in craft-operators-official.json; exclusive-mod tables incomplete',
+        note: 'Unpredictable + Predictable operators in recombinators-official.json; empirical dataset public/data/recombinator/3.29.json. Predictable chance UI/empirical only (else unranked). Exclusive-mod list incomplete; cannot-roll magnitude approximate. Allflame unsupported (§51).',
       },
       {
         system: 'Allflame / Kingsmarch boat crafting (Settlers)',
@@ -420,8 +580,8 @@ async function main() {
       },
       {
         system: 'Live trade market prices',
-        status: 'missing',
-        note: 'Buyout heuristic uses craft EV threshold only until trade API wired',
+        status: 'stub',
+        note: 'Phase 1 currency EV only; base/item trade returns unknown via pricing/trade.js — no fake premiums',
       },
     ],
     generation_type_counts: genCounts,
@@ -443,21 +603,36 @@ async function main() {
       fossils: fossils.length,
       crafting_bench: bench.length,
       bases: bases.length,
+      operators: operators.length,
     },
   };
   files.push(write('coverage.json', coverage));
 
+  const recombFile = join(OUT_DIR, 'recombinators-official.json');
+  if (existsSync(recombFile)) {
+    files.push(write('recombinators-official.json', JSON.parse(readFileSync(recombFile, 'utf8'))));
+  }
+
   const manifest = {
     built_at: coverage.built_at,
+    dataVersion: coverage.dataVersion,
     game: 'poe1',
+    gameVersion: EXPECTED_GAME_VERSION,
+    league: EXPECTED_GAME_VERSION,
+    rulesetVersion: EXPECTED_GAME_VERSION,
+    operatorDatasetVersion: OPERATORS_VERSION,
+    gitCommit: gitSha,
+    repoe: repoProvenance,
     files: files.map((f) => f.file),
     category_counts: coverage.category_counts,
     missing_or_partial: coverage.missing_or_partial.map((m) => m.system),
+    marketTrade: coverage.marketTrade,
   };
   write('manifest.json', manifest);
 
   console.log('\nDone. Knowledge base at public/data/knowledge/');
   console.log('See coverage.json for what is fully covered vs still missing.');
+  console.log(`Provenance: RePoE hash=${repoeHash} ruleset=${EXPECTED_GAME_VERSION} git=${gitSha ?? 'n/a'}`);
 }
 
 main().catch((e) => {

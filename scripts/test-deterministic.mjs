@@ -377,7 +377,7 @@ Fractured Item`,
 const results = {};
 for (const [name, text] of Object.entries(samples)) {
   const item = parseItem(text);
-  const plan = await generateCraftSteps(item);
+  const plan = await generateCraftSteps(item, null, { skipRecombinator: true });
   results[name] = plan;
   console.log('\n====', name, '====');
   console.log('method:', plan.methodName);
@@ -434,7 +434,7 @@ for (const [name, plan] of Object.entries(results)) {
 
   // Toggle off: preferFracture step stays; craft includes the locked mod again
   const chestItem = parseItem(samples.chest);
-  const off = await generateCraftSteps(chestItem, null, { preferFracture: false });
+  const off = await generateCraftSteps(chestItem, null, { preferFracture: false, skipRecombinator: true });
   const fracOff = off.steps.find((s) => s.operator === 'preferFracture');
   assert(fracOff && fracOff.preferEnabled === false, 'chest: preferFracture step remains when toggled off');
   const essOff = off.steps.find((s) => s.operator === 'essenceFish');
@@ -699,7 +699,7 @@ for (const [name, plan] of Object.entries(results)) {
   );
 }
 
-// Warlord paste: influence base step with buy-vs-orb recommendation (orb expensive → buy)
+// Warlord paste: both buy/slam options; ranked EV uses known-cost orb (no fake 50c premium)
 {
   const item = parseItem(samples.warlordQuiver);
   assert(item.influenced?.includes('Warlord'), 'warlordQuiver: parser sees Warlord Item');
@@ -710,10 +710,13 @@ for (const [name, plan] of Object.entries(results)) {
   assert(/Option A:/i.test(base.detail) && /Option B:/i.test(base.detail), 'warlordQuiver: both options in detail');
   assert(/Warlord'?s Exalted Orb/i.test(base.detail), 'warlordQuiver: Option B names Warlord\'s Exalted Orb');
   assert(/\[recommended\]/i.test(base.action), 'warlordQuiver: marks recommended choice');
-  // DEFAULT warlord-exalt (180) ≥ INFLUENCED_BASE_PREMIUM (50) → prefer buy
   assert(
-    /Buy (fractured )?Warlord Broadhead/i.test(base.action),
-    `warlordQuiver: recommend buy influenced, got: ${base.action}`
+    /Exalted Orb/i.test(base.action),
+    `warlordQuiver: recommend known-cost orb, not fake 50c buy, got: ${base.action}`
+  );
+  assert(
+    !/typical influence premium|INFLUENCED_BASE_PREMIUM/i.test(base.detail ?? ''),
+    'warlordQuiver: no invented influence premium in copy'
   );
   assert(!plan.steps.some((s) => /Warlord'?s Exalted Orb/i.test(s.action) && s.operator !== 'buyBase'), 'warlordQuiver: no separate late influence-exalt spam step');
 }
@@ -1010,7 +1013,7 @@ for (const [name, plan] of Object.entries(results)) {
   );
 
   // preferFracture off: explicit alt for natural DoT before influencePrep
-  const off = await generateCraftSteps(parseItem(samples.hunterQuiver), null, { preferFracture: false });
+  const off = await generateCraftSteps(parseItem(samples.hunterQuiver), null, { preferFracture: false, skipRecombinator: true });
   const altIdx = off.steps.findIndex(
     (s) =>
       s.operator === 'altSpam' &&
@@ -1126,4 +1129,121 @@ function inferGenFromAnalysis(plan, t) {
   return null;
 }
 
-console.log('\nOK: assertions passed');
+console.log('\nOK: sequential assertions passed');
+
+{
+  const plan = await generateCraftSteps(parseItem(samples.gloves));
+  assert(plan.methodComparison, 'gloves recomb: methodComparison present');
+  assert(plan.methodComparison.sequential && plan.methodComparison.recombinator, 'gloves recomb: both methods scored');
+  if (plan.method === 'recombinator' || /Recombinator/i.test(plan.methodName ?? '')) {
+    assert(
+      plan.steps.some((s) => s.operator === 'recombDonor'),
+      'gloves recomb: donor stages in plan'
+    );
+    assert(
+      plan.steps.some((s) => s.operator === 'recombine'),
+      'gloves recomb: recombine step'
+    );
+    assert(plan.steps.some((s) => s.operator === 'bench'), 'gloves recomb: bench last still present');
+  }
+}
+
+{
+  const plan = await generateCraftSteps(parseItem(samples.honourHold));
+  const last = plan.steps[plan.steps.length - 1];
+  assert(last.operator === 'bench', 'honourHold recomb path: bench last');
+  assert(/Cold/i.test(last.action) && /Lightning/i.test(last.action), 'honourHold recomb path: hybrid bench text');
+}
+
+{
+  const plan = await generateCraftSteps(parseItem(samples.onslaughtBolt));
+  assert(plan.methodComparison, 'onslaughtBolt: comparison present');
+}
+
+{
+  const { harvestEligiblePool } = await import('../src/lib/spawnWeights.js');
+  const { HARVEST_REFORGES, modMatchesHarvest } = await import('../src/lib/craftKnowledge.js');
+  const { loadKnowledgeBase, getBaseInfo, effectiveBaseTags } = await import('../src/lib/knowledgeLoader.js');
+  const item = parseItem(samples.cataclysm);
+  const plan = await generateCraftSteps(item);
+  assert(plan.methodComparison, 'wand-like: methodComparison present');
+  const recombWon = plan.method === 'recombinator' || /Recombinator/i.test(plan.methodName ?? '');
+  const seqCost = plan.methodComparison.sequential?.cost;
+  const recCost = plan.methodComparison.recombinator?.cost;
+  assert(
+    !recombWon,
+    `wand-like: sequential/entropy chain should win vs recomb (seq=${seqCost} recomb=${recCost} method=${plan.methodName})`
+  );
+  assert(
+    /sequential|fracture/i.test(plan.methodComparison.winner ?? ''),
+    `wand-like: winner sequential/fracture, got ${plan.methodComparison.winner}`
+  );
+  assert(
+    /anecdotal|floor|\?×|unveil|entropy|protect|pool collapse/i.test(plan.methodComparison.recombinator?.why ?? ''),
+    `wand-like: recomb loss reason from V, got ${plan.methodComparison.recombinator?.why}`
+  );
+  assert(
+    !plan.steps.some(
+      (s) =>
+        s.operator === 'recombDonor' &&
+        /Penetrate .+ Chaos|Chaos Resistance/i.test(`${s.action} ${(s.targetMods ?? []).join(' ')}`)
+    ),
+    'wand-like: Chaos Pen must not be stuffed into a recomb donor'
+  );
+  const unveil = plan.steps.find((s) => s.operator === 'unveil');
+  assert(unveil, 'wand-like: Chaos Pen via unveil');
+  assert(/Penetrate .+ Chaos|Chaos Resistance/i.test(unveil.action), `wand-like: unveil targets chaos pen, got ${unveil.action}`);
+  const fill = plan.steps.find((s) => s.operator === 'harvestFill');
+  assert(fill, 'wand-like: harvestFill present');
+  assert(/eligible .*\bpool\b/i.test(fill.detail ?? ''), `wand-like: harvest prints eligible pool, got ${fill.detail}`);
+  assert((fill.eligiblePool?.length ?? 0) > 0, 'wand-like: eligiblePool candidates listed');
+
+  const kb = await loadKnowledgeBase();
+  const base = getBaseInfo(kb, item.baseName);
+  const tags = effectiveBaseTags(item, base, kb.cannotRoll);
+  const harvest = HARVEST_REFORGES.find((h) => h.id === 'reforge-critical');
+  const critMulti = (plan.classified ?? []).find((m) => /Critical Strike Multiplier/i.test(m.text));
+  const occ = collectOccupiedGroups([critMulti].filter(Boolean));
+  const before = harvestEligiblePool(kb, tags, 85, 'suffix', harvest, modMatchesHarvest, []);
+  const after = harvestEligiblePool(kb, tags, 85, 'suffix', harvest, modMatchesHarvest, occ);
+  assert(
+    after.total < before.total,
+    `wand-like: occupied crit family shrinks harvest pool ${before.total} → ${after.total}`
+  );
+  assert(
+    !after.rows.some((r) => /Critical Strike Multiplier/i.test(r.text)),
+    'wand-like: occupied crit multi line removed from current-state pool'
+  );
+  const pChance =
+    after.total > 0
+      ? after.rows.filter((r) => /Critical Strike Chance/i.test(r.text)).reduce((s, r) => s + r.weight, 0) /
+        after.total
+      : 0;
+  if (after.rows.length && after.rows.every((r) => /Critical Strike Chance/i.test(r.text))) {
+    assert(pChance > 0.98, `wand-like: collapsed crit pool P(other crit)=${pChance}`);
+  }
+  assert(
+    !/Deterministic/i.test(plan.summary ?? ''),
+    `wand-like: must not be labeled Deterministic, got ${plan.summary}`
+  );
+  assert(plan.rulesetVersion, 'wand-like: plan reports ruleset version');
+  assert(plan.methodComparison.recombinator?.experimental, 'wand-like: recomb EV marked experimental');
+  assert(
+    !/50c typical|INFLUENCED_BASE_PREMIUM/.test(`${plan.summary} ${plan.steps.map((s) => s.detail).join(' ')}`),
+    'wand-like: no 50c influence premium in ranked copy'
+  );
+}
+
+{
+  const det = [
+    readFileSync(join(root, 'src/lib/deterministicPlanner.js'), 'utf8'),
+    readFileSync(join(root, 'src/lib/planner/scaffold/assignAndBuild.js'), 'utf8'),
+    readFileSync(join(root, 'src/lib/planner/scaffold/helpers.js'), 'utf8'),
+    readFileSync(join(root, 'src/lib/planner/scaffold/replan.js'), 'utf8'),
+  ].join('\n');
+  const val = readFileSync(join(root, 'src/lib/craftValue.js'), 'utf8');
+  assert(!/Kinetic Wand|Cataclysm Needle|3P\+2S/.test(det + val), 'no hardcoded wand / 3P+2S recipe');
+}
+
+const { runRecombinatorTests } = await import('./test-recombinator.mjs');
+runRecombinatorTests();

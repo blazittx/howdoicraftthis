@@ -1,1 +1,213 @@
-{"source":"Curated from PoE Wiki, PoEDB, Maxroll crafting guides. No invented crafts.","built_for":"poe1","operators":[{"id":"eldritch-chaos","name":"Eldritch Chaos Orb","wiki":"https://www.poewiki.net/wiki/Eldritch_Chaos_Orb","slots":["Helmet","Gloves","Boots","Body Armour"],"requires":"Eldritch implicits with one side dominant","effect":{"exarch_dominant":"Reroll all prefix modifiers","eater_dominant":"Reroll all suffix modifiers"},"notes":"Does not preserve prefix/suffix count. Fractured mods on the rolled side stay. Standard cheap way to finish resists after defence prefixes are done.","cost_key":"eldritch-chaos","planner":{"side_finish":true}},{"id":"eldritch-annul","name":"Eldritch Orb of Annulment","wiki":"https://www.poewiki.net/wiki/Eldritch_Orb_of_Annulment","slots":["Helmet","Gloves","Boots","Body Armour"],"effect":{"exarch_dominant":"Remove a prefix","eater_dominant":"Remove a suffix"},"cost_key":"eldritch-annul","planner":{"side_annul":true}},{"id":"eldritch-exalt","name":"Eldritch Exalted Orb","wiki":"https://www.poewiki.net/wiki/Eldritch_Exalted_Orb","slots":["Helmet","Gloves","Boots","Body Armour"],"effect":{"exarch_dominant":"Add a prefix","eater_dominant":"Add a suffix"},"notes":"Often paired with bench mod-blocking + Eldritch Annul.","cost_key":"eldritch-exalt","planner":{"side_exalt":true}},{"id":"eldritch-ichor-ember","name":"Eldritch Ichor / Ember","effect":"Apply Eater (Ichor) or Exarch (Ember) implicits; higher tier = dominant side for Eldritch currency","tiers":["Lesser","Greater","Grand","Exceptional","Exquisite","Perfect"],"cost_key":"eldritch-ichor","planner":{"setup_dominance":true}},{"id":"influence-exalt","name":"Influence Exalted Orb (Conqueror / Shaper / Elder)","wiki":"https://www.poewiki.net/wiki/Warlord%27s_Exalted_Orb","variants":[{"id":"warlord-exalt","name":"Warlord's Exalted Orb","cost_key":"warlord-exalt","influence":"Warlord"},{"id":"redeemer-exalt","name":"Redeemer's Exalted Orb","cost_key":"redeemer-exalt","influence":"Redeemer"},{"id":"crusader-exalt","name":"Crusader's Exalted Orb","cost_key":"crusader-exalt","influence":"Crusader"},{"id":"hunter-exalt","name":"Hunter's Exalted Orb","cost_key":"hunter-exalt","influence":"Hunter"},{"id":"shaper-exalt","name":"Shaper's Exalted Orb","cost_key":"shaper-exalt","influence":"Shaper"},{"id":"elder-exalt","name":"Elder's Exalted Orb","cost_key":"elder-exalt","influence":"Elder"}],"effect":"Adds that influence to a rare item and a new influence modifier","notes":"Planner compares orb EV vs buying an already-influenced base (INFLUENCED_BASE_PREMIUM). Eldritch ichor/ember is a separate system.","planner":{"influence_setup":true,"vs_buy_influenced":true}},{"id":"veiled-chaos","name":"Veiled Chaos Orb","wiki":"https://www.poewiki.net/wiki/Veiled_Chaos_Orb","effect":"Reforges a rare item with new random modifiers including a veiled modifier","cost_key":"veiled-chaos","planner":{"veiled_reforge":true}},{"id":"veiled-exalt","name":"Veiled Exalted Orb","wiki":"https://www.poewiki.net/wiki/Veiled_Exalted_Orb","effect":"Removes a random modifier and adds a veiled modifier","notes":"Respects Prefixes/Suffixes Cannot Be Changed.","cost_key":"veiled","planner":{"veiled_slam":true}},{"id":"dense-fossil","name":"Dense Fossil (defence)","effect":"More likely Defence modifiers; no Life modifiers","use":"ES/Armour/Evasion prefixes on armour — common cheap alternative to metacraft harvest for multi-ES chests","cost_key":"fossil-dense","planner":{"defence_prefix_roll":true,"tags":["defences","energy_shield","armour","evasion"]}},{"id":"hollow-fossil","name":"Hollow Fossil","effect":"Guarantees Has 1 Abyssal Socket","cost_key":"fossil-hollow","planner":{"abyssal_socket":true}},{"id":"harvest-reforge","name":"Harvest Reforge including X","source":"harvest-reforge-official.json","notes":"Use with metacraft. Prefer Eldritch Chaos for suffix finishing on armour when prefixes are done."},{"id":"metacraft-scbc-pcbc","name":"Prefixes/Suffixes Cannot Be Changed","source":"metacrafts-official.json","cost":{"divine":2}},{"id":"aisling-veiled","name":"Betrayal Aisling / Jun unveil","effect":"Unveil veiled modifiers; outcomes in mods-unveiled.json"},{"id":"beast-split","name":"Beastcrafting — Split / Black Morrigan","status":"documented","effect":"Split rare into copies; 6-link recipes exist","notes":"Full recipe table not in RePoE — see PoEDB Bestiary"},{"id":"recombinator","name":"Recombinators","status":"documented","effect":"Combine two items; inherit mods by rules","notes":"Exclusive-mod tables incomplete in this dump"},{"id":"buy-trade","name":"Buy on trade","effect":"If expected craft cost >> market price for similar items, buy instead","planner":{"buyout_heuristic":true,"craft_vs_buy_ratio":1.5}}],"dominance_rules":{"exarch_dominant":"Ember tier > Ichor tier → Eldritch currency affects PREFIXES","eater_dominant":"Ichor tier > Ember tier → Eldritch currency affects SUFFIXES","tied":"Same tier → neither dominant; Eldritch currency cannot be used"},"recommended_patterns":[{"id":"armour-defence-then-eldritch-suffixes","name":"Defence prefixes → Eldritch Chaos suffixes","steps":["Roll defence prefixes (Deafening Woe / Dense Fossil) until usable — do NOT metacraft-hunt exact T1","Apply Eldritch Ichor so Eater is dominant (prefixes safe)","Spam Eldritch Chaos Orb until desired resists/attributes on suffixes","Bench craft last suffix/prefix","Finish implicits with Ember/Ichor as needed"],"applies_when":"Body Armour / Boots / Gloves / Helmet with multiple defence prefixes + resist suffixes"},{"id":"essence-fish-harvest-sibling","name":"Essence fish any-of family → metacraft harvest sibling","steps":["Essence guarantee + fish any harvest-family mod","Lock that side → Harvest reforge to fill open slot"],"applies_when":"Weapon / jewellery where Eldritch currency is unavailable"}]}
+{
+  "source": "Curated from PoE Wiki, PoEDB, Maxroll crafting guides. No invented crafts.",
+  "built_for": "poe1",
+  "operators": [
+    {
+      "id": "eldritch-chaos",
+      "name": "Eldritch Chaos Orb",
+      "wiki": "https://www.poewiki.net/wiki/Eldritch_Chaos_Orb",
+      "slots": ["Helmet", "Gloves", "Boots", "Body Armour"],
+      "requires": "Eldritch implicits with one side dominant",
+      "effect": {
+        "exarch_dominant": "Reroll all prefix modifiers",
+        "eater_dominant": "Reroll all suffix modifiers"
+      },
+      "notes": "Does not preserve prefix/suffix count. Fractured mods on the rolled side stay. Standard cheap way to finish resists after defence prefixes are done.",
+      "cost_key": "eldritch-chaos",
+      "planner": { "side_finish": true }
+    },
+    {
+      "id": "eldritch-annul",
+      "name": "Eldritch Orb of Annulment",
+      "wiki": "https://www.poewiki.net/wiki/Eldritch_Orb_of_Annulment",
+      "slots": ["Helmet", "Gloves", "Boots", "Body Armour"],
+      "effect": {
+        "exarch_dominant": "Remove a prefix",
+        "eater_dominant": "Remove a suffix"
+      },
+      "cost_key": "eldritch-annul",
+      "planner": { "side_annul": true }
+    },
+    {
+      "id": "eldritch-exalt",
+      "name": "Eldritch Exalted Orb",
+      "wiki": "https://www.poewiki.net/wiki/Eldritch_Exalted_Orb",
+      "slots": ["Helmet", "Gloves", "Boots", "Body Armour"],
+      "effect": {
+        "exarch_dominant": "Add a prefix",
+        "eater_dominant": "Add a suffix"
+      },
+      "notes": "Often paired with bench mod-blocking + Eldritch Annul.",
+      "cost_key": "eldritch-exalt",
+      "planner": { "side_exalt": true }
+    },
+    {
+      "id": "eldritch-ichor-ember",
+      "name": "Eldritch Ichor / Ember",
+      "effect": "Apply Eater (Ichor) or Exarch (Ember) implicits; higher tier = dominant side for Eldritch currency",
+      "tiers": [
+        "Lesser",
+        "Greater",
+        "Grand",
+        "Exceptional",
+        "Exquisite",
+        "Perfect"
+      ],
+      "cost_key": "eldritch-ichor",
+      "planner": { "setup_dominance": true }
+    },
+    {
+      "id": "influence-exalt",
+      "name": "Influence Exalted Orb (Conqueror / Shaper / Elder)",
+      "wiki": "https://www.poewiki.net/wiki/Warlord%27s_Exalted_Orb",
+      "variants": [
+        {
+          "id": "warlord-exalt",
+          "name": "Warlord's Exalted Orb",
+          "cost_key": "warlord-exalt",
+          "influence": "Warlord"
+        },
+        {
+          "id": "redeemer-exalt",
+          "name": "Redeemer's Exalted Orb",
+          "cost_key": "redeemer-exalt",
+          "influence": "Redeemer"
+        },
+        {
+          "id": "crusader-exalt",
+          "name": "Crusader's Exalted Orb",
+          "cost_key": "crusader-exalt",
+          "influence": "Crusader"
+        },
+        {
+          "id": "hunter-exalt",
+          "name": "Hunter's Exalted Orb",
+          "cost_key": "hunter-exalt",
+          "influence": "Hunter"
+        },
+        {
+          "id": "shaper-exalt",
+          "name": "Shaper's Exalted Orb",
+          "cost_key": "shaper-exalt",
+          "influence": "Shaper"
+        },
+        {
+          "id": "elder-exalt",
+          "name": "Elder's Exalted Orb",
+          "cost_key": "elder-exalt",
+          "influence": "Elder"
+        }
+      ],
+      "effect": "Adds that influence to a rare item and a new influence modifier",
+      "notes": "Ranked EV uses priced influence orbs. Influenced base price is unknown until trade exists — do not invent a premium. Eldritch ichor/ember is a separate system.",
+      "planner": { "influence_setup": true, "vs_buy_influenced": true }
+    },
+    {
+      "id": "veiled-chaos",
+      "name": "Veiled Chaos Orb",
+      "wiki": "https://www.poewiki.net/wiki/Veiled_Chaos_Orb",
+      "effect": "Reforges a rare item with new random modifiers including a veiled modifier",
+      "cost_key": "veiled-chaos",
+      "planner": { "veiled_reforge": true }
+    },
+    {
+      "id": "veiled-exalt",
+      "name": "Veiled Exalted Orb",
+      "wiki": "https://www.poewiki.net/wiki/Veiled_Exalted_Orb",
+      "effect": "Removes a random modifier and adds a veiled modifier",
+      "notes": "Respects Prefixes/Suffixes Cannot Be Changed.",
+      "cost_key": "veiled",
+      "planner": { "veiled_slam": true }
+    },
+    {
+      "id": "dense-fossil",
+      "name": "Dense Fossil (defence)",
+      "effect": "More likely Defence modifiers; no Life modifiers",
+      "use": "ES/Armour/Evasion prefixes on armour — common cheap alternative to metacraft harvest for multi-ES chests",
+      "cost_key": "fossil-dense",
+      "planner": {
+        "defence_prefix_roll": true,
+        "tags": ["defences", "energy_shield", "armour", "evasion"]
+      }
+    },
+    {
+      "id": "hollow-fossil",
+      "name": "Hollow Fossil",
+      "effect": "Guarantees Has 1 Abyssal Socket",
+      "cost_key": "fossil-hollow",
+      "planner": { "abyssal_socket": true }
+    },
+    {
+      "id": "harvest-reforge",
+      "name": "Harvest Reforge including X",
+      "source": "harvest-reforge-official.json",
+      "notes": "Use with metacraft. Prefer Eldritch Chaos for suffix finishing on armour when prefixes are done."
+    },
+    {
+      "id": "metacraft-scbc-pcbc",
+      "name": "Prefixes/Suffixes Cannot Be Changed",
+      "source": "metacrafts-official.json",
+      "cost": { "divine": 2 }
+    },
+    {
+      "id": "aisling-veiled",
+      "name": "Betrayal Aisling / Jun unveil",
+      "effect": "Unveil veiled modifiers; outcomes in mods-unveiled.json"
+    },
+    {
+      "id": "beast-split",
+      "name": "Beastcrafting — Split / Black Morrigan",
+      "status": "documented",
+      "effect": "Split rare into copies; 6-link recipes exist",
+      "notes": "Full recipe table not in RePoE — see PoEDB Bestiary"
+    },
+    {
+      "id": "UnpredictableRecombine",
+      "name": "Unpredictable Recombination",
+      "status": "documented",
+      "effect": "Combine two same-class items randomly; always succeeds; Gold + Thaumaturgic Dust",
+      "notes": "Physics in recombinators-official.json + /data/recombinator/3.29.json. Not Sentinel; not 50%/mod."
+    },
+    {
+      "id": "PredictableRecombine",
+      "name": "Predictable Recombination",
+      "status": "documented",
+      "effect": "Choose mods to transfer; success % from UI; fail destroys both",
+      "notes": "Do not invent success formula — displayed/empirical only; else unranked. Allflame unsupported."
+    },
+    {
+      "id": "buy-trade",
+      "name": "Buy on trade",
+      "effect": "If expected craft cost >> market price for similar items, buy instead",
+      "planner": { "buyout_heuristic": true, "craft_vs_buy_ratio": 1.5 }
+    }
+  ],
+  "dominance_rules": {
+    "exarch_dominant": "Ember tier > Ichor tier → Eldritch currency affects PREFIXES",
+    "eater_dominant": "Ichor tier > Ember tier → Eldritch currency affects SUFFIXES",
+    "tied": "Same tier → neither dominant; Eldritch currency cannot be used"
+  },
+  "recommended_patterns": [
+    {
+      "id": "armour-defence-then-eldritch-suffixes",
+      "name": "Defence prefixes → Eldritch Chaos suffixes",
+      "steps": [
+        "Roll defence prefixes (Deafening Woe / Dense Fossil) until usable — do NOT metacraft-hunt exact T1",
+        "Apply Eldritch Ichor so Eater is dominant (prefixes safe)",
+        "Spam Eldritch Chaos Orb until desired resists/attributes on suffixes",
+        "Bench craft last suffix/prefix",
+        "Finish implicits with Ember/Ichor as needed"
+      ],
+      "applies_when": "Body Armour / Boots / Gloves / Helmet with multiple defence prefixes + resist suffixes"
+    },
+    {
+      "id": "essence-fish-harvest-sibling",
+      "name": "Essence fish any-of family → metacraft harvest sibling",
+      "steps": [
+        "Essence guarantee + fish any harvest-family mod",
+        "Lock that side → Harvest reforge to fill open slot"
+      ],
+      "applies_when": "Weapon / jewellery where Eldritch currency is unavailable"
+    }
+  ]
+}

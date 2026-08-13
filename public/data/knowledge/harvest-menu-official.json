@@ -1,0 +1,320 @@
+{
+  "source": "https://poedb.tw/us/Horticrafting / https://vhpg.com/poe-lifeforce-crafting/",
+  "built_for": "poe1",
+  "note": "Curated official Horticrafting Station menu for rare-item affix crafts. Costs are lifeforce amounts from community tables (3.25+). Matching uses harvest tag families — not invented crafts. OUT OF SCOPE (§20 WONT): body/weapon/flask enchants and currency/stack transforms — not needed for rare-gear affix EV; CraftState solver does not model enchant slots.",
+  "crafts": [
+    {
+      "id": "reforge-fire",
+      "kind": "reforge",
+      "name": "Reforge Fire",
+      "detail": "Reforge a Rare item with random modifiers, including a Fire modifier",
+      "tags": ["fire"],
+      "lifeforce": { "wild": 50 }
+    },
+    {
+      "id": "reforge-cold",
+      "kind": "reforge",
+      "name": "Reforge Cold",
+      "detail": "Reforge a Rare item with random modifiers, including a Cold modifier",
+      "tags": ["cold"],
+      "lifeforce": { "vivid": 50 }
+    },
+    {
+      "id": "reforge-lightning",
+      "kind": "reforge",
+      "name": "Reforge Lightning",
+      "detail": "Reforge a Rare item with random modifiers, including a Lightning modifier",
+      "tags": ["lightning"],
+      "lifeforce": { "primal": 50 }
+    },
+    {
+      "id": "reforge-physical",
+      "kind": "reforge",
+      "name": "Reforge Physical",
+      "detail": "Reforge a Rare item with random modifiers, including a Physical modifier",
+      "tags": ["physical"],
+      "lifeforce": { "vivid": 50 }
+    },
+    {
+      "id": "reforge-life",
+      "kind": "reforge",
+      "name": "Reforge Life",
+      "detail": "Reforge a Rare item with random modifiers, including a Life modifier",
+      "tags": ["life"],
+      "lifeforce": { "wild": 75 }
+    },
+    {
+      "id": "reforge-defence",
+      "kind": "reforge",
+      "name": "Reforge Defence",
+      "detail": "Reforge a Rare item with random modifiers, including a Defence modifier",
+      "tags": ["defences", "defence", "energy_shield", "armour", "evasion"],
+      "lifeforce": { "primal": 75 },
+      "notes": "Covers Armour / Evasion / Energy Shield / Ward — no separate ES reforge"
+    },
+    {
+      "id": "reforge-chaos",
+      "kind": "reforge",
+      "name": "Reforge Chaos",
+      "detail": "Reforge a Rare item with random modifiers, including a Chaos modifier",
+      "tags": ["chaos"],
+      "lifeforce": { "vivid": 100 }
+    },
+    {
+      "id": "reforge-attack",
+      "kind": "reforge",
+      "name": "Reforge Attack",
+      "detail": "Reforge a Rare item with random modifiers, including an Attack modifier",
+      "tags": ["attack"],
+      "lifeforce": { "wild": 75 }
+    },
+    {
+      "id": "reforge-caster",
+      "kind": "reforge",
+      "name": "Reforge Caster",
+      "detail": "Reforge a Rare item with random modifiers, including a Caster modifier",
+      "tags": ["caster"],
+      "lifeforce": { "primal": 75 }
+    },
+    {
+      "id": "reforge-speed",
+      "kind": "reforge",
+      "name": "Reforge Speed",
+      "detail": "Reforge a Rare item with random modifiers, including a Speed modifier",
+      "tags": ["speed"],
+      "lifeforce": { "vivid": 150 }
+    },
+    {
+      "id": "reforge-critical",
+      "kind": "reforge",
+      "name": "Reforge Critical",
+      "detail": "Reforge a Rare item with random modifiers, including a Critical modifier",
+      "tags": ["critical"],
+      "lifeforce": { "primal": 150 }
+    },
+    {
+      "id": "augment-remove-fire",
+      "kind": "augment-remove",
+      "name": "Add Fire, Remove Random",
+      "detail": "Add a new Fire modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["fire"],
+      "lifeforce": { "wild": 15000, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-cold",
+      "kind": "augment-remove",
+      "name": "Add Cold, Remove Random",
+      "detail": "Add a new Cold modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["cold"],
+      "lifeforce": { "vivid": 15000, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-lightning",
+      "kind": "augment-remove",
+      "name": "Add Lightning, Remove Random",
+      "detail": "Add a new Lightning modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["lightning"],
+      "lifeforce": { "primal": 15000, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-physical",
+      "kind": "augment-remove",
+      "name": "Add Physical, Remove Random",
+      "detail": "Add a new Physical modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["physical"],
+      "lifeforce": { "vivid": 15000, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-life",
+      "kind": "augment-remove",
+      "name": "Add Life, Remove Random",
+      "detail": "Add a new Life modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["life"],
+      "lifeforce": { "wild": 17500, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-defence",
+      "kind": "augment-remove",
+      "name": "Add Defence, Remove Random",
+      "detail": "Add a new Defence modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["defences", "defence", "energy_shield", "armour", "evasion"],
+      "lifeforce": { "primal": 17500, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-chaos",
+      "kind": "augment-remove",
+      "name": "Add Chaos, Remove Random",
+      "detail": "Add a new Chaos modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["chaos"],
+      "lifeforce": { "vivid": 17500, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-attack",
+      "kind": "augment-remove",
+      "name": "Add Attack, Remove Random",
+      "detail": "Add a new Attack modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["attack"],
+      "lifeforce": { "wild": 17500, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-caster",
+      "kind": "augment-remove",
+      "name": "Add Caster, Remove Random",
+      "detail": "Add a new Caster modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["caster"],
+      "lifeforce": { "primal": 17500, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-speed",
+      "kind": "augment-remove",
+      "name": "Add Speed, Remove Random",
+      "detail": "Add a new Speed modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["speed"],
+      "lifeforce": { "vivid": 20000, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "augment-remove-critical",
+      "kind": "augment-remove",
+      "name": "Add Critical, Remove Random",
+      "detail": "Add a new Critical modifier and remove another random modifier from a non-Influenced item",
+      "tags": ["critical"],
+      "lifeforce": { "primal": 20000, "sacred": 1 },
+      "requiresNonInfluenced": true,
+      "removeIgnoresCannotRoll": true,
+      "addRespectsCannotRoll": true
+    },
+    {
+      "id": "remove-fire",
+      "kind": "remove",
+      "name": "Remove Fire",
+      "detail": "Remove a Fire modifier from an item",
+      "tags": ["fire"],
+      "lifeforce": { "wild": 100 },
+      "notes": "Standalone remove when available in station; costs approximate — prefer structured PoEDB if updated"
+    },
+    {
+      "id": "remove-cold",
+      "kind": "remove",
+      "name": "Remove Cold",
+      "detail": "Remove a Cold modifier from an item",
+      "tags": ["cold"],
+      "lifeforce": { "vivid": 100 }
+    },
+    {
+      "id": "remove-lightning",
+      "kind": "remove",
+      "name": "Remove Lightning",
+      "detail": "Remove a Lightning modifier from an item",
+      "tags": ["lightning"],
+      "lifeforce": { "primal": 100 }
+    },
+    {
+      "id": "remove-life",
+      "kind": "remove",
+      "name": "Remove Life",
+      "detail": "Remove a Life modifier from an item",
+      "tags": ["life"],
+      "lifeforce": { "wild": 100 }
+    },
+    {
+      "id": "remove-defence",
+      "kind": "remove",
+      "name": "Remove Defence",
+      "detail": "Remove a Defence modifier from an item",
+      "tags": ["defences", "defence", "energy_shield", "armour", "evasion"],
+      "lifeforce": { "primal": 100 }
+    },
+    {
+      "id": "remove-chaos",
+      "kind": "remove",
+      "name": "Remove Chaos",
+      "detail": "Remove a Chaos modifier from an item",
+      "tags": ["chaos"],
+      "lifeforce": { "vivid": 100 }
+    },
+    {
+      "id": "res-swap-cold-to-fire",
+      "kind": "resistance-swap",
+      "name": "Cold → Fire Resistance",
+      "detail": "Change a modifier that grants Cold Resistance into a similar-tier modifier that grants Fire Resistance",
+      "from": "cold",
+      "to": "fire",
+      "lifeforce": { "wild": 500 }
+    },
+    {
+      "id": "res-swap-lightning-to-fire",
+      "kind": "resistance-swap",
+      "name": "Lightning → Fire Resistance",
+      "detail": "Change a modifier that grants Lightning Resistance into a similar-tier modifier that grants Fire Resistance",
+      "from": "lightning",
+      "to": "fire",
+      "lifeforce": { "wild": 500 }
+    },
+    {
+      "id": "res-swap-fire-to-cold",
+      "kind": "resistance-swap",
+      "name": "Fire → Cold Resistance",
+      "detail": "Change a modifier that grants Fire Resistance into a similar-tier modifier that grants Cold Resistance",
+      "from": "fire",
+      "to": "cold",
+      "lifeforce": { "vivid": 500 }
+    },
+    {
+      "id": "res-swap-lightning-to-cold",
+      "kind": "resistance-swap",
+      "name": "Lightning → Cold Resistance",
+      "detail": "Change a modifier that grants Lightning Resistance into a similar-tier modifier that grants Cold Resistance",
+      "from": "lightning",
+      "to": "cold",
+      "lifeforce": { "vivid": 500 }
+    },
+    {
+      "id": "res-swap-fire-to-lightning",
+      "kind": "resistance-swap",
+      "name": "Fire → Lightning Resistance",
+      "detail": "Change a modifier that grants Fire Resistance into a similar-tier modifier that grants Lightning Resistance",
+      "from": "fire",
+      "to": "lightning",
+      "lifeforce": { "primal": 500 }
+    },
+    {
+      "id": "res-swap-cold-to-lightning",
+      "kind": "resistance-swap",
+      "name": "Cold → Lightning Resistance",
+      "detail": "Change a modifier that grants Cold Resistance into a similar-tier modifier that grants Lightning Resistance",
+      "from": "cold",
+      "to": "lightning",
+      "lifeforce": { "primal": 500 }
+    }
+  ]
+}

@@ -1,19 +1,7 @@
-import { planDeterministic, formatCostBreakdown, replanFromProgress, replanWithOptions, modStableKey } from './deterministicPlanner.js';
-
 /**
- * Async craft planner — deterministic knowledge-base algorithm.
+ * §63: thin compatibility shim. Production path is planner/optimizer.
+ * Prefer: import { planCraft, optimizeCraft } from './planner/index.js'
  */
-export async function planCraft(item, _index, onProgress, opts = {}) {
-  const result = await planDeterministic(item, onProgress, opts);
-  return {
-    best: result.best,
-    alternatives: result.alternatives,
-    minIlvl: result.minIlvl,
-    drivers: result.drivers,
-    classified: result.classified,
-    coverage: result.coverage,
-    baseTags: result.baseTags,
-  };
-}
-
-export { formatCostBreakdown, replanFromProgress, replanWithOptions, modStableKey };
+export { planCraft, optimizeCraft } from './planner/optimizer.js';
+export { formatCostBreakdown } from './craftKnowledge.js';
+export { replanFromProgress, replanWithOptions, modStableKey } from './deterministicPlanner.js';

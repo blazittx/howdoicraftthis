@@ -47,6 +47,10 @@ const ICONS = {
   'essence-deafening': 'Currency/Essence/Anger7',
   bench: 'Currency/CurrencyImplicitMod',
   quality: 'Currency/CurrencyArmourQuality',
+  gold: 'Currency/Ruthless/CoinPileTier2',
+  'thaumaturgic-dust': 'Currency/ThaumaturgicDust',
+  'recombinating-dust': 'Currency/ThaumaturgicDust',
+  dust: 'Currency/ThaumaturgicDust',
 };
 
 export function currencyIconUrl(key) {

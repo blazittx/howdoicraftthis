@@ -1,0 +1,92 @@
+
+==== gloves ====
+method: Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 84 cost: 34258.5
+mods: natural:74% increased Energy Shield | natural:+35 to maximum Mana | essence:+48 to maximum Energy Shield | natural:+25% to Cold Resistance | natural:+48 to Intelligence | bench:+(16-20)% to Fire and Lightning Resistan
+  1. [100%] Acquire Warlock Gloves (ilvl 84+)
+  2. [~8 ess ┬À 13.5%/hit ┬À 74% increased Energy Shield: hit 4000 / pool 57000 (7.02%) tier+higher] Spam Deafening Essence of Woe until +48 to maximum Energy Shield + 74% increased Energy Shield
+  3. [~1233 Eldritch Chaos ┬À 0.081%/hit ┬À +25% to Cold Resistance | (16-18)% chance to Avoid being Chilled: hit 1000 / pool 86000 (1.16%); +48 to Intelligence: hit 1000 / pool 86000 (1.16%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~1233 for suffixes
+  4. [hit 7000 / pool 50000 (14.00%)] LAST RESORT: Exalt for +35 to maximum Mana
+  5. [~3 ┬À filler 33.3% / keeper 66.7%] Eater dominant ÔåÆ Eldritch Annul ├ù~3 (free suffix for bench)
+  6. [100%] Crafting Bench: +(16-20)% to Fire and Lightning Resistances
+
+==== chest ====
+method: Fracture 102% increased Energy Shield ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 86 cost: 3022
+mods: fractured:102% increased Energy Shield | natural:42% increased Energy Shield | essence:+85 to maximum Energy Shield | natural:+45% to Fire Resistance | natural:+36% to Lightning Resistance | bench:+(16-20)% to Cold and Lightning Resistan
+  1. [fracture alt] Prefer fractured Twilight Regalia (ilvl 86+) with: 102% increased Energy Shield
+  2. [~22 ess ┬À 4.71%/hit ┬À 42% increased Energy Shield | (16-17)% increased Stun and Block Recovery: hit 1000 / pool 42000 (2.38%) tier+higher] Spam Deafening Essence of Woe until +85 to maximum Energy Shield + 42% increased Energy Shield | (16-17)% increased Stun and Block Recovery
+  3. [~112 Eldritch Chaos ┬À 0.901%/hit ┬À +45% to Fire Resistance: hit 2000 / pool 63200 (3.16%); +36% to Lightning Resistance: hit 3000 / pool 63200 (4.75%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~112 for suffixes
+  4. [~3 ┬À filler 33.3% / keeper 66.7%] Eater dominant ÔåÆ Eldritch Annul ├ù~3 (free suffix for bench)
+  5. [100%] Crafting Bench: +(16-20)% to Cold and Lightning Resistances
+alternatives:
+  - No fracture ÔåÆ full Woe fish (~15174c) Fish all defence prefixes without fracture (~1541 ess). Fracture 102% increased Energy Shield saves ~1519 ess (~12152c).
+
+==== cataclysm ====
+method: Fracture buy ÔåÆ Zeal ÔåÆ Harvest ÔåÆ Unveil ÔåÆ Bench
+minIlvl: 81 cost: 3576
+mods: fractured:+156 to maximum Mana | unveil:Attacks with this Weapon Penetrate 16% C | essence:18% increased Attack Speed | natural:+31% to Global Critical Strike Multiplie | harvest:36% increased Critical Strike Chance | bench:50% increased Spell Damage | implicit:Cannot roll Caster Modifiers
+  1. [100% (trade)] Buy fractured Kinetic Wand (ilvl 81+) with: +156 to maximum Mana
+  2. [~17 ess ┬À 5.88%/hit ┬À +31% to Global Critical Strike Multiplier: hit 2000 / pool 66959 (2.99%) tier+higher; 36% increased Critical Strike Chance: hit 1000 / pool 66959 (1.49%) tier+higher] Spam Deafening Essence of Zeal until 18% increased Attack Speed + any of: +31% to Global Critical Strike Multiplier OR 36% increased Critical Strike Chance
+  3. [~6 ┬À hit 1000 / pool 6000 (16.67%)] Suffixes Cannot Be Changed ÔåÆ Reforge Critical ├ù~6
+  4. [~20% / unveil (~5)] Suffixes Cannot Be Changed ÔåÆ Bench block Adds (6-8) to (13-15) Physical Damage (ÔêÆ7000 / pool 49295 (14.20%) Ôëê 14%) ÔåÆ Veiled Exalt ÔåÆ unveil Attacks with this Weapon Penetrate 16% Chaos Resistance
+  5. [100%] Crafting Bench: 50% increased Spell Damage | Gain 4% of Non-Chaos Damage as extra Chaos Damage
+
+==== boots ====
+method: Fracture buy ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 74 cost: 3017
+mods: essence:+44 to maximum Energy Shield | natural:30% increased Movement Speed | fractured:Has 1 Abyssal Socket | natural:+42% to Fire Resistance | natural:+45 to Intelligence | bench:+54 to maximum Mana
+  1. [100% (trade)] Buy fractured Warlock Boots (ilvl 74+) with: Has 1 Abyssal Socket | (Only Abyss Jewels can be Socketed in Abyssal Sockets)
+  2. [~12 ess ┬À 8.69%/hit ┬À 30% increased Movement Speed: hit 2000 / pool 45000 (4.44%) tier+higher] Spam Deafening Essence of Woe until +44 to maximum Energy Shield + 30% increased Movement Speed
+  3. [~115 Eldritch Chaos ┬À 0.875%/hit ┬À +42% to Fire Resistance: hit 2000 / pool 52350 (3.82%); +45 to Intelligence: hit 2000 / pool 52350 (3.82%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~115 for suffixes
+  4. [~3 ┬À filler 33.3% / keeper 66.7%] Exarch dominant ÔåÆ Eldritch Annul ├ù~3 (free prefix for bench)
+  5. [100%] Crafting Bench: +54 to maximum Mana
+
+==== warlordQuiver ====
+method: Contempt ÔåÆ Harvest ÔåÆ Bench
+minIlvl: 76 cost: 2205499.5
+mods: essence:Adds 21 to 38 Physical Damage to Attacks | natural:+(35-38)% to Global Critical Strike Mult | harvest:(13-14)% increased Attack Speed | natural:+(42-45)% to Fire Resistance | bench:Can have up to 3 Crafted Modifiers
+  1. [100%] Buy Warlord Broadhead Arrow Quiver (ilvl 76+) [recommended]
+  2. [~5000 ess ┬À 0.0000%/hit ┬À +(35-38)% to Global Critical Strike Multiplier: hit 0 / pool 22250 (0.0000%) tier+higher] Spam Deafening Essence of Contempt until Adds 21 to 38 Physical Damage to Attacks + +(35-38)% to Global Critical Strike Multiplier
+  3. [~200 ┬À hit 0 / pool 6500 (0.0000%)] Prefixes Cannot Be Changed ÔåÆ Reforge Speed ├ù~200
+  4. [hit 0 / pool 79300 (0.0000%)] LAST RESORT: Exalt for +(42-45)% to Fire Resistance
+  5. [100%] Crafting Bench: Can have up to 3 Crafted Modifiers
+
+==== raptureSpear ====
+method: Doubt ÔåÆ Harvest
+minIlvl: 68 cost: 6552
+mods: harvest:Adds 27 to 60 Fire Damage to Attacks | natural:Attacks have 10% chance to cause Bleedin | essence:+341 to Accuracy Rating | natural:+21 to Dexterity | implicit:9% increased Attack Speed
+  1. [100%] Buy Warlord Broadhead Arrow Quiver (ilvl 68+) [recommended]
+  2. [~544 ess ┬À 0.184%/hit ┬À Attacks have 10% chance to cause Bleeding | (Bleeding deals Physical Damage over time, based on the base Physical Damage of the Skill. Damage is 200% higher while moving) | 24% increased Damage with Bleeding: hit 500 / pool 63650 (0.786%) tier+higher; +21 to Dexterity: hit 7000 / pool 63650 (11.00%) tier+higher] Spam Deafening Essence of Doubt until +341 to Accuracy Rating + Attacks have 10% chance to cause Bleeding | (Bleeding deals Physical Damage over time, based on the base Physical Damage of the Skill. Damage is 200% higher while moving) | 24% increased Damage with Bleeding + +21 to Dexterity
+  3. [~5 ┬À hit 500 / pool 2500 (20.00%)] Suffixes Cannot Be Changed ÔåÆ Reforge Fire ├ù~5
+
+==== fullPrefixCraft ====
+method: Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 84 cost: 30935
+mods: natural:74% increased Energy Shield | unfittable:+35 to maximum Mana | essence:+48 to maximum Energy Shield | natural:+25% to Cold Resistance | natural:+48 to Intelligence | bench:+54 to maximum Mana
+  1. [100%] Acquire Warlock Gloves (ilvl 84+)
+  2. [~8 ess ┬À 13.5%/hit ┬À 74% increased Energy Shield: hit 4000 / pool 57000 (7.02%) tier+higher] Spam Deafening Essence of Woe until +48 to maximum Energy Shield + 74% increased Energy Shield
+  3. [~1233 Eldritch Chaos ┬À 0.081%/hit ┬À +25% to Cold Resistance | (16-18)% chance to Avoid being Chilled: hit 1000 / pool 86000 (1.16%); +48 to Intelligence: hit 1000 / pool 86000 (1.16%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~1233 for suffixes
+  4. [~3 ┬À filler 33.3% / keeper 66.7%] Exarch dominant ÔåÆ Eldritch Annul ├ù~3 (free prefix for bench)
+  5. [100%] Crafting Bench: +54 to maximum Mana
+
+==== honourHold ====
+method: Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 84 cost: 34258.5
+mods: natural:74% increased Energy Shield | natural:+35 to maximum Mana | essence:+48 to maximum Energy Shield | natural:+25% to Cold Resistance | natural:+48 to Intelligence | bench:+20% to Cold and Lightning Resistances
+  1. [100%] Acquire Warlock Gloves (ilvl 84+)
+  2. [~8 ess ┬À 13.5%/hit ┬À 74% increased Energy Shield: hit 4000 / pool 57000 (7.02%) tier+higher] Spam Deafening Essence of Woe until +48 to maximum Energy Shield + 74% increased Energy Shield
+  3. [~1233 Eldritch Chaos ┬À 0.081%/hit ┬À +25% to Cold Resistance | (16-18)% chance to Avoid being Chilled: hit 1000 / pool 86000 (1.16%); +48 to Intelligence: hit 1000 / pool 86000 (1.16%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~1233 for suffixes
+  4. [hit 7000 / pool 50000 (14.00%)] LAST RESORT: Exalt for +35 to maximum Mana
+  5. [~3 ┬À filler 33.3% / keeper 66.7%] Eater dominant ÔåÆ Eldritch Annul ├ù~3 (free suffix for bench)
+  6. [100%] Crafting Bench: +20% to Cold and Lightning Resistances
+cannot-roll pools ilvl85: suffix 91592ÔåÆ77592, crit 18000ÔåÆ12000
+file:///C:/Users/info/Documents/GitHub/howdoicraftthis/scripts/test-deterministic.mjs:260
+  if (!cond) throw new Error(`ASSERT: ${msg}`);
+                   ^
+
+Error: ASSERT: honourHold: no annul needed when only 2 other suffixes leave a free craft slot
+    at assert (file:///C:/Users/info/Documents/GitHub/howdoicraftthis/scripts/test-deterministic.mjs:260:20)
+    at file:///C:/Users/info/Documents/GitHub/howdoicraftthis/scripts/test-deterministic.mjs:609:3
+
+Node.js v22.21.1

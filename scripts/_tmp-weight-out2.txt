@@ -1,0 +1,44 @@
+base undefined tags [
+  'int_armour',
+  'top_tier_base_item_type',
+  'not_for_sale',
+  'gloves',
+  'armour',
+  'default'
+]
+
+Avoid Chill (0)
+
+Genius-ish Int high (0)
+
+Dmg vs Chilled (0)
+
+--- Steps ---
+[preferFracture] Prefer fractured Warlock Gloves (ilvl 85+) with: +48 to Intelligence
+  detail: Lowest natural spawn weight among goals: +48 to Intelligence (hit 1000 / pool 78000 (1.28%) tier+higher). Fracture locks +48 to Intelligence so craft skips rolling it. Woe then still needs: 74% increased Energy Shield. W
+  wl=hit 1000 / pool 78000 (1.28%) cl=fracture alt
+[essenceFish] Spam Deafening Essence of Woe until +48 to maximum Energy Shield + 74% increased Energy Shield
+[eldritchChaos] Eater dominant ÔåÆ Eldritch Chaos ├ù~24 for suffixes
+  detail: Apply Eldritch Ichor so Eater of Worlds is dominant (higher tier than Exarch). Eldritch Chaos Orb then rerolls SUFFIXES only ÔÇö defence prefixes stay. Target: +25% to Cold Resistance | 18% chance to Avoid being Chilled. S
+  wl=pool 69000 ┬À +25% to Cold Resistance | 18% chance to Avoid being Chilled: hit 1000 / pool 69000 (1.45%) cl=~24 Eldritch Chaos ┬À 4.29%/hit ┬À +25% to Cold Resistance | 18% chance to Avoid being Chilled: hit 1000 / pool 69000 (1.45%)
+[cannotRollAssist] Bench Cannot roll Attack Modifiers (ÔêÆ28% prefix pool) ÔåÆ exalt remaining
+  detail: Cannot roll Attack Modifiers blocks [attack] while every remaining prefix goal still has weight. Pool 46000 ÔåÆ 33000. Open-slot exalt EV ~277c beats harvest/plain for: +35 to maximum Mana.
+  wl=pool 46000 ÔåÆ 33000 cl=ÔêÆ28% pool
+[exaltFallback] Exalt for +35 to maximum Mana (cannot-roll pool)
+[eldritchAnnul] Eater dominant ÔåÆ Eldritch Annul ├ù~3 (free suffix for bench)
+  detail: Need 1 open suffix slot(s) for: +20% to Cold and Lightning Resistances. Eater dominance makes Eldritch Annul strip suffixs only (prefixes protected). Removable suffixs: +25% to Cold Resistance | 18% chance to Avoid being
+  wl=annul among 3 suffixs (uniform) cl=~3 ┬À filler 33.3% / keeper 66.7%
+[bench] Crafting Bench: +20% to Cold and Lightning Resistances
+  detail: Apply last so slots stay free during harvest/unveil/eldritch.
+  wl=undefined cl=100%
+
+--- Mods ---
+natural | hit=4000 pool=53000 pRoll=undefined | 74% increased Energy Shield
+natural | hit=7000 pool=60000 pRoll=undefined | +35 to maximum Mana
+essence | hit=2000 pool=60000 pRoll=undefined | +48 to maximum Energy Shield
+natural | hit=1000 pool=78000 pRoll=undefined | +25% to Cold Resistance
+18% chance to Avoid being Chilled
+fractured | hit=1000 pool=78000 pRoll=undefined | +48 to Intelligence
+bench | hit=100 pool=78000 pRoll=undefined | +20% to Cold and Lightning Resistances
+
+Glued crafted: "+20% to Cold and Lightning Resistances\nSearing Exarch Item\nEater of Worlds Item"

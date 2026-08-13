@@ -1,0 +1,42 @@
+full suffix 87959 crit harvest pool 18000
+chance (10-14)% increased Critical Strike Chance with Bow req 5 5000 18000 0.2777777777777778
+chance (15-19)% increased Critical Strike Chance with Bow req 20 5000 18000 0.2777777777777778
+chance (20-24)% increased Critical Strike Chance with Bow req 30 4000 18000 0.2222222222222222
+chance (25-29)% increased Critical Strike Chance with Bow req 44 3000 18000 0.16666666666666666
+chance (30-34)% increased Critical Strike Chance with Bow req 58 2000 18000 0.1111111111111111
+chance (35-38)% increased Critical Strike Chance with Bow req 72 1000 18000 0.05555555555555555
+chance (39-44)% increased Critical Strike Chance with Bow req 85 0 18000 0
+chance +(46-48)% to Lightning Resistance
+(40-60)% increas req 1 0 18000 0
+multi +(8-12)% to Global Critical Strike Multi req 8 6000 18000 0.3333333333333333
+multi +(13-19)% to Global Critical Strike Mult req 21 5000 18000 0.2777777777777778
+multi +(20-24)% to Global Critical Strike Mult req 31 3000 18000 0.16666666666666666
+multi +(25-29)% to Global Critical Strike Mult req 45 2000 18000 0.1111111111111111
+multi +(30-34)% to Global Critical Strike Mult req 59 2000 18000 0.1111111111111111
+multi +(35-38)% to Global Critical Strike Mult req 74 0 18000 0
+chance (10-14)% increased Critical Strike Chance req 1 6000 18000 0.3333333333333333
+chance (15-19)% increased Critical Strike Chance req 20 5000 18000 0.2777777777777778
+chance (20-24)% increased Critical Strike Chance req 30 4000 18000 0.2222222222222222
+chance (25-29)% increased Critical Strike Chance req 44 3000 18000 0.16666666666666666
+chance (30-34)% increased Critical Strike Chance req 59 2000 18000 0.1111111111111111
+chance (35-38)% increased Critical Strike Chance req 73 1000 18000 0.05555555555555555
+multi +(10-14)% to Global Critical Strike Mult req 8 6000 18000 0.3333333333333333
+multi +(15-19)% to Global Critical Strike Mult req 21 5000 18000 0.2777777777777778
+multi +(20-24)% to Global Critical Strike Mult req 30 4000 18000 0.2222222222222222
+multi +(25-29)% to Global Critical Strike Mult req 44 3000 18000 0.16666666666666666
+multi +(30-34)% to Global Critical Strike Mult req 59 2000 18000 0.1111111111111111
+multi +(35-38)% to Global Critical Strike Mult req 73 1000 18000 0.05555555555555555
+chance +(46-48)% to Lightning Resistance
+(40-60)% increas req 50 0 18000 0
+chance Minions have (10-19)% increased Critical Strike Ch req 11 0 18000 0
+chance Minions have (20-39)% increased Critical Strike Ch req 21 0 18000 0
+chance Minions have (40-59)% increased Critical Strike Ch req 28 0 18000 0
+chance Minions have (60-79)% increased Critical Strike Ch req 41 0 18000 0
+chance Minions have (80-99)% increased Critical Strike Ch req 59 0 18000 0
+chance Minions have (100-109)% increased Critical Strike  req 76 0 18000 0
+chance (60-51)% reduced Effect of Shock on you
+(45-75)% i req 85 0 18000 0
+multi +(21-24)% to Global Critical Strike Mult req 85 0 18000 0
+chance Gain Accuracy Rating equal to your Strength
+1% inc req 85 0 18000 0
+multi +(15-25)% to Global Critical Strike Mult req 24 4000 18000 0.2222222222222222

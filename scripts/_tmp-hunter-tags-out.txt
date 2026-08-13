@@ -1,0 +1,14 @@
+life with quiver weight 10
++(55-69) to maximum Life [ 'resource', 'life' ] w 1000
++(70-84) to maximum Life [ 'resource', 'life' ] w 1000
++(85-99) to maximum Life [ 'resource', 'life' ] w 1000
++(100-114) to maximum Life [ 'resource', 'life' ] w 1000
++(115-129) to maximum Life [ 'resource', 'life' ] w 1000
++(130-144) to maximum Life [ 'resource', 'life' ] w 1000
+MATCH natural undefined undefined undefined 50% increased Damage with Bow Skills
+MATCH harvest undefined undefined undefined +129 to maximum Life
+MATCH fractured undefined undefined undefined +26% to Damage over Time Multiplier with Attack Skills
+MATCH influenceSlam undefined undefined undefined +25% to Chaos Damage over Time Multiplier with Attack S
+MATCH natural undefined undefined undefined 10% increased Movement Speed
+MATCH bench undefined undefined undefined 12% increased Attack Speed
+assist null

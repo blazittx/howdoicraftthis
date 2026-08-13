@@ -1,0 +1,24 @@
+/Avoid being Chilled/i 18
+  ChanceToAvoidFreezeAndChillUniqueDexHelmet5  "25% chance to Avoid being Chilled" sw0 undefined
+  ChanceToAvoidChillUniqueDescentOneHandAxe1  "50% chance to Avoid being Chilled" sw0 undefined
+  ChanceToAvoidChilledUnique__1  "50% chance to Avoid being Chilled" sw0 undefined
+  V2AvoidChillAndFreezeJewelCorrupted  "(20-25)% chance to Avoid being Chilled\n(20-25)% chance to Avoid being Frozen" sw0 { tag: 'jewel', weight: 0 }
+  AvoidChillUniqueFlask8  "30% chance to Avoid being Chilled during Effect" sw0 undefined
+  CannotBeChilledWhenOnslaughtUniqueOneHandAxe6  "100% chance to Avoid being Chilled during Onslaught" sw0 undefined
+  AvoidChillJewel Heating FIX ME "(6-8)% chance to Avoid being Chilled" sw0 { tag: 'default', weight: 0 }
+  MapMonsterFreezeAndChillAvoidance_Test  "30% increased Quantity of Items found in this Area\nMonsters have 10000% chance to Avoid being Chil sw0 undefined
+/chance to Avoid/i 260
+  MovementVelocityEnhancedModDodge_ Matatl's "30% increased Movement Speed\n(10-15)% chance to Avoid Bleeding" sw0 { tag: 'default', weight: 0 }
+  MovementVelocityEnhancedModSpellDodge_ Matatl's "30% increased Movement Speed\n(10-15)% chance to Avoid being Poisoned" sw0 { tag: 'default', weight: 0 }
+  ChanceToAvoidElementalStatusAilments1 of Stoicism "(16-20)% chance to Avoid Elemental Ailments" sw0 { tag: 'shield', weight: 1000 }
+  ChanceToAvoidElementalStatusAilments2 of Resolve "(21-25)% chance to Avoid Elemental Ailments" sw0 { tag: 'shield', weight: 1000 }
+  ChanceToAvoidElementalStatusAilments3__ of Fortitude "(26-30)% chance to Avoid Elemental Ailments" sw0 { tag: 'shield', weight: 1000 }
+  ChanceToAvoidElementalStatusAilments4 of Will "(31-35)% chance to Avoid Elemental Ailments" sw0 { tag: 'shield', weight: 1000 }
+  StunAvoidance1 of Composure "(11-13)% chance to Avoid being Stunned" sw0 { tag: 'default', weight: 0 }
+  StunAvoidance2 of Surefootedness "(14-16)% chance to Avoid being Stunned" sw0 { tag: 'default', weight: 0 }
+/ColdAndAvoid/i 0
+/Resist.*Chill/i 2
+  ColdPenetrationAgainstChilledEnemiesUnique__1  "Damage Penetrates 20% Cold Resistance against Chilled Enemies" sw0 undefined
+  ElementalPenetrationWhileChilledUnique__1___  "Damage Penetrates (8-10)% Elemental Resistances while you are Chilled" sw0 undefined
+
+spawnable cold hybrids 0

@@ -1,0 +1,18 @@
+{
+  "tags": [
+    "top_tier_base_item_type",
+    "wand",
+    "ranged",
+    "one_hand_weapon",
+    "onehand",
+    "weapon",
+    "default",
+    "__block_tag__:caster"
+  ],
+  "hasBlock": true,
+  "pool81": 74959,
+  "pool81AS": 66959,
+  "n": 115,
+  "casterW": 0,
+  "weightFn": "function weightOnTags(mod, baseTags) {\n  const tags = baseTags ?? [];\n  const blocked = blockedTagsFromBaseTags(tags);\n  const modTags = mod.tags ?? [];\n  if (blocked.some((t) => modTags.includes(t)))"
+}

@@ -1,0 +1,44 @@
+Warlock Gloves tags: [
+  'int_armour',
+  'top_tier_base_item_type',
+  'not_for_sale',
+  'gloves',
+  'armour',
+  'default'
+]
+
+Puhuarte tiers:
+  FireResistEnhancedModPhys_ lvl1 w=0 text="+(46-48)% to Fire Resistance\n(9-10)% of Physical Damage from Hits taken as Fire Damage"
+  ColdResistEnhancedModPhys lvl1 w=0 text="+(46-48)% to Cold Resistance\n(9-10)% of Physical Damage from Hits taken as Cold Damage"
+  LightningResistEnhancedModPhys lvl1 w=0 text="+(46-48)% to Lightning Resistance\n(9-10)% of Physical Damage from Hits taken as Lightning Damage"
+  FireResistEnhancedModLeech lvl1 w=0 text="+(46-48)% to Fire Resistance\n0.4% of Fire Damage Leeched as Life"
+  ColdResistEnhancedModLeech lvl1 w=0 text="+(46-48)% to Cold Resistance\n0.4% of Cold Damage Leeched as Life"
+  LightningResistEnhancedModLeech_ lvl1 w=0 text="+(46-48)% to Lightning Resistance\n0.4% of Lightning Damage Leeched as Life"
+  FireResistEnhancedModAilments lvl1 w=0 text="+(46-48)% to Fire Resistance\n(45-52) to (75-78) added Fire Damage against Burning Enemies"
+  ColdResistEnhancedModAilments__ lvl1 w=0 text="+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+  LightningResistEnhancedModAilments lvl1 w=0 text="+(46-48)% to Lightning Resistance\n(40-60)% increased Critical Strike Chance against Shocked Enemies"
+  FireResistEnhancedLevel50ModPhys lvl50 w=0 text="+(46-48)% to Fire Resistance\n(3-5)% of Physical Damage from Hits taken as Fire Damage"
+  ColdResistEnhancedLevel50ModPhys_ lvl50 w=0 text="+(46-48)% to Cold Resistance\n(3-5)% of Physical Damage from Hits taken as Cold Damage"
+  LightningResistEnhancedLevel50ModPhys lvl50 w=0 text="+(46-48)% to Lightning Resistance\n(3-5)% of Physical Damage from Hits taken as Lightning Damage"
+  FireResistEnhancedLevel50ModLeech lvl50 w=0 text="+(46-48)% to Fire Resistance\n0.4% of Fire Damage Leeched as Life"
+  ColdResistEnhancedLevel50ModLeech lvl50 w=0 text="+(46-48)% to Cold Resistance\n0.4% of Cold Damage Leeched as Life"
+  LightningResistEnhancedLevel50ModLeech lvl50 w=0 text="+(46-48)% to Lightning Resistance\n0.4% of Lightning Damage Leeched as Life"
+  FireResistEnhancedLevel50ModAilments_ lvl50 w=0 text="+(46-48)% to Fire Resistance\n(45-52) to (75-78) added Fire Damage against Burning Enemies"
+  ColdResistEnhancedLevel50ModAilments lvl50 w=0 text="+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+  LightningResistEnhancedLevel50ModAilments lvl50 w=0 text="+(46-48)% to Lightning Resistance\n(40-60)% increased Critical Strike Chance against Shocked Enemies"
+  FireResistEnhancedLevel50ModLeechInverted lvl50 w=0 text="+(46-48)% to Fire Resistance\n0.4% of Fire Damage Leeched by Enemy as Life"
+  ColdResistEnhancedLevel50ModLeechInverted lvl50 w=0 text="+(46-48)% to Cold Resistance\n0.4% of Cold Damage Leeched by Enemy as Life"
+  LightningResistEnhancedLevel50ModLeechInverted lvl50 w=0 text="+(46-48)% to Lightning Resistance\n0.4% of Lightning Damage Leeched by Enemy as Life"
+
+Genius tiers:
+  Intelligence9 lvl82 w=1000 text="+(51-55) to Intelligence"
+
+T1+ at ilvl85 Puhuarte: { t1: 'of Puhuarte', minLvl: 50, weight: 0, t1Weight: 0 }
+T1+ at ilvl85 Genius: { t1: 'of the Genius', minLvl: 82, weight: 1000, t1Weight: 1000 }
+
+Cold+chill hybrids:
+  of Puhuarte lvl1 w=0 "+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+  of Puhuarte lvl50 w=0 "+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+
+Parser crafted text: "+20% to Cold and Lightning Resistances\nSearing Exarch Item\nEater of Worlds Item"
+influenced: [ 'Exarch', 'Eater' ]

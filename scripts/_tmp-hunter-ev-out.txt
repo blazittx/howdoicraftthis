@@ -1,0 +1,20 @@
+tags [ 'quiver', 'default', 'basilisk', 'quiver_basilisk' ]
+prices {
+  divine: 184.8,
+  exalt: 1.63,
+  annul: 8.86,
+  harvest: undefined,
+  'wild-lifeforce': 0.03
+}
+assist {
+  id: 'cannot-roll-attack',
+  name: 'Cannot roll Attack Modifiers',
+  before: 28500,
+  after: 17500,
+  frac: 0.38596491228070173
+}
+(43-50)% increased Damage with Bow Skill raw hit 1000 / pool 28500 (3.51%) ev 11014 | blocked hit 1000 / pool 17500 (5.71%) ev 6833
++(115-129) to maximum Life raw hit 2000 / pool 28500 (7.02%) ev 5692 | blocked hit 2000 / pool 17500 (11.43%) ev 3412
+(7-10)% increased Movement Speed raw hit 500 / pool 28500 (1.75%) ev 21656 | blocked hit 500 / pool 17500 (2.86%) ev 13294
+pool raw 28500
+pool blocked 17500

@@ -1,0 +1,22 @@
+currency	Divine Orb	187.4
+currency	Exceptional Eldritch Ember	70
+currency	Veiled Chaos Orb	45.6
+currency	Eldritch Orb of Annulment	16.6
+currency	Eldritch Chaos Orb	7.5
+currency	Orb of Annulment	4.5
+currency	Grand Eldritch Ember	4
+currency	Grand Eldritch Ichor	3.1
+currency	Exalted Orb	2
+currency	Greater Eldritch Ember	1.32
+currency	Regal Orb	1
+currency	Orb of Scouring	1
+currency	Orb of Transmutation	1
+currency	Lesser Eldritch Ichor	1
+currency	Greater Eldritch Ichor	1
+currency	Lesser Eldritch Ember	0.75
+currency	Orb of Alteration	0.28
+currency	Orb of Alchemy	0.25
+currency	Orb of Augmentation	0.15
+currency	Vivid Crystallised Lifeforce	0.06
+currency	Primal Crystallised Lifeforce	0.05
+currency	Wild Crystallised Lifeforce	0.03

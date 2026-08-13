@@ -1,0 +1,141 @@
+natural avoid chill 0
+remainder avoid chill 18
+  ChanceToAvoidFreezeAndChillUniqueDexHelmet5  lvl1
+    "25% chance to Avoid being Chilled"
+    sw=[]
+  ChanceToAvoidChillUniqueDescentOneHandAxe1  lvl1
+    "50% chance to Avoid being Chilled"
+    sw=[]
+  ChanceToAvoidChilledUnique__1  lvl1
+    "50% chance to Avoid being Chilled"
+    sw=[]
+  V2AvoidChillAndFreezeJewelCorrupted  lvl1
+    "(20-25)% chance to Avoid being Chilled\n(20-25)% chance to Avoid being Frozen"
+    sw=[{"tag":"jewel","weight":0},{"tag":"default","weight":0}]
+  AvoidChillUniqueFlask8  lvl1
+    "30% chance to Avoid being Chilled during Effect"
+    sw=[]
+  CannotBeChilledWhenOnslaughtUniqueOneHandAxe6  lvl1
+    "100% chance to Avoid being Chilled during Onslaught"
+    sw=[]
+  AvoidChillJewel Heating FIX ME lvl1
+    "(6-8)% chance to Avoid being Chilled"
+    sw=[{"tag":"default","weight":0}]
+  MapMonsterFreezeAndChillAvoidance_Test  lvl1
+    "30% increased Quantity of Items found in this Area\nMonsters have 10000% chance to Avoid being Chilled or Frozen"
+    sw=[]
+  AvoidFreezeAndChillIfFireSkillUsedRecentlyUnique__1  lvl1
+    "100% chance to Avoid being Chilled or Frozen if you have used a Fire Skill Recently"
+    sw=[]
+  SynthesisImplicitAvoidChill1  lvl15
+    "(14-16)% chance to Avoid being Chilled"
+    sw=[]
+  SynthesisImplicitAvoidChill2_  lvl24
+    "(18-21)% chance to Avoid being Chilled"
+    sw=[]
+  SynthesisImplicitAvoidChill3  lvl36
+    "(22-25)% chance to Avoid being Chilled"
+    sw=[]
+  JewelImplicitChanceToAvoidChill  lvl1
+    "15% chance to Avoid being Chilled"
+    sw=[{"tag":"jewel","weight":1},{"tag":"default","weight":0}]
+  ExpeditionRelicModifierImmuneStatusAilments_  lvl1
+    "100% chance to Avoid being Chilled\n100% chance to Avoid being Frozen\n100% chance to Avoid being Ignited\n100% chance to Avoid being Shocked"
+    sw=[{"tag":"default","weight":1000}]
+  HellscapeUpsideChanceToAvoidFreezeAndChill2_  lvl45
+    "(26-30)% chance to Avoid being Chilled\n(26-30)% chance to Avoid being Frozen"
+    sw=[{"tag":"ring","weight":500},{"tag":"default","weight":0}]
+natural Puhuarte 21
+  FireResistEnhancedModPhys_ of Puhuarte lvl1
+    "+(46-48)% to Fire Resistance\n(9-10)% of Physical Damage from Hits taken as Fire Damage"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedModPhys of Puhuarte lvl1
+    "+(46-48)% to Cold Resistance\n(9-10)% of Physical Damage from Hits taken as Cold Damage"
+    sw=[{"tag":"default","weight":0}]
+  LightningResistEnhancedModPhys of Puhuarte lvl1
+    "+(46-48)% to Lightning Resistance\n(9-10)% of Physical Damage from Hits taken as Lightning Damage"
+    sw=[{"tag":"default","weight":0}]
+  FireResistEnhancedModLeech of Puhuarte lvl1
+    "+(46-48)% to Fire Resistance\n0.4% of Fire Damage Leeched as Life"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedModLeech of Puhuarte lvl1
+    "+(46-48)% to Cold Resistance\n0.4% of Cold Damage Leeched as Life"
+    sw=[{"tag":"default","weight":0}]
+  LightningResistEnhancedModLeech_ of Puhuarte lvl1
+    "+(46-48)% to Lightning Resistance\n0.4% of Lightning Damage Leeched as Life"
+    sw=[{"tag":"default","weight":0}]
+  FireResistEnhancedModAilments of Puhuarte lvl1
+    "+(46-48)% to Fire Resistance\n(45-52) to (75-78) added Fire Damage against Burning Enemies"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedModAilments__ of Puhuarte lvl1
+    "+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+    sw=[{"tag":"default","weight":0}]
+  LightningResistEnhancedModAilments of Puhuarte lvl1
+    "+(46-48)% to Lightning Resistance\n(40-60)% increased Critical Strike Chance against Shocked Enemies"
+    sw=[{"tag":"default","weight":0}]
+  FireResistEnhancedLevel50ModPhys of Puhuarte lvl50
+    "+(46-48)% to Fire Resistance\n(3-5)% of Physical Damage from Hits taken as Fire Damage"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedLevel50ModPhys_ of Puhuarte lvl50
+    "+(46-48)% to Cold Resistance\n(3-5)% of Physical Damage from Hits taken as Cold Damage"
+    sw=[{"tag":"default","weight":0}]
+  LightningResistEnhancedLevel50ModPhys of Puhuarte lvl50
+    "+(46-48)% to Lightning Resistance\n(3-5)% of Physical Damage from Hits taken as Lightning Damage"
+    sw=[{"tag":"default","weight":0}]
+  FireResistEnhancedLevel50ModLeech of Puhuarte lvl50
+    "+(46-48)% to Fire Resistance\n0.4% of Fire Damage Leeched as Life"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedLevel50ModLeech of Puhuarte lvl50
+    "+(46-48)% to Cold Resistance\n0.4% of Cold Damage Leeched as Life"
+    sw=[{"tag":"default","weight":0}]
+  LightningResistEnhancedLevel50ModLeech of Puhuarte lvl50
+    "+(46-48)% to Lightning Resistance\n0.4% of Lightning Damage Leeched as Life"
+    sw=[{"tag":"default","weight":0}]
+remainder Puhuarte 0
+natural dmg chilled 2
+  ColdResistEnhancedModAilments__ of Puhuarte lvl1
+    "+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedLevel50ModAilments of Puhuarte lvl50
+    "+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+    sw=[{"tag":"default","weight":0}]
+natural cold hybrids 13
+  LocalAddedColdDamageEnhancedMod Topotante's lvl1
+    "Adds (53-72) to (107-124) Cold Damage\nAttacks with this Weapon Penetrate (13-15)% Cold Resistance"
+    sw=[{"tag":"default","weight":0}]
+  LocalAddedColdDamageEnhancedTwoHandMod Topotante's lvl1
+    "Adds (100-132) to (197-230) Cold Damage\nAttacks with this Weapon Penetrate (13-15)% Cold Resistance"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedModPhys of Puhuarte lvl1
+    "+(46-48)% to Cold Resistance\n(9-10)% of Physical Damage from Hits taken as Cold Damage"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedModLeech of Puhuarte lvl1
+    "+(46-48)% to Cold Resistance\n0.4% of Cold Damage Leeched as Life"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedModAilments__ of Puhuarte lvl1
+    "+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+    sw=[{"tag":"default","weight":0}]
+  LocalAddedColdDamageEnhancedLevel50Mod Topotante's lvl50
+    "Adds (37-50) to (74-87) Cold Damage\nAttacks with this Weapon Penetrate (5-7)% Cold Resistance"
+    sw=[{"tag":"default","weight":0}]
+  LocalAddedColdDamageEnhancedLevel50TwoHandMod Topotante's lvl50
+    "Adds (65-87) to (130-152) Cold Damage\nAttacks with this Weapon Penetrate (5-7)% Cold Resistance"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedLevel50ModPhys_ of Puhuarte lvl50
+    "+(46-48)% to Cold Resistance\n(3-5)% of Physical Damage from Hits taken as Cold Damage"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedLevel50ModLeech of Puhuarte lvl50
+    "+(46-48)% to Cold Resistance\n0.4% of Cold Damage Leeched as Life"
+    sw=[{"tag":"default","weight":0}]
+  ColdResistEnhancedLevel50ModAilments of Puhuarte lvl50
+    "+(46-48)% to Cold Resistance\n(30-50)% increased Damage with Hits against Chilled Enemies"
+    sw=[{"tag":"default","weight":0}]
+  EnemyColdResistanceAuraInfluenceMaven of Elevated Redemption lvl95
+    "Nearby Enemies have -12% to Cold Resistance\n-12% to Cold Resistance"
+    sw=[{"tag":"helmet_eyrie","weight":0},{"tag":"default","weight":0}]
+  AvoidColdDamageInfluenceMaven_ of the Elevated Conquest lvl90
+    "(8-10)% chance to Avoid Cold Damage from Hits\n+(20-30)% to Cold Resistance"
+    sw=[{"tag":"boots_adjudicator","weight":0},{"tag":"shield_adjudicator","weight":0},{"tag":"default","weight":0}]
+  ColdResistEnhancedLevel50ModLeechInverted of Puhuarte lvl50
+    "+(46-48)% to Cold Resistance\n0.4% of Cold Damage Leeched by Enemy as Life"
+    sw=[{"tag":"default","weight":0}]

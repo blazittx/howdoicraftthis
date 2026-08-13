@@ -1,0 +1,9 @@
+itemClass Belt
+modId IncreasedPhysicalDamageReductionRatingEssence7
+granted IncreasedPhysicalDamageReductionRatingEssence7 +(481-520) to Armour essence_only true
+armour match IncreasedPhysicalDamageReductionRating4 natural 1000 true
+sameId false textHit true
+granted pattern +# to Armour vs +113 to Armour
+granted range 481 520
+ESS Deafening Essence of Dread IncreasedPhysicalDamageReductionRatingEssence7 hit=true text=+(481-520) to Armour src=essence_only
+PLAN Fracture +113 to Armour preferFracture:Prefer fractured Heavy Belt (ilvl 44+) with: +113  || altSpam:Alt for +38 to maximum Mana || altSpam:Alt for +18% to Cold Resistance || altSpam:Alt for +15 to Strength

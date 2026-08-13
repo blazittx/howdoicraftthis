@@ -1,0 +1,37 @@
+tags [ 'quiver', 'default', 'basilisk', 'quiver_basilisk' ]
+goals [
+  {
+    short: '(43-50)% increased Damage with Bow Skill',
+    tags: [ 'damage' ],
+    harvests: []
+  },
+  {
+    short: '+(115-129) to maximum Life',
+    tags: [ 'resource', 'life' ],
+    harvests: [ 'reforge-life' ]
+  },
+  {
+    short: '(7-10)% increased Movement Speed',
+    tags: [ 'speed' ],
+    harvests: [ 'reforge-speed' ]
+  }
+]
+assist {
+  id: 'cannot-roll-attack',
+  before: 28500,
+  after: 17500,
+  frac: 0.38596491228070173
+}
+  exalt (43-50)% increased Damage with Bow Skill hit 1000 / pool 17500 (5.71%) ev 180 { exalt: 18, annul: 17 }
+  exalt +(115-129) to maximum Life hit 2000 / pool 11500 (17.39%) ev 54 { exalt: 6, annul: 5 }
+  exalt (7-10)% increased Movement Speed hit 500 / pool 1500 (33.33%) ev 23 { exalt: 3, annul: 2 }
+meta 184.8 blocked body 257 blocked total 441
+harvest bag { divine: 20, 'wild-lifeforce': 750 } ev 3719
+  exalt (43-50)% increased Damage with Bow Skill hit 1000 / pool 28500 (3.51%) ev 295 { exalt: 29, annul: 28 }
+  exalt (7-10)% increased Movement Speed hit 500 / pool 22500 (2.22%) ev 463 { exalt: 45, annul: 44 }
+harvest package 4477
+  exalt (43-50)% increased Damage with Bow Skill hit 1000 / pool 28500 (3.51%) ev 295 { exalt: 29, annul: 28 }
+  exalt +(115-129) to maximum Life hit 2000 / pool 22500 (8.89%) ev 117 { exalt: 12, annul: 11 }
+  exalt (7-10)% increased Movement Speed hit 500 / pool 12500 (4.00%) ev 253 { exalt: 25, annul: 24 }
+plain 666
+wins blocked? true

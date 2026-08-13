@@ -1,0 +1,105 @@
+base keys type object false
+tags [
+  'int_armour',
+  'top_tier_base_item_type',
+  'not_for_sale',
+  'gloves',
+  'armour',
+  'default'
+]
+
+cold match ColdResist4 of the Yeti 38 +(24-29)% to Cold Resistance
+cold spawn [
+  { tag: 'armour', weight: 1000 },
+  { tag: 'ring', weight: 1000 },
+  { tag: 'amulet', weight: 1000 },
+  { tag: 'belt', weight: 1000 },
+  { tag: 'quiver', weight: 1000 },
+  { tag: 'default', weight: 0 }
+]
+cold w 1000
+
+int match Intelligence8 of the Virtuoso 74 +(43-50) to Intelligence
+int spawn [
+  { tag: 'ring', weight: 1000 },
+  { tag: 'amulet', weight: 1000 },
+  { tag: 'helmet', weight: 1000 },
+  { tag: 'int_armour', weight: 1000 },
+  { tag: 'str_int_armour', weight: 500 },
+  { tag: 'dex_int_armour', weight: 500 },
+  { tag: 'str_dex_int_armour', weight: 500 },
+  { tag: 'wand', weight: 333 },
+  { tag: 'dagger', weight: 1000 },
+  { tag: 'claw', weight: 500 },
+  { tag: 'staff', weight: 500 },
+  { tag: 'sceptre', weight: 500 },
+  { tag: 'default', weight: 0 }
+]
+int w 1000
+
+pool 78000
+cold T+ {
+  weight: 5000,
+  tiers: [
+    {
+      id: 'ColdResist4',
+      name: 'of the Yeti',
+      required_level: 38,
+      weight: 1000,
+      text: '+(24-29)% to Cold Resistance'
+    },
+    {
+      id: 'ColdResist5',
+      name: 'of the Walrus',
+      required_level: 50,
+      weight: 1000,
+      text: '+(30-35)% to Cold Resistance'
+    },
+    {
+      id: 'ColdResist6',
+      name: 'of the Polar Bear',
+      required_level: 60,
+      weight: 1000,
+      text: '+(36-41)% to Cold Resistance'
+    },
+    {
+      id: 'ColdResist7',
+      name: 'of the Ice',
+      required_level: 72,
+      weight: 1000,
+      text: '+(42-45)% to Cold Resistance'
+    },
+    {
+      id: 'ColdResist8',
+      name: 'of Haast',
+      required_level: 84,
+      weight: 1000,
+      text: '+(46-48)% to Cold Resistance'
+    }
+  ],
+  line: 'ColdResistance|cold-res'
+}
+int T+ {
+  weight: 2000,
+  tiers: [
+    {
+      id: 'Intelligence8',
+      name: 'of the Virtuoso',
+      required_level: 74,
+      weight: 1000,
+      text: '+(43-50) to Intelligence'
+    },
+    {
+      id: 'Intelligence9',
+      name: 'of the Genius',
+      required_level: 82,
+      weight: 1000,
+      text: '+(51-55) to Intelligence'
+    }
+  ],
+  line: 'Intelligence|int'
+}
+cold odds hit 5000 / pool 78000 (6.41%) p 0.0641025641025641
+int odds hit 2000 / pool 78000 (2.56%) p 0.02564102564102564
+
+pure cold ColdResist7 of the Ice 1000 +(42-45)% to Cold Resistance

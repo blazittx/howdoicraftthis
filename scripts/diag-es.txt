@@ -1,0 +1,9 @@
+
+=== 120(110-120)% increased Energy Shield
+match false undefined undefined req undefined w null
+
+=== 92(85-100)% increased Energy Shield
+match false undefined undefined req undefined w null
+
+=== +85(80-91) to maximum Energy Shield
+match false undefined undefined req undefined w null

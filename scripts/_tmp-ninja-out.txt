@@ -1,0 +1,38 @@
+Divine Orb: 187.4
+Exalted Orb: 2
+Orb of Alteration: 0.28
+Orb of Annulment: 4.6
+Orb of Alchemy: 0.25
+Orb of Augmentation: 0.15
+Orb of Transmutation: 1
+Orb of Scouring: 1
+Regal Orb: 1
+MISSING: Veiled Exalted Orb
+Veiled Chaos Orb: 45.6
+Wild Crystallised Lifeforce: 0.03
+Vivid Crystallised Lifeforce: 0.06
+Primal Crystallised Lifeforce: 0.05
+MISSING: Sacred Crystallised Lifeforce
+Eldritch Chaos Orb: 7.5
+Eldritch Orb of Annulment: 16.6
+MISSING: Eldritch Exalted Orb
+Lesser Eldritch Ichor: 1
+Lesser Eldritch Ember: 0.75
+MISSING: Deafening Essence of Woe
+MISSING: Deafening Essence of Zeal
+MISSING: Dense Fossil
+MISSING: Hollow Fossil
+--- related ---
+Exceptional Eldritch Ember: 70
+Veiled Chaos Orb: 45.6
+Eldritch Orb of Annulment: 16.6
+Eldritch Chaos Orb: 7.5
+Grand Eldritch Ember: 4
+Grand Eldritch Ichor: 3.4
+Greater Eldritch Ember: 1.32
+Lesser Eldritch Ichor: 1
+Greater Eldritch Ichor: 1
+Lesser Eldritch Ember: 0.75
+Vivid Crystallised Lifeforce: 0.06
+Primal Crystallised Lifeforce: 0.05
+Wild Crystallised Lifeforce: 0.03

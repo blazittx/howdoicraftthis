@@ -1,0 +1,37 @@
+=== DEFINITION ===
+harvestPoolWeight: natural mods where generation matches, required_level <= ilvl,
+modMatchesHarvest(reforge-critical), weightOnTags > 0
+modMatchesHarvest: tags includes "critical" OR groups in [CriticalStrikeChance, CriticalStrikeMultiplier, CriticalStrikeChanceLocal, LocalCriticalStrikeChance, CriticalStrikeMultiplierLocal, GlobalCriticalStrikeMultiplier, CriticalStrikeChanceWithSpells]
+OR textHints /critical strike chance|multiplier/
+baseTags (effective): ["top_tier_base_item_type","wand","ranged","one_hand_weapon","onehand","weapon","default","__block_caster__"]
+
+BROKEN (raw tags only): count=18 total=18000
+FIXED (no caster): count=12 total=12000
+harvestPoolWeight()=12000
+full suffix pool=77592
+
+=== FIXED CRIT POOL ===
+1000	req8	LocalCriticalMultiplier1	of Ire	damage,critical	+(10-14)% to Global Critical Strike Multiplier
+1000	req21	LocalCriticalMultiplier2	of Anger	damage,critical	+(15-19)% to Global Critical Strike Multiplier
+1000	req30	LocalCriticalMultiplier3	of Rage	damage,critical	+(20-24)% to Global Critical Strike Multiplier
+1000	req44	LocalCriticalMultiplier4	of Fury	damage,critical	+(25-29)% to Global Critical Strike Multiplier
+1000	req59	LocalCriticalMultiplier5	of Ferocity	damage,critical	+(30-34)% to Global Critical Strike Multiplier
+1000	req73	LocalCriticalMultiplier6	of Destruction	damage,critical	+(35-38)% to Global Critical Strike Multiplier
+1000	req1	LocalCriticalStrikeChance1	of Needling	attack,critical	(10-14)% increased Critical Strike Chance
+1000	req20	LocalCriticalStrikeChance2	of Stinging	attack,critical	(15-19)% increased Critical Strike Chance
+1000	req30	LocalCriticalStrikeChance3	of Piercing	attack,critical	(20-24)% increased Critical Strike Chance
+1000	req44	LocalCriticalStrikeChance4	of Puncturing	attack,critical	(25-29)% increased Critical Strike Chance
+1000	req59	LocalCriticalStrikeChance5	of Penetrating	attack,critical	(30-34)% increased Critical Strike Chance
+1000	req73	LocalCriticalStrikeChance6	of Incision	attack,critical	(35-38)% increased Critical Strike Chance
+
+=== EXCLUDED (caster, were wrongly included) ===
+1000	req11	SpellCriticalStrikeChance1	of Menace	caster,critical	(40-49)% increased Spell Critical Strike Chance
+1000	req21	SpellCriticalStrikeChance2	of Havoc	caster,critical	(50-59)% increased Spell Critical Strike Chance
+1000	req28	SpellCriticalStrikeChance3	of Disaster	caster,critical	(60-69)% increased Spell Critical Strike Chance
+1000	req41	SpellCriticalStrikeChance4	of Calamity	caster,critical	(70-79)% increased Spell Critical Strike Chance
+1000	req59	SpellCriticalStrikeChance5	of Ruin	caster,critical	(80-89)% increased Spell Critical Strike Chance
+1000	req76	SpellCriticalStrikeChance6_	of Unmaking	caster,critical	(90-109)% increased Spell Critical Strike Chance
+
+=== PLANNER ===
+undefined: poolWeight=12000 hit 1000 / pool 12000 (8.33%)
+essence step: ~19 ess · 5.27%/hit · +31% to Global Critical Strike Multiplier: hit 2000 / pool 74959 (2.67%) tier+higher; 36% increased Critical Strike Chance: hit 1000 / pool 74959 (1.33%) tier+higher

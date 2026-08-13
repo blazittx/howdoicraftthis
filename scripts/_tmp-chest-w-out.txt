@@ -1,0 +1,4 @@
+hit=1000 pool=44000 share=undefined short=undefined
+hit=1000 pool=61000 share=undefined short=undefined
+hit=1000 pool=61000 share=undefined short=undefined
+frac Prefer fractured Twilight Regalia (ilvl 86+) with: 42% increased Energy Shield | 17% increased Stun and Block Recovery

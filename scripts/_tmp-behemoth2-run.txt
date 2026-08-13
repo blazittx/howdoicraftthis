@@ -1,0 +1,27 @@
+itemClass=Belts baseClass=Belt
+dread belt mod: IncreasedPhysicalDamageReductionRatingEssence7
+dread Belts mod: undefined
+method Fracture +113 to Armour cost null
+MOD fractured hit 4000 / pool 31900 (12.54%) +113 to Armour
+MOD natural hit 7000 / pool 31900 (21.94%) +38 to maximum Mana
+MOD natural hit 4000 / pool 38250 (10.46%) +18% to Cold Resistance
+MOD natural hit 5000 / pool 38250 (13.07%) +15 to Strength
+MOD implicit - +35 to Strength
+1 [preferFracture] fracture alt :: Prefer fractured Heavy Belt (ilvl 44+) with: +113 to Armour
+2 [altSpam] ~4 alts ┬À hit 7000 / pool 27900 (25.09%) :: Alt for +38 to maximum Mana
+3 [altSpam] ~10 alts ┬À hit 4000 / pool 38250 (10.46%) :: Alt for +18% to Cold Resistance
+4 [altSpam] ~7 alts ┬À hit 5000 / pool 34250 (14.60%) :: Alt for +15 to Strength
+
+hitKeys: id:IncreasedPhysicalDamageReductionRating1 fracTarget=+113 to Armour
+REPLAN 1 [preferFracture] done=true hit Ô£ô
+  hit 4000 / pool 31900 (12.54%)
+  Lowest natural spawn weight among goals: +113 to Armour (hit 4000 / pool 31900 (12.54%) tier+higher). Fracture locks +113 to Armour so later steps skip rolling it.
+REPLAN 2 [altSpam] done=false ~4 alts ┬À hit 7000 / pool 27900 (25.09%)
+  hit 7000 / pool 27900 (25.09%)
+  Alt spam (hit 7000 / pool 27900 (25.09%))
+REPLAN 3 [altSpam] done=false ~10 alts ┬À hit 4000 / pool 38250 (10.46%)
+  hit 4000 / pool 38250 (10.46%)
+  Alt spam (hit 4000 / pool 38250 (10.46%))
+REPLAN 4 [altSpam] done=false ~7 alts ┬À hit 5000 / pool 34250 (14.60%)
+  hit 5000 / pool 34250 (14.60%)
+  Alt spam (hit 5000 / pool 34250 (14.60%))

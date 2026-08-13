@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How Do I Craft This</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <h1>How Do I Craft This</h1>
+        <p class="subtitle">
+          Paste an in-game item, or build one from a base and mods — then get ordered crafting steps and cost.
+          <span class="hotkey-hint">Press <kbd>R</kbd> for a random item to plan.</span>
+        </p>
+      </header>
+
+      <section id="empty-state" class="empty-state">
+        <div class="mode-tabs" role="tablist" aria-label="Item input mode">
+          <button type="button" class="mode-tab is-active" role="tab" id="tab-paste" aria-selected="true" aria-controls="panel-paste" data-mode="paste">Paste</button>
+          <button type="button" class="mode-tab" role="tab" id="tab-build" aria-selected="false" aria-controls="panel-build" data-mode="build">Build</button>
+        </div>
+
+        <div id="panel-paste" class="mode-panel" role="tabpanel" aria-labelledby="tab-paste">
+          <button type="button" id="drop-zone" class="drop-zone" aria-label="Paste Path of Exile item from clipboard">
+            <span class="drop-zone-title">Paste item here</span>
+            <span class="drop-zone-keys"><kbd id="paste-mod">Ctrl</kbd>+<kbd>V</kbd> or click</span>
+          </button>
+        </div>
+
+        <div id="panel-build" class="mode-panel hidden" role="tabpanel" aria-labelledby="tab-build" hidden>
+          <div class="builder">
+            <div class="builder-row">
+              <label class="builder-field builder-base">
+                <span class="builder-label">Base</span>
+                <input type="search" id="builder-base-search" placeholder="Search name or class…" autocomplete="off" spellcheck="false" />
+                <ul id="builder-base-list" class="builder-dropdown hidden" role="listbox"></ul>
+              </label>
+              <label class="builder-field builder-ilvl">
+                <span class="builder-label">ilvl</span>
+                <input type="number" id="builder-ilvl" min="1" max="100" value="86" />
+              </label>
+            </div>
+
+            <div id="builder-selected-base" class="builder-selected-base muted">No base selected</div>
+            <div id="builder-cannot-roll" class="builder-cannot-roll hidden" role="status"></div>
+
+            <div class="builder-selected">
+              <div class="builder-label">Selected mods</div>
+              <ul id="builder-selected-mods" class="builder-chips"></ul>
+              <p id="builder-selected-empty" class="muted builder-hint">Browse mods below and add what you want on the item.</p>
+            </div>
+
+            <div class="builder-filters">
+              <div class="builder-cats" id="builder-cats" role="tablist" aria-label="Mod source"></div>
+              <div class="builder-filter-row">
+                <select id="builder-gen" aria-label="Generation">
+                  <option value="">Prefix &amp; suffix</option>
+                  <option value="prefix">Prefix</option>
+                  <option value="suffix">Suffix</option>
+                </select>
+                <input type="search" id="builder-mod-search" placeholder="energy shield max…" autocomplete="off" spellcheck="false" />
+              </div>
+              <div id="builder-tags" class="builder-tags" hidden></div>
+            </div>
+
+            <div id="builder-mod-list" class="builder-mod-list" aria-live="polite"></div>
+
+            <div class="builder-actions">
+              <button type="button" id="builder-plan-btn" class="btn-primary" disabled>Plan craft</button>
+              <button type="button" id="builder-reset-btn" class="btn-ghost btn-compact">Reset build</button>
+            </div>
+          </div>
+        </div>
+
+        <p id="status" class="status" aria-live="polite"></p>
+      </section>
+
+      <!-- Off-screen catcher so Chromium fires paste when no visible input is focused -->
+      <textarea
+        id="paste-catcher"
+        class="paste-catcher"
+        aria-label="Paste Path of Exile item"
+        autocomplete="off"
+        spellcheck="false"
+        tabindex="-1"
+      ></textarea>
+
+      <section id="results" class="results hidden">
+        <div id="item-summary" class="item-summary"></div>
+
+        <div class="plan-block">
+          <div class="section-label">Steps</div>
+          <div id="steps-container" class="steps-container"></div>
+        </div>
+
+        <div id="cost-panel" class="cost-panel hidden"></div>
+        <div id="alternatives-panel" class="alternatives-panel hidden"></div>
+        <div id="tips-container" class="tips-container"></div>
+
+        <div class="results-toolbar">
+          <button type="button" id="edit-in-build-btn" class="btn-ghost btn-compact">Edit in Build</button>
+          <button type="button" id="export-btn" class="btn-ghost btn-compact">Copy plan for feedback</button>
+          <button type="button" id="clear-btn" class="btn-ghost btn-compact">Clear</button>
+          <span id="export-status" class="export-status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <section id="error" class="error hidden"></section>
+
+      <footer class="footer">
+        <span>Inspired by <a href="https://www.craftofexile.com" target="_blank" rel="noopener">Craft of Exile</a></span>
+      </footer>
+    </main>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

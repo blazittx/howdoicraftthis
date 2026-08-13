@@ -1,0 +1,5 @@
+decoded bytes len 88 [25,14,{"f":"2DItems/Armours/Gloves/ShapersGloves","w":2,"h":2,"scale":1,"shaper":true}]
+md5 bytes 226a93e301
+sha1 bytes e28eafefcd
+false 57d7c92aad WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9H
+false 4b1bfd62be WzI1LDE0LHsic2hhcGVyIjp0cnVlLCJmIjoiMkRJ

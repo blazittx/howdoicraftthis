@@ -1,0 +1,42 @@
+method Fracture +18% to Cold Resistance → Dread cost 32
+MOD essence hit 4000 / pool 31900 (12.54%) matched=true "+113 to Armour"
+MOD natural hit 7000 / pool 31900 (21.94%) matched=true "+38 to maximum Mana"
+MOD fractured hit 4000 / pool 38250 (10.46%) matched=true "+18% to Cold Resistance"
+MOD natural hit 5000 / pool 34250 (14.60%) matched=true "+15 to Strength"
+MOD implicit - matched=true "+35 to Strength"
+1 [preferFracture] fracture alt :: Prefer fractured Heavy Belt (ilvl 44+) with: +18% to Cold Resistance
+2 [essenceFish] ~4 ess · 27.1%/hit · +15 to Strength: hit 5000 / pool 34250 (14.60%) tier+higher :: Spam Deafening Essence of Dread until +113 to Armour + +38 to maximum Mana
+CLS essence groups=["IncreasedPhysicalDamageReductionRating"] hit=4000 pool=31900 +113 to Armour
+CLS natural groups=["IncreasedMana"] hit=7000 pool=31900 +38 to maximum Mana
+CLS fractured groups=["ColdResistance"] hit=4000 pool=38250 +18% to Cold Resistance
+CLS natural groups=["Strength"] hit=5000 pool=34250 +15 to Strength
+
+--- STR PROBE ---
+{
+  "text": "+15 to Strength",
+  "short": "+15 to Strength",
+  "gen": "suffix",
+  "groups": [
+    "Strength"
+  ],
+  "method": "natural",
+  "ofEssence": false,
+  "crafted": false,
+  "fractured": false,
+  "veiled": false,
+  "match": {
+    "id": "Strength1"
+  },
+  "hitWeight": 5000,
+  "poolWeight": 34250,
+  "reqLevel": 1,
+  "tags": [
+    "attribute"
+  ],
+  "harvests": [],
+  "weight": 5000,
+  "tier": 9
+}
+resolved: Strength2 +(13-17) to Strength groups=["Strength"] w=1000
+tier+above: {"weight":9000,"tiers":[{"id":"Strength2","name":"of the Wrestler","required_level":11,"weight":1000,"text":"+(13-17) to Strength"},{"id":"Strength3","name":"of the Bear","required_level":22,"weight":1000,"text":"+(18-22) to Strength"},{"id":"Strength4","name":"of the Lion","required_level":33,"weight":1000,"text":"+(23-27) to Strength"},{"id":"Strength5","name":"of the Gorilla","required_level":44,"weight":1000,"text":"+(28-32) to Strength"},{"id":"Strength6","name":"of the Goliath","required_level":55,"weight":1000,"text":"+(33-37) to Strength"},{"id":"Strength7","name":"of the Leviathan","required_level":66,"weight":1000,"text":"+(38-42) to Strength"},{"id":"Strength8","name":"of the Titan","required_level":74,"weight":1000,"text":"+(43-50) to Strength"},{"id":"Strength9","name":"of the Gods","required_level":82,"weight":1000,"text":"+(51-55) to Strength"},{"id":"Strength10","name":"of the Godslayer","required_level":85,"weight":1000,"text":"+(56-60) to Strength"}],"line":"Strength|str"}
+goalOdds: hit=9000 pool=67000

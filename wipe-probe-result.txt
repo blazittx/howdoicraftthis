@@ -1,0 +1,19 @@
+honourHold cost=978.58
+  1. Prefer fractured Warlock Gloves (ilvl 85+) with: +25% to Cold Resistance | 18% chance to Avoid being Chilled
+  2. Spam Deafening Essence of Woe until +48 to maximum Energy Shield + 74% increased Energy Shield
+  3. Bench Cannot roll Attack Modifiers (−28% prefix pool) → exalt remaining
+  4. Exalt for +35 to maximum Mana (cannot-roll pool)
+  5. Exalt for +48 to Intelligence
+  6. Crafting Bench: +20% to Cold and Lightning Resistances
+honourHold: GREEN
+
+onslaughtBolt method=Fracture buy → Torment → Harvest cost=1465.19
+  1. [100% (trade)] Buy fractured Broadhead Arrow Quiver (ilvl 85+) with: +46% to Cold Resistance
+  2. [100% guarantee] Spam Deafening Essence of Torment until Adds 3 to 67 Lightning Damage to Attacks
+  3. [~3 · hit 5000 / pool 13000 (38.46%)] Prefixes Cannot Be Changed → Reforge Critical ×~3
+  4. [hit 2000 / pool 62350 (3.21%)] Exalt for +42% to Lightning Resistance
+onslaughtBolt: GREEN
+
+OK probe passed (EV ~1465c)
+
+EXIT_CODE=0

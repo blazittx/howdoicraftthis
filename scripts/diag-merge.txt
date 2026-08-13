@@ -1,0 +1,41 @@
+base=Twilight Regalia tags=int_armour,top_tier_base_item_type,not_for_sale,body_armour,armour,default
+parsed mods:
+  {"text":"120% increased Energy Shield","crafted":false,"type":"prefix"}
+    match true | LocalIncreasedEnergyShieldPercent8 | Unfaltering | 86 | 1000 | DefencesPercent
+    tier+ 1000 86:1000
+  {"text":"+85 to maximum Energy Shield","crafted":false,"type":"prefix"}
+    match true | LocalIncreasedEnergyShield10 | Incandescent | 69 | 1000 | BaseLocalDefences
+    tier+ 2000 69:1000,75:1000
+  {"text":"+48% to Cold Resistance","crafted":false,"type":"suffix"}
+    match true | ColdResist8 | of Haast | 84 | 1000 | ColdResistance
+    tier+ 1000 84:1000
+  {"text":"+48% to Fire Resistance","crafted":false,"type":"suffix"}
+    match true | FireResist8 | of Tzteosh | 84 | 1000 | FireResistance
+    tier+ 1000 84:1000
+  {"text":"+48% to Lightning Resistance","crafted":false,"type":"suffix"}
+    match true | LightningResist8 | of Ephij | 84 | 1000 | LightningResistance
+    tier+ 1000 84:1000
+  {"text":"+(10-16)% to all Elemental Resistances","crafted":true,"type":"suffix"}
+    match false |  |  |  |  | 
+method Buy check → Woe → Eldritch Chaos → Bench minIlvl 86 cost 1002697.5
+MOD harvest | hit 1000 / pool 67000 (1.49%) | 120% increased Energy Shield
+MOD essence | hit 1000 / pool 67000 (1.49%) | +85 to maximum Energy Shield
+MOD natural | hit 1000 / pool 63200 (1.58%) | +48% to Cold Resistance
+MOD natural | hit 1000 / pool 63200 (1.58%) | +48% to Fire Resistance
+MOD natural | hit 1000 / pool 63200 (1.58%) | +48% to Lightning Resistance
+MOD bench | hit 100 / pool 63200 (0.158%) | +(10-16)% to all Elemental Resistances
+STEP trade check
+  WL -
+  Consider buying this item on trade (~5013+ Div to craft exact)
+STEP 100%
+  WL -
+  Acquire Twilight Regalia (ilvl 86+)
+STEP ~34 ess · 2.96%/hit · 120% increased Energy Shield: hit 1000 / pool 67000 (1.49%) tier+higher
+  WL pool 67000 · 120% increased Energy Shield: hit 1000 / pool 67000 (1.49%) tier+higher
+  Spam Deafening Essence of Woe until +85 to maximum Energy Shield + 120% increased Energy Shield
+STEP ~40097 Eldritch Chaos · 0.0025%/hit · +48% to Cold Resistance: hit 1000 / pool 63200 (1.58%); +48% to Fire Resistance: hit 1000 / pool 63200 (1.58%); +48% to Lightning Resistance: hit 1000 / pool 63200 (1.58%)
+  WL pool 63200 · +48% to Cold Resistance: hit 1000 / pool 63200 (1.58%); +48% to Fire Resistance: hit 1000 / pool 63200 (1.58%); +48% to Lightning Resistance: hit 1000 / pool 63200 (1.58%)
+  Eater dominant → Eldritch Chaos ×~40097 for suffixes
+STEP 100%
+  WL -
+  Crafting Bench: +(10-16)% to all Elemental Resistances

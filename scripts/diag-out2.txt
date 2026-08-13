@@ -1,0 +1,41 @@
+
+==== gloves ====
+method: Buy check ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 84 cost: 35052
+mods: harvest:74% increased Energy Shield | natural:+35 to maximum Mana | essence:+48 to maximum Energy Shield | natural:+25% to Cold Resistance | natural:+48 to Intelligence | bench:+(16-20)% to Fire and Lightning Resistan
+  1. [trade check] Consider buying this item on trade (~175+ Div to craft exact)
+  2. [100%] Acquire Warlock Gloves (ilvl 84+)
+  3. [~9 ess ┬À 11.4%/hit ┬À 74% increased Energy Shield: hit 4000 / pool 68000 (5.88%) tier+higher] Spam Deafening Essence of Woe until +48 to maximum Energy Shield + 74% increased Energy Shield
+  4. [~1233 Eldritch Chaos ┬À 0.081%/hit ┬À +25% to Cold Resistance: hit 1000 / pool 86000 (1.16%); +48 to Intelligence: hit 1000 / pool 86000 (1.16%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~1233 for suffixes
+  5. [hit 7000 / pool 68000 (10.29%)] LAST RESORT: Exalt for +35 to maximum Mana
+  6. [100%] Crafting Bench: +(16-20)% to Fire and Lightning Resistances
+
+==== chest ====
+method: Buy check ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 86 cost: 1002697.5
+mods: harvest:120% increased Energy Shield | essence:+85 to maximum Energy Shield | natural:+48% to Cold Resistance | natural:+48% to Fire Resistance | natural:+48% to Lightning Resistance | bench:+(10-16)% to all Elemental Resistances
+  1. [trade check] Consider buying this item on trade (~5013+ Div to craft exact)
+  2. [100%] Acquire Twilight Regalia (ilvl 86+)
+  3. [~34 ess ┬À 2.96%/hit ┬À 120% increased Energy Shield: hit 1000 / pool 67000 (1.49%) tier+higher] Spam Deafening Essence of Woe until +85 to maximum Energy Shield + 120% increased Energy Shield
+  4. [~40097 Eldritch Chaos ┬À 0.0025%/hit ┬À +48% to Cold Resistance: hit 1000 / pool 63200 (1.58%); +48% to Fire Resistance: hit 1000 / pool 63200 (1.58%); +48% to Lightning Resistance: hit 1000 / pool 63200 (1.58%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~40097 for suffixes
+  5. [100%] Crafting Bench: +(10-16)% to all Elemental Resistances
+
+==== cataclysm ====
+method: Buy check ÔåÆ Fracture buy ÔåÆ Zeal ÔåÆ Harvest ÔåÆ Unveil ÔåÆ Bench
+minIlvl: 81 cost: 8904
+mods: fractured:+156 to maximum Mana | unveil:Attacks with this Weapon Penetrate 16% C | bench:50% increased Spell Damage | essence:18% increased Attack Speed | harvest:+31% to Global Critical Strike Multiplie | harvest:36% increased Critical Strike Chance
+  1. [trade check] Consider buying this item on trade (~45+ Div to craft exact)
+  2. [100% (trade)] Buy fractured Kinetic Wand (ilvl 81+) with: +156 to maximum Mana
+  3. [~23 ess ┬À 4.50%/hit ┬À +31% to Global Critical Strike Multiplier: hit 2000 / pool 87959 (2.27%) tier+higher; 36% increased Critical Strike Chance: hit 1000 / pool 87959 (1.14%) tier+higher] Spam Deafening Essence of Zeal until 18% increased Attack Speed + any of: +31% to Global Critical Strike Multiplier OR 36% increased Critical Strike Chance
+  4. [~18 ┬À hit 1000 / pool 18000 (5.56%)] Suffixes Cannot Be Changed ÔåÆ Reforge Critical ├ù~18
+  5. [~20% / unveil (~5)] Suffixes Cannot Be Changed ÔåÆ Veiled Exalt ÔåÆ unveil Attacks with this Weapon Penetrate 16% Chaos Resistance
+  6. [100%] Crafting Bench: 50% increased Spell Damage
+
+==== boots ====
+method: Fracture buy ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 74 cost: 2995.5
+mods: essence:+44 to maximum Energy Shield | harvest:30% increased Movement Speed | bench:+54 to maximum Mana | fractured:Has 1 Abyssal Socket | natural:+42% to Fire Resistance | natural:+45 to Intelligence
+  1. [100% (trade)] Buy fractured Warlock Boots (ilvl 74+) with: Has 1 Abyssal Socket
+  2. [~15 ess ┬À 7.14%/hit ┬À 30% increased Movement Speed: hit 2000 / pool 55000 (3.64%) tier+higher] Spam Deafening Essence of Woe until +44 to maximum Energy Shield + any of: 30% increased Movement Speed
+  3. [~115 Eldritch Chaos ┬À 0.875%/hit ┬À +42% to Fire Resistance: hit 2000 / pool 52350 (3.82%); +45 to Intelligence: hit 2000 / pool 52350 (3.82%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~115 for suffixes
+  4. [100%] Crafting Bench: +54 to maximum Mana

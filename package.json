@@ -1,0 +1,27 @@
+{
+  "name": "howdoicraftthis",
+  "version": "0.1.0",
+  "description": "Paste a Path of Exile item and get step-by-step crafting instructions",
+  "main": "electron/main.js",
+  "type": "module",
+  "scripts": {
+    "build:data": "node scripts/build-craft-data.mjs",
+    "build:knowledge": "node scripts/build-knowledge-base.mjs",
+    "build:all-data": "npm run build:knowledge && npm run build:data",
+    "fetch-prices": "node scripts/fetch-daily-prices.mjs",
+    "dev": "vite",
+    "build": "npm run build:all-data && vite build",
+    "preview": "vite preview",
+    "electron": "electron .",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "test": "node scripts/test-deterministic.mjs"
+  },
+  "keywords": ["path-of-exile", "crafting", "electron"],
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^34.0.0",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.1"
+  }
+}

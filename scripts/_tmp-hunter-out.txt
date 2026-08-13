@@ -1,0 +1,25 @@
+
+==== preferFracture true ====
+COST 2756.21 Fracture +26% to Damage over Time Mul ÔåÆ Hunter Exalt +25% to Chaos Damage ove ÔåÆ Bench
+ 1 preferFracture     Prefer fractured uninfluenced Broadhead Arrow Quiver (ilvl 86+) with: +26% to Damage over Time Multiplier with Attack Skills
+ 2 influencePrep      Fill prefixes (Regal + multimod/bench fillers) ÔÇö leave suffixes open for Hunter's Exalted Orb
+ 3 influenceSlam      Hunter's Exalted Orb ├ù~9 for +25% to Chaos Damage over Time Multiplier with Attack Skills
+ 4 influenceClean     Suffixes Cannot Be Changed ÔåÆ clean prefix fillers
+ 5 cannotRollAssist   Bench Cannot roll Attack Modifiers (ÔêÆ39% prefix pool) ÔåÆ exalt remaining
+ 6 exaltFallback      Exalt for 50% increased Damage with Bow Skills (cannot-roll pool)
+ 7 exaltFallback      Exalt for +129 to maximum Life (cannot-roll pool)
+ 8 exaltFallback      Exalt for 10% increased Movement Speed (cannot-roll pool)
+ 9 bench              Crafting Bench: 12% increased Attack Speed
+
+==== preferFracture false ====
+COST 2789.29 Hunter Exalt +25% to Chaos Damage ove ÔåÆ Bench
+ 1 preferFracture     Acquire uninfluenced Broadhead Arrow Quiver (ilvl 86+)
+ 2 altSpam            Alt for +26% to Damage over Time Multiplier with Attack Skills (slam-side keeper before influence)
+ 3 influencePrep      Fill prefixes (Regal + multimod/bench fillers) ÔÇö leave suffixes open for Hunter's Exalted Orb
+ 4 influenceSlam      Hunter's Exalted Orb ├ù~9 for +25% to Chaos Damage over Time Multiplier with Attack Skills
+ 5 influenceClean     Suffixes Cannot Be Changed ÔåÆ clean prefix fillers
+ 6 cannotRollAssist   Bench Cannot roll Attack Modifiers (ÔêÆ39% prefix pool) ÔåÆ exalt remaining
+ 7 exaltFallback      Exalt for 50% increased Damage with Bow Skills (cannot-roll pool)
+ 8 exaltFallback      Exalt for +129 to maximum Life (cannot-roll pool)
+ 9 exaltFallback      Exalt for 10% increased Movement Speed (cannot-roll pool)
+10 bench              Crafting Bench: 12% increased Attack Speed

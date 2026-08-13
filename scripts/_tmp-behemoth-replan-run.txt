@@ -1,0 +1,68 @@
+hitKeys [ 'id:ColdResist1' ]
+classified keys [
+  {
+    k: 'id:IncreasedPhysicalDamageReductionRating1',
+    t: '+113 to Armour',
+    g: [ 'IncreasedPhysicalDamageReductionRating' ],
+    method: 'fractured'
+  },
+  {
+    k: 'id:IncreasedMana1',
+    t: '+38 to maximum Mana',
+    g: [ 'IncreasedMana' ],
+    method: 'natural'
+  },
+  {
+    k: 'id:ColdResist1',
+    t: '+18% to Cold Resistance',
+    g: [ 'ColdResistance' ],
+    method: 'natural'
+  },
+  {
+    k: 'id:Strength1',
+    t: '+15 to Strength',
+    g: [ 'Strength' ],
+    method: 'natural'
+  }
+]
+method Fracture +113 to Armour cost null
+
+STEP 1 preferFracture done=false
+  chance: fracture alt
+  weight: hit 4000 / pool 31900 (12.54%)
+  action: Prefer fractured Heavy Belt (ilvl 44+) with: +113 to Armour
+  detail: Lowest natural spawn weight among goals: +113 to Armour (hit 4000 / pool 31900 (12.54%) tier+higher). Fracture locks +113 to Armour so later steps skip rolling it.
+  targets: +113 to Armour
+  meta: [{"text":"+113 to Armour","hit":false,"g":false,"gen":"prefix","groups":["IncreasedPhysicalDamageReductionRating"]}]
+
+STEP 2 altSpam done=false
+  chance: ~4 alts ┬À hit 7000 / pool 27900 (25.09%)
+  weight: hit 7000 / pool 27900 (25.09%)
+  action: Alt for +38 to maximum Mana
+  detail: Alt spam (hit 7000 / pool 27900 (25.09%))
+  targets: +38 to maximum Mana
+  meta: [{"text":"+38 to maximum Mana","hit":false,"g":false,"gen":"prefix","groups":["IncreasedMana"]}]
+
+STEP 3 altSpam done=true
+  chance: hit Ô£ô
+  weight: hit 4000 / pool 38250 (10.46%)
+  action: Alt for +18% to Cold Resistance
+  detail: Alt spam (hit 4000 / pool 38250 (10.46%))
+  targets: +18% to Cold Resistance
+  meta: [{"text":"+18% to Cold Resistance","hit":true,"g":false,"gen":"suffix","groups":["ColdResistance"]}]
+
+STEP 4 altSpam done=false
+  chance: ~7 alts ┬À hit 5000 / pool 34250 (14.60%)
+  weight: hit 5000 / pool 34250 (14.60%)
+  action: Alt for +15 to Strength
+  detail: Alt spam (hit 5000 / pool 34250 (14.60%))
+  targets: +15 to Strength
+  meta: [{"text":"+15 to Strength","hit":false,"g":false,"gen":"suffix","groups":["Strength"]}]
+
+--- key collision check ---
+explicit str key: id:Strength1
+explicit str text key: t:+15 to strength
+implicit text key: t:+35 to strength
+short key: t:+15 to strength
+
+--- with implicit in classified + hit ---

@@ -1,0 +1,13 @@
+influenced [ 'Warlord' ] tags [ 'quiver', 'default', 'adjudicator', 'quiver_adjudicator' ]
+match {
+  id: undefined,
+  source: 'unknown',
+  weight: null,
+  groups: undefined,
+  matched: false
+}
+inf SocketedSpellCriticalMultiplierUber1 of Shaping 0 [ { tag: 'gloves_shaper', weight: 400 } ]
+inf SocketedSpellCriticalMultiplierUber2 of Shaping 0 [ { tag: 'gloves_shaper', weight: 400 } ]
+inf SocketedSpellCriticalMultiplierUber3 of Shaping 0 [ { tag: 'gloves_shaper', weight: 400 } ]
+inf SocketedAttackCriticalMultiplierUber1_ of the Elder 0 [ { tag: 'gloves_elder', weight: 400 } ]
+inf SocketedAttackCriticalMultiplierUber2 of the Elder 0 [ { tag: 'gloves_elder', weight: 400 } ]

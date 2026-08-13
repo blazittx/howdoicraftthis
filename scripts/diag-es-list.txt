@@ -1,0 +1,9 @@
+pure count 8
+86 Unfaltering LocalIncreasedEnergyShieldPercent8 (101-110)% increased Energy Shield | body_armour:1000, shield:1000 | groups DefencesPercent
+84 Unassailable LocalIncreasedEnergyShieldPercent7_ (92-100)% increased Energy Shield | int_armour:1000 | groups DefencesPercent
+72 Indomitable LocalIncreasedEnergyShieldPercent6 (80-91)% increased Energy Shield | int_armour:1000 | groups DefencesPercent
+60 Dauntless LocalIncreasedEnergyShieldPercent5 (68-79)% increased Energy Shield | int_armour:1000 | groups DefencesPercent
+44 Fearless LocalIncreasedEnergyShieldPercent4 (56-67)% increased Energy Shield | int_armour:1000 | groups DefencesPercent
+30 Resolute LocalIncreasedEnergyShieldPercent3 (43-55)% increased Energy Shield | int_armour:1000 | groups DefencesPercent
+18 Strong-Willed LocalIncreasedEnergyShieldPercent2 (27-42)% increased Energy Shield | int_armour:1000 | groups DefencesPercent
+3 Protective LocalIncreasedEnergyShieldPercent1 (11-28)% increased Energy Shield | int_armour:1000 | groups DefencesPercent

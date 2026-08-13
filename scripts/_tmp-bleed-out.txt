@@ -1,0 +1,17 @@
+parsed bleed:
+ "Attacks have 10% chance to cause Bleeding\n(Bleeding deals Physical Damage over time, based on the base Physical Damage of the Skill. Damage is 200% higher while moving)\n24% increased Damage with Bleeding"
+normalized lines [
+  'Attacks have 10% chance to cause Bleeding',
+  '(Bleeding deals Physical Damage over time, based on the base Physical Damage of the Skill. Damage is 200% higher while moving)',
+  '24% increased Damage with Bleeding'
+]
+match {
+  matched: false,
+  id: undefined,
+  source: 'unknown',
+  weight: null,
+  min: undefined,
+  max: undefined,
+  groups: undefined
+}
+analysis hit 0 / pool 3000 (0.0000%) harvest false

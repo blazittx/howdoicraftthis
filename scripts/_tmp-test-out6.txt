@@ -1,0 +1,40 @@
+
+==== gloves ====
+method: Fracture +48 to Intelligence ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 84 cost: 3658.76
+mods: natural:74% increased Energy Shield | natural:+35 to maximum Mana | essence:+48 to maximum Energy Shield | natural:+25% to Cold Resistance | fractured:+48 to Intelligence | bench:+20% to Fire and Lightning Resistances
+  1. [fracture alt] Prefer fractured Warlock Gloves (ilvl 84+) with: +48 to Intelligence
+  2. [~7 ess ┬À 14.5%/hit ┬À 74% increased Energy Shield: hit 4000 / pool 53000 (7.55%) tier+higher] Spam Deafening Essence of Woe until +48 to maximum Energy Shield + 74% increased Energy Shield
+  3. [~23 Eldritch Chaos ┬À 4.48%/hit ┬À +25% to Cold Resistance | 18% chance to Avoid being Chilled: hit 1000 / pool 66000 (1.52%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~23 for suffixes
+  4. [hit 7000 / pool 46000 (15.22%)] LAST RESORT: Exalt for +35 to maximum Mana
+  5. [~3 ┬À filler 33.3% / keeper 66.7%] Eater dominant ÔåÆ Eldritch Annul ├ù~3 (free suffix for bench)
+  6. [100%] Crafting Bench: +20% to Fire and Lightning Resistances
+alternatives:
+  - No fracture ÔåÆ full Eldritch suffix fish (~36132.11c) Eldritch Chaos without locking +48 to Intelligence (~938). Fracture saves ~915 (~32473c).
+
+==== chest ====
+method: Fracture 102% increased Energy Shield ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+minIlvl: 86 cost: 3545.79
+mods: fractured:102% increased Energy Shield | natural:42% increased Energy Shield | essence:+85 to maximum Energy Shield | natural:+45% to Fire Resistance | natural:+36% to Lightning Resistance | bench:+20% to Cold and Lightning Resistances
+  1. [fracture alt] Prefer fractured Twilight Regalia (ilvl 86+) with: 102% increased Energy Shield
+  2. [~22 ess ┬À 4.71%/hit ┬À 42% increased Energy Shield | 17% increased Stun and Block Recovery: hit 1000 / pool 42000 (2.38%) tier+higher] Spam Deafening Essence of Woe until +85 to maximum Energy Shield + 42% increased Energy Shield | 17% increased Stun and Block Recovery
+  3. [~95 Eldritch Chaos ┬À 1.06%/hit ┬À +45% to Fire Resistance: hit 2000 / pool 58200 (3.44%); +36% to Lightning Resistance: hit 3000 / pool 58200 (5.15%)] Eater dominant ÔåÆ Eldritch Chaos ├ù~95 for suffixes
+  4. [~3 ┬À filler 33.3% / keeper 66.7%] Eater dominant ÔåÆ Eldritch Annul ├ù~3 (free suffix for bench)
+  5. [100%] Crafting Bench: +20% to Cold and Lightning Resistances
+alternatives:
+  - No fracture ÔåÆ full Woe fish (~7639.99c) Fish without locking 102% increased Energy Shield (~1226 ess). Fracture saves ~1204 ess (~4094c).
+file:///C:/Users/info/Documents/GitHub/howdoicraftthis/src/lib/spawnWeights.js:133
+  for (const m of spawnableMods(kb, baseTags)) {
+                                    ^
+
+ReferenceError: baseTags is not defined
+    at resolveNaturalMod (file:///C:/Users/info/Documents/GitHub/howdoicraftthis/src/lib/spawnWeights.js:133:37)
+    at enrichMod (file:///C:/Users/info/Documents/GitHub/howdoicraftthis/src/lib/deterministicPlanner.js:319:11)
+    at file:///C:/Users/info/Documents/GitHub/howdoicraftthis/src/lib/deterministicPlanner.js:1879:36
+    at Array.map (<anonymous>)
+    at planDeterministic (file:///C:/Users/info/Documents/GitHub/howdoicraftthis/src/lib/deterministicPlanner.js:1879:25)
+    at async planCraft (file:///C:/Users/info/Documents/GitHub/howdoicraftthis/src/lib/sideCompletionPlanner.js:7:18)
+    at async generateCraftSteps (file:///C:/Users/info/Documents/GitHub/howdoicraftthis/src/lib/craftPlanner.js:195:84)
+    at async file:///C:/Users/info/Documents/GitHub/howdoicraftthis/scripts/test-deterministic.mjs:305:16
+
+Node.js v22.21.1

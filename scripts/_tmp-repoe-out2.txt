@@ -1,0 +1,23 @@
+sample keys [
+  'adds_tags',
+  'domain',
+  'generation_type',
+  'generation_weights',
+  'grants_effects',
+  'groups',
+  'implicit_tags',
+  'is_essence_only',
+  'name',
+  'required_level',
+  'spawn_weights',
+  'stats',
+  'text',
+  'type'
+]
+{"adds_tags":[],"domain":"item","generation_type":"suffix","generation_weights":[],"grants_effects":[],"groups":["Intelligence"],"implicit_tags":["attribute"],"is_essence_only":false,"name":"of the Virtuoso","required_level":74,"spawn_weights":[{"tag":"ring","weight":1000},{"tag":"amulet","weight":1000},{"tag":"helmet","weight":1000},{"tag":"int_armour","weight":1000},{"tag":"str_int_armour","weight":500},{"tag":"dex_int_armour","weight":500},{"tag":"str_dex_int_armour","weight":500},{"tag":"wan
+done n 0
+CHILLMOD ChanceToAvoidFreezeEssence3 of the Essence ChanceToAvoidFreezeAndChill [ { tag: 'default', weight: 0 } ]
+CHILLMOD ChanceToAvoidFreezeEssence4 of the Essence ChanceToAvoidFreezeAndChill [ { tag: 'default', weight: 0 } ]
+CHILLMOD ChanceToAvoidFreezeEssence5 of the Essence ChanceToAvoidFreezeAndChill [ { tag: 'default', weight: 0 } ]
+CHILLMOD ChanceToAvoidFreezeEssence6 of the Essence ChanceToAvoidFreezeAndChill [ { tag: 'default', weight: 0 } ]
+CHILLMOD ChanceToAvoidFreezeEssence7 of the Essence ChanceToAvoidFreezeAndChill [ { tag: 'default', weight: 0 } ]

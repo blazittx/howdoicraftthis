@@ -1,0 +1,1 @@
+Patched artHash onto 2023/4957 bases ÔåÆ C:\Users\info\Documents\GitHub\howdoicraftthis\public\data\knowledge\base-items.json

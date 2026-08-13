@@ -1,0 +1,61 @@
+
+==== 1-exchange-currency ====
+status: 200 lines: 101 url: https://poe.ninja/poe1/api/economy/exchange/current/overview?league=Allflame&type=Currency
+ALL keyword line ids (7):
+{"id":"primal-lifeforce"}
+{"id":"sacred-lifeforce"}
+{"id":"sandswept-lifeforce"}
+{"id":"vivid-lifeforce"}
+{"id":"wild-lifeforce"}
+{"id":"mavens-chisel-of-proliferation"}
+{"id":"sacred-orb"}
+
+==== 2-stash-currency ====
+status: 200 lines: 70 url: https://poe.ninja/poe1/api/economy/stash/current/currency/overview?league=Allflame&type=Currency
+lifeforce-ish: 3
+{"currencyTypeName":"Vivid Crystallised Lifeforce","detailsId":"vivid-crystallised-lifeforce","chaosEquivalent":0.06}
+{"currencyTypeName":"Primal Crystallised Lifeforce","detailsId":"primal-crystallised-lifeforce","chaosEquivalent":0.05}
+{"currencyTypeName":"Wild Crystallised Lifeforce","detailsId":"wild-crystallised-lifeforce","chaosEquivalent":0.03}
+
+==== 3-stash-item-currency ====
+status: 200 lines: 0 url: https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=Allflame&type=Currency
+lifeforce-ish: 0
+
+==== 5-legacy-currencyoverview ====
+status: 404 lines: 0 url: https://poe.ninja/api/data/currencyoverview?league=Allflame&type=Currency
+body: not found
+
+==== 4-exchange-Harvest ====
+status: 200 lines: 0 url: https://poe.ninja/poe1/api/economy/exchange/current/overview?league=Allflame&type=Harvest
+
+==== 4-exchange-Lifeforce ====
+status: 200 lines: 0 url: https://poe.ninja/poe1/api/economy/exchange/current/overview?league=Allflame&type=Lifeforce
+
+==== 4-exchange-Fragment ====
+status: 200 lines: 72 url: https://poe.ninja/poe1/api/economy/exchange/current/overview?league=Allflame&type=Fragment
+
+==== 4-exchange-Oil ====
+status: 200 lines: 16 url: https://poe.ninja/poe1/api/economy/exchange/current/overview?league=Allflame&type=Oil
+
+==== 4-exchange-Fossil ====
+status: 200 lines: 25 url: https://poe.ninja/poe1/api/economy/exchange/current/overview?league=Allflame&type=Fossil
+
+==== 4-exchange-Scarab ====
+status: 200 lines: 115 url: https://poe.ninja/poe1/api/economy/exchange/current/overview?league=Allflame&type=Scarab
+
+==== EXTRA stash-fossil ====
+status: 404 lines: 0
+dense/hollow count: 0
+
+==== EXTRA legacy-fragment ====
+status: 404 lines: 0
+
+==== EXTRA exchange-Currency-dump-lifeforce-ids ====
+status: 200 lines: 101
+LIFE:
+{"id":"primal-lifeforce","name":"primal-lifeforce","chaos":null}
+{"id":"sacred-lifeforce","name":"sacred-lifeforce","chaos":null}
+{"id":"sandswept-lifeforce","name":"sandswept-lifeforce","chaos":null}
+{"id":"vivid-lifeforce","name":"vivid-lifeforce","chaos":null}
+{"id":"wild-lifeforce","name":"wild-lifeforce","chaos":null}
+{"id":"mavens-chisel-of-proliferation","name":"mavens-chisel-of-proliferation","chaos":null}

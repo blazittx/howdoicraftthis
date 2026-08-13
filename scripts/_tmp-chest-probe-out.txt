@@ -1,0 +1,30 @@
+=== methodName ===
+Fracture 102% increased Energy Shield ÔåÆ Woe ÔåÆ Eldritch Chaos ÔåÆ Bench
+=== totalCost ===
+3545.79
+=== alternatives JSON ===
+[
+  {
+    "id": "no-fracture-essence-fish",
+    "name": "No fracture ÔåÆ full Woe fish",
+    "description": "Fish without locking 102% increased Energy Shield (~1226 ess). Fracture saves ~1204 ess (~4094c).",
+    "totalCost": 7639.99
+  }
+]
+=== preferFracture tips ===
+[
+  "Fracture 102% increased Energy Shield (hit 1000 / pool 61000 (1.64%)) ÔÇö lowest natural weight; saves ~1204 ess (~4094c) vs rolling it."
+]
+=== preferFracture steps ===
+[
+  {
+    "operator": "preferFracture",
+    "action": "Prefer fractured Twilight Regalia (ilvl 86+) with: 102% increased Energy Shield",
+    "detail": "Lowest natural spawn weight among goals: 102% increased Energy Shield (hit 1000 / pool 61000 (1.64%) tier+higher). Fracture locks 102% increased Energy Shield so craft skips rolling it. Woe then still needs: 42% increased Energy Shield | 17% increased Stun and Block Recovery. Without fracture: ~1226 ess (~4169c) fishing the same goals. With fracture: ~22 ess (~75c) ÔÇö saves ~1204 ess (~4094c EV). Fractured base premium is not priced here; EV is craft-currency delta only.",
+    "preferEnabled": true
+  }
+]
+=== any alternative mentions essence savings ===
+true
+alt texts:
+  - No fracture ÔåÆ full Woe fish: Fish without locking 102% increased Energy Shield (~1226 ess). Fracture saves ~1204 ess (~4094c).

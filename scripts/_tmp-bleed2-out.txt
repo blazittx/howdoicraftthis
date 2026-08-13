@@ -1,0 +1,10 @@
+influenced [ 'Warlord' ]
+bleed text "Attacks have 10% chance to cause Bleeding\n(Bleeding deals Physical Damage over time, based on the base Physical Damage of the Skill. Damage is 200% higher while moving)\n24% increased Damage with Bleeding"
+bleed name of the Conquest
+match {
+  id: 'BleedOnHitDamageInfluence1_',
+  source: 'influence',
+  weight: 500,
+  matched: true,
+  groups: [ 'BleedingDamage' ]
+}

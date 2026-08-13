@@ -877,7 +877,7 @@ export function pickRandomBuild(kb, { rng = Math.random } = {}) {
     const craftFamilies = groupModsByFamily(crafted).filter(
       (f) => f.generation === 'prefix' || f.generation === 'suffix'
     );
-    if (natFamilies.length < 4 || craftFamilies.length < 1) continue;
+    if (natFamilies.length < 5 || craftFamilies.length < 1) continue;
 
     const craftFam = pickRng(craftFamilies, rng);
     const craftTiers = craftFam.tiers;

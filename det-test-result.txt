@@ -96,13 +96,12 @@ alternatives:
 
 ==== behemothStrap ====
 method: Fracture +18% to Cold Resistance → Dread
-minIlvl: 44 cost: 78.71
+minIlvl: 44 cost: 45.96
 mods: essence:+113 to Armour | natural:+38 to maximum Mana | fractured:+18% to Cold Resistance | natural:+15 to Strength | implicit:+35 to Strength
   1. [fracture alt] Prefer fractured Heavy Belt (ilvl 86+) with: +18% to Cold Resistance
-  2. [~4 ess · 29.6%/hit · +38 to maximum Mana: hit 7000 / pool 43550 (16.07%) tier+higher] Spam Deafening Essence of Dread until +113 to Armour + +38 to maximum Mana
-  3. [hit 9000 / pool 59000 (15.25%)] Exalt for +15 to Strength
+  2. [~13 ess · 8.33%/hit · +38 to maximum Mana: hit 7000 / pool 43550 (16.07%) tier+higher; +15 to Strength: hit 9000 / pool 59000 (15.25%) tier+higher] Spam Deafening Essence of Dread until +113 to Armour + +38 to maximum Mana + +15 to Strength
 alternatives:
-  - No fracture → normal Heavy Belt (~78.71c) Craft on a non-fractured base; roll +18% to Cold Resistance instead of locking it (hit 6000 / pool 67000 (8.96%)).
+  - No fracture → full Dread fish (~441.88c) Fish without locking +18% to Cold Resistance (~125 ess). Fracture saves ~112 ess (~396c).
 
 ==== quicksilverFlask ====
 method: KB candidate plan
@@ -136,13 +135,6 @@ mods: essence:Adds 3 to 67 Lightning Damage to Attacks | harvest:+16% to Critica
   3. [~3 · hit 5000 / pool 13000 (38.46%)] Prefixes Cannot Be Changed → Reforge Critical ×~3
   4. [hit 2000 / pool 62350 (3.21%)] Exalt for +42% to Lightning Resistance
 cannot-roll pools ilvl85: suffix 78842→64842, crit 18000→12000
-file:///c:/Users/info/Documents/GitHub/howdoicraftthis/scripts/test-deterministic.mjs:401:20
-  if (!cond) throw new Error(`ASSERT: ${msg}`);
-                   ^
 
-Error: ASSERT: behemothStrap: fish mentions Strength, got Spam Deafening Essence of Dread until +113 to Armour + +38 to maximum Mana
-    at assert (file:///c:/Users/info/Documents/GitHub/howdoicraftthis/scripts/test-deterministic.mjs:401:20)
-    at file:///c:/Users/info/Documents/GitHub/howdoicraftthis/scripts/test-deterministic.mjs:851:3
-
-Node.js v22.21.1
-EXIT_CODE=1
+OK: assertions passed
+EXIT_CODE=0

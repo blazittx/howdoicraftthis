@@ -894,7 +894,7 @@ export function pickRandomBuild(kb, { rng = Math.random } = {}) {
     let s = 0;
 
     for (const fam of shuffleRng(natFamilies, rng)) {
-      if (selected.length >= 4) break;
+      if (selected.length >= 5) break;
       const gen = fam.generation;
       if (gen === 'prefix' && p >= maxP) continue;
       if (gen === 'suffix' && s >= maxS) continue;
@@ -909,7 +909,7 @@ export function pickRandomBuild(kb, { rng = Math.random } = {}) {
       else s++;
     }
 
-    if (selected.length < 4) continue;
+    if (selected.length < 5) continue;
 
     return {
       base,

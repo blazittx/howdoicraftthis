@@ -1256,6 +1256,10 @@ function clearResults() {
   resetBuilder();
 }
 
+document.getElementById('random-plan-btn')?.addEventListener('click', () => {
+  randomAndPlan();
+});
+
 window.addEventListener('keydown', armPasteCatcher, true);
 window.addEventListener('keydown', onGlobalHotkey);
 window.addEventListener('paste', pasteFromEvent);

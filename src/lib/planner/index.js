@@ -13,6 +13,9 @@ export {
   completedSideBonus,
   defaultPlanOptions,
   baseAcquisitionOp,
+  analyzeTagSideClusters,
+  tagClusterThoughtLines,
+  SIDE_LOCK_TAGS,
 } from './heuristics.js';
 export { donorMiniPlan, donorSearch } from './donorSearch.js';
 export {

@@ -10,6 +10,7 @@ import { planCraft } from './planner/optimizer.js';
 import { formatCostBreakdown } from './craftKnowledge.js';
 import { assemblePlan } from './planSchema.js';
 import { rulesetVersion } from './ruleset.js';
+import { reportProgress } from './progress.js';
 
 export const CURRENCY = {
   transmute: { name: 'Orb of Transmutation', short: 'Transmute', color: '#7eb8da' },
@@ -101,7 +102,10 @@ function toStep(raw) {
 }
 
 export async function generateCraftSteps(item, onProgress, opts = {}) {
-  onProgress?.({ phase: 'loading-knowledge' });
+  await reportProgress(onProgress, {
+    phase: 'loading-knowledge',
+    message: 'Loading craft knowledge…',
+  });
   const kb = await loadKnowledgeBase();
   const base = getBaseInfo(kb, item.baseName);
   // Magic names / fuzzy base resolve — keep planner + art on the real base
@@ -169,6 +173,13 @@ export async function generateCraftSteps(item, onProgress, opts = {}) {
     return !raw.crafted && !seenCraft.has(raw.text);
   });
 
+  await reportProgress(onProgress, {
+    phase: 'matching-mods',
+    message: `Parsing item — ${naturalExplicit.length} explicit · ${craftedList.length} crafted`,
+    current: 0,
+    total: naturalExplicit.length + craftedList.length,
+  });
+
   const enrichedItem = {
     ...item,
     tags: effectiveBaseTags(item, base, kb.cannotRoll),
@@ -223,7 +234,10 @@ export async function generateCraftSteps(item, onProgress, opts = {}) {
     }),
   };
 
-  onProgress?.({ phase: 'planning' });
+  await reportProgress(onProgress, {
+    phase: 'planning',
+    message: 'Handing off to optimizer…',
+  });
   const { best, alternatives, minIlvl, drivers, classified, coverage, baseTags } = await planCraft(
     enrichedItem,
     null,

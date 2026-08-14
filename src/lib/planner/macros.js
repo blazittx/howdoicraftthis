@@ -2,6 +2,7 @@
  * Entropy-reducing macro-actions (§7, §47).
  * Mechanically expandable — never item-specific recipes (§5, §94).
  */
+import { analyzeTagSideClusters } from './heuristics.js';
 
 export const ENTROPY_MACROS = [
   {
@@ -59,16 +60,19 @@ export function expandMacro(id, ...args) {
 
 /**
  * Discover entropy-reducing chain candidates from remaining goals.
- * Generic: shared harvest family + protect, unveil+protect, cannot-roll+exalt.
+ * Generic: shared harvest family + protect, unveil+protect, cannot-roll+exalt,
+ * plus tag-overlap side-lock hints (finish clustered side → protect → open other).
  */
 export function discoverEntropyChains(rem, ctx = {}) {
   const chains = [];
+  const tagAnalysis = ctx.tagClusters ?? analyzeTagSideClusters(rem);
+  const sideOrder = tagAnalysis.sideOrder ?? ['suffix', 'prefix'];
   const bySide = { prefix: [], suffix: [] };
   for (const m of rem ?? []) {
     const g = m.gen === 'suffix' ? 'suffix' : 'prefix';
     bySide[g].push(m);
   }
-  for (const side of ['suffix', 'prefix']) {
+  for (const side of sideOrder) {
     const mods = bySide[side];
     if (mods.length < 2) continue;
     const harvests = new Map();
@@ -81,13 +85,19 @@ export function discoverEntropyChains(rem, ctx = {}) {
     }
     for (const [hid, covered] of harvests) {
       if (covered.length < 2) continue;
+      const tagHit = (tagAnalysis.clusters ?? []).find(
+        (c) => c.side === side && covered.some((m) => (c.mods ?? []).includes(m))
+      );
       chains.push({
         id: 'protect+reforgeTag',
         side,
         harvestId: hid,
         covered,
+        tag: tagHit?.tag,
         ops: expandMacro('protect+reforgeTag', side, hid),
-        why: `Occupied groups + ${side} protect collapses ${hid} pool`,
+        why: tagHit
+          ? `Tag cluster (${tagHit.tag}) on ${side}s → finish + protect, then ${hid}`
+          : `Occupied groups + ${side} protect collapses ${hid} pool`,
       });
     }
   }
@@ -109,6 +119,22 @@ export function discoverEntropyChains(rem, ctx = {}) {
       ops: expandMacro('cannotRoll+exalt', ctx.cannotRollAssist),
       why: 'Cannot-roll assist then exalt',
     });
+  }
+  // Tag-overlap search hints: expand cannot-roll+exalt when a complement tag may shrink the open side.
+  for (const c of (tagAnalysis.clusters ?? []).slice(0, 4)) {
+    for (const blockTag of c.cannotRollHints ?? []) {
+      const openGoals = bySide[c.oppositeSide] ?? [];
+      if (!openGoals.length) continue;
+      chains.push({
+        id: 'cannotRoll+exalt',
+        side: c.oppositeSide,
+        tag: blockTag,
+        fromCluster: { side: c.side, tag: c.tag },
+        ops: expandMacro('cannotRoll+exalt', blockTag),
+        why: `${c.side} ${c.tag} cluster locked → try cannot-roll ${blockTag} while exalting ${c.oppositeSide === 'suffix' ? 'suffixes' : 'prefixes'}`,
+        searchHint: true,
+      });
+    }
   }
   return chains;
 }

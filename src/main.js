@@ -20,12 +20,21 @@ import {
   pickRandomBuild,
   INFLUENCE_NAMES,
 } from './lib/itemBuilder.js';
+import {
+  llmAdvise,
+  loadAdvisorSettings,
+  saveAdvisorSettings,
+  DEFAULT_MODEL,
+} from './lib/llm/advisor.js';
+import { formatThoughtLine } from './lib/progress.js';
 
 const app = document.querySelector('.app');
 const emptyState = document.getElementById('empty-state');
 const dropZone = document.getElementById('drop-zone');
 const pasteMod = document.getElementById('paste-mod');
 const statusEl = document.getElementById('status');
+const thoughtProcessEl = document.getElementById('thought-process');
+const thoughtLogEl = document.getElementById('thought-log');
 const clearBtn = document.getElementById('clear-btn');
 const results = document.getElementById('results');
 const errorEl = document.getElementById('error');
@@ -35,6 +44,7 @@ const alternativesPanel = document.getElementById('alternatives-panel');
 const rejectedPanel = document.getElementById('rejected-panel');
 const stagesPanel = document.getElementById('stages-panel');
 const solverDebugPanel = document.getElementById('solver-debug-panel');
+const advisorPanel = document.getElementById('advisor-panel');
 const planMetaEl = document.getElementById('plan-meta');
 const priceStaleBanner = document.getElementById('price-stale-banner');
 const stepsContainer = document.getElementById('steps-container');
@@ -43,6 +53,8 @@ const exportBtn = document.getElementById('export-btn');
 const exportStatus = document.getElementById('export-status');
 const optPreserveSpecial = document.getElementById('opt-preserve-special');
 const optSolverDebug = document.getElementById('opt-solver-debug');
+const optLlmAdvisor = document.getElementById('opt-llm-advisor');
+const optLlmModel = document.getElementById('opt-llm-model');
 
 const tabPaste = document.getElementById('tab-paste');
 const tabBuild = document.getElementById('tab-build');
@@ -74,7 +86,136 @@ let preferFractureEnabled = true;
 let preserveSpecialEnabled = true;
 /** §52–55 — show solver-debug panel when plan provides debug fields. */
 let solverDebugEnabled = false;
+/** Optional Ollama advisor — explain/critique only; never overrides EV. */
+const _advisorInit = loadAdvisorSettings();
+let llmAdvisorEnabled = _advisorInit.enabled;
+let llmAdvisorModel = _advisorInit.model || DEFAULT_MODEL;
 let analyzing = false;
+let advisorSeq = 0;
+/** Live thought-log stream line (advisor tokens). */
+let thoughtStreamEl = null;
+
+if (optLlmAdvisor) optLlmAdvisor.checked = llmAdvisorEnabled;
+if (optLlmModel) optLlmModel.value = llmAdvisorModel;
+
+function resetThoughtLog() {
+  thoughtStreamEl = null;
+  if (thoughtLogEl) thoughtLogEl.innerHTML = '';
+  if (thoughtProcessEl) {
+    thoughtProcessEl.classList.add('hidden');
+    thoughtProcessEl.open = false;
+  }
+}
+
+function showThoughtProcess({ open = true } = {}) {
+  if (!thoughtProcessEl) return;
+  thoughtProcessEl.classList.remove('hidden');
+  if (open) thoughtProcessEl.open = true;
+}
+
+function appendThoughtLine(text, { stream = false, decision = false } = {}) {
+  if (!thoughtLogEl || !text) return;
+  showThoughtProcess({ open: true });
+  if (stream && thoughtStreamEl) {
+    thoughtStreamEl.textContent = text;
+  } else {
+    const last = thoughtLogEl.lastElementChild;
+    if (!stream && last && !last.classList.contains('is-stream') && last.textContent === text) {
+      thoughtLogEl.scrollTop = thoughtLogEl.scrollHeight;
+      return;
+    }
+    const p = document.createElement('p');
+    p.className = 'thought-line';
+    if (stream) p.classList.add('is-stream');
+    if (decision) p.classList.add('is-decision');
+    p.textContent = text;
+    thoughtLogEl.appendChild(p);
+    if (stream) thoughtStreamEl = p;
+    else thoughtStreamEl = null;
+  }
+  thoughtLogEl.scrollTop = thoughtLogEl.scrollHeight;
+}
+
+/** Collapsible block: exact Ollama messages / buildAdvisePayload JSON. */
+function appendLlmInputBlock(input) {
+  if (!thoughtLogEl || !input) return;
+  showThoughtProcess({ open: true });
+  thoughtStreamEl = null;
+  const details = document.createElement('details');
+  details.className = 'thought-llm-input';
+  const summary = document.createElement('summary');
+  summary.textContent = `LLM input · ${input.model || '?'} · ${input.systemPromptId || 'prompt'}@${
+    input.systemPromptVersion || '?'
+  }`;
+  const meta = document.createElement('p');
+  meta.className = 'thought-llm-summary';
+  meta.textContent = input.summary || 'Payload sent to Ollama (expand for full JSON).';
+  const pre = document.createElement('pre');
+  pre.className = 'thought-llm-json';
+  const dump = {
+    model: input.model,
+    systemPromptId: input.systemPromptId,
+    systemPromptVersion: input.systemPromptVersion,
+    transport: input.transport,
+    payload: input.payload,
+    messages: input.messages,
+  };
+  pre.textContent = JSON.stringify(dump, null, 2);
+  details.append(summary, meta, pre);
+  thoughtLogEl.appendChild(details);
+  thoughtLogEl.scrollTop = thoughtLogEl.scrollHeight;
+}
+
+function handleProgress(p) {
+  if (p?.llmInput) {
+    appendLlmInputBlock(p.llmInput);
+  } else {
+    const line = formatThoughtLine(p);
+    if (!line) return;
+    const decision = p.phase === 'done' || p.phase === 'rejected' || p.phase === 'comparing-ev';
+    if (p.phase === 'advisor' && p.stream) {
+      appendThoughtLine(line, { stream: true });
+    } else {
+      appendThoughtLine(line, { decision });
+    }
+  }
+  // Keep short status in sync with latest phase
+  if (analyzing && statusEl) {
+    if (p.phase === 'loading-data' || p.phase === 'loading-knowledge') {
+      statusEl.textContent = 'Loading craft data…';
+    } else if (p.phase === 'matching-mods' || p.phase === 'matching-knowledge') {
+      statusEl.textContent = 'Matching mods…';
+    } else if (p.phase === 'building-plan' || p.phase === 'building-routes') {
+      statusEl.textContent = 'Building routes…';
+    } else if (p.phase === 'comparing-ev' || p.phase === 'optimizing' || p.phase === 'planning') {
+      statusEl.textContent = 'Comparing EV…';
+    } else if (p.phase === 'recomb' || p.phase === 'donor') {
+      statusEl.textContent = 'Evaluating recombinator…';
+    } else if (p.phase === 'advisor') {
+      statusEl.textContent = 'Advisor…';
+    } else if (p.phase === 'done') {
+      statusEl.textContent = 'Finishing plan…';
+    } else if (p.phase === 'searching') {
+      statusEl.textContent = p.total
+        ? `Searching methods ${p.current}/${p.total}…`
+        : 'Planning craft…';
+    }
+  }
+}
+
+function setLoading(loading, progressText) {
+  analyzing = loading;
+  if (dropZone) dropZone.disabled = loading;
+  if (planBtn) planBtn.disabled = loading || !selectedBase || selectedMods.length === 0;
+  statusEl.textContent = loading ? progressText || 'Searching crafts…' : '';
+  emptyState.classList.toggle('is-loading', loading);
+  if (loading) {
+    showThoughtProcess({ open: true });
+  } else if (thoughtProcessEl && thoughtLogEl?.childElementCount) {
+    // Keep inspectable after plan completes
+    thoughtProcessEl.open = false;
+  }
+}
 
 /** Builder state */
 let inputMode = 'paste';
@@ -144,14 +285,6 @@ function showError(msg) {
 
 function hideError() {
   errorEl.classList.add('hidden');
-}
-
-function setLoading(loading, progressText) {
-  analyzing = loading;
-  if (dropZone) dropZone.disabled = loading;
-  if (planBtn) planBtn.disabled = loading || !selectedBase || selectedMods.length === 0;
-  statusEl.textContent = loading ? progressText || 'Searching crafts…' : '';
-  emptyState.classList.toggle('is-loading', loading);
 }
 
 function escapeHtml(s) {
@@ -723,6 +856,109 @@ function renderAlternatives(plan) {
   `;
 }
 
+function renderAdvisor(result) {
+  if (!advisorPanel) return;
+  if (!llmAdvisorEnabled) {
+    advisorPanel.classList.add('hidden');
+    advisorPanel.innerHTML = '';
+    return;
+  }
+  if (!result) {
+    advisorPanel.classList.remove('hidden');
+    advisorPanel.innerHTML = `<h4>Advisor notes</h4><p class="advisor-status">Asking local model…</p>`;
+    return;
+  }
+  if (result.status === 'unavailable' || result.status === 'error') {
+    advisorPanel.classList.remove('hidden');
+    advisorPanel.innerHTML = `<h4>Advisor notes</h4><p class="advisor-status">${escapeHtml(
+      result.error || 'Ollama unavailable — plan unchanged.'
+    )}</p>`;
+    return;
+  }
+  if (result.status === 'rejected' || !result.advice) {
+    advisorPanel.classList.remove('hidden');
+    advisorPanel.innerHTML = `<h4>Advisor notes</h4><p class="advisor-status">${escapeHtml(
+      result.error || 'Advice rejected by validator.'
+    )}</p>`;
+    return;
+  }
+  const advice = result.advice;
+  const items = advice.items ?? [];
+  advisorPanel.classList.remove('hidden');
+  advisorPanel.innerHTML = `
+    <h4>Advisor notes</h4>
+    ${advice.summary ? `<p class="advisor-summary">${escapeHtml(advice.summary)}</p>` : ''}
+    ${
+      items.length
+        ? `<ul class="advisor-list">${items
+            .map(
+              (it) =>
+                `<li class="advisor-item"><span class="advisor-kind">${escapeHtml(
+                  it.kind
+                )}</span>${escapeHtml(it.text)}</li>`
+            )
+            .join('')}</ul>`
+        : `<p class="advisor-status">No notes.</p>`
+    }
+    <p class="advisor-status">Does not override EV · ${escapeHtml(result.model || llmAdvisorModel)}</p>
+  `;
+}
+
+async function runAdvisorForPlan(item, plan) {
+  if (!llmAdvisorEnabled || !plan) {
+    if (advisorPanel) {
+      advisorPanel.classList.add('hidden');
+      advisorPanel.innerHTML = '';
+    }
+    handleProgress({
+      phase: 'advisor',
+      message: !plan
+        ? 'Advisor skipped (no plan)'
+        : 'Advisor skipped (disabled — enable Local LLM advisor in plan options)',
+      skipped: true,
+    });
+    return;
+  }
+  const seq = ++advisorSeq;
+  renderAdvisor(null);
+  handleProgress({ phase: 'advisor', message: 'Advisor: starting local Ollama…' });
+  const result = await llmAdvise({
+    target: item,
+    best: plan,
+    candidates: plan.alternatives,
+    rejected: plan.rejectedStrategies,
+    economics: plan.economics,
+    solverDebug: plan.solverDebug,
+    model: llmAdvisorModel,
+    onProgress: (p) => {
+      if (seq !== advisorSeq) return;
+      handleProgress({ phase: 'advisor', ...p });
+    },
+  });
+  if (seq !== advisorSeq) return;
+  if (lastExport?.plan === plan) plan.advisor = result;
+  if (result?.advice?.summary) {
+    handleProgress({
+      phase: 'advisor',
+      message: `Advisor summary: ${result.advice.summary}`,
+    });
+  } else if (result?.status === 'skipped') {
+    handleProgress({
+      phase: 'advisor',
+      message: `Advisor skipped (${result.reason || 'disabled'})`,
+      skipped: true,
+    });
+  } else if (result?.status === 'unavailable' || result?.status === 'error') {
+    handleProgress({
+      phase: 'advisor',
+      message: `Advisor: ${result.error || 'unavailable'}`,
+    });
+  } else if (result?.status === 'ok') {
+    handleProgress({ phase: 'advisor', message: 'Advisor: done' });
+  }
+  renderAdvisor(result);
+}
+
 /** §52 — rejected strategies with why-lost. */
 function renderRejected(plan) {
   if (!rejectedPanel) return;
@@ -1000,10 +1236,17 @@ function renderPlanView(item, plan, view) {
   renderAlternatives(plan);
   renderRejected(plan);
   renderSolverDebug(plan);
+  if (plan.advisor) renderAdvisor(plan.advisor);
+  else if (!llmAdvisorEnabled && advisorPanel) {
+    advisorPanel.classList.add('hidden');
+    advisorPanel.innerHTML = '';
+  }
   renderSteps(view?.steps ?? plan.steps ?? []);
   renderTips(plan.tips);
   if (optPreserveSpecial) optPreserveSpecial.checked = preserveSpecialEnabled;
   if (optSolverDebug) optSolverDebug.checked = solverDebugEnabled;
+  if (optLlmAdvisor) optLlmAdvisor.checked = llmAdvisorEnabled;
+  if (optLlmModel) optLlmModel.value = llmAdvisorModel;
 }
 
 function toggleHitKey(key) {
@@ -1047,6 +1290,7 @@ optPreserveSpecial?.addEventListener('change', () => {
     lastExport.plan = plan;
     lastExport.view = view;
     renderPlanView(lastExport.item, plan, view);
+    runAdvisorForPlan(lastExport.item, plan).catch((err) => console.error(err));
   })().catch((err) => console.error(err));
 });
 
@@ -1071,7 +1315,33 @@ optSolverDebug?.addEventListener('change', () => {
     lastExport.plan = plan;
     lastExport.view = view;
     renderPlanView(lastExport.item, plan, view);
+    runAdvisorForPlan(lastExport.item, plan).catch((err) => console.error(err));
   })().catch((err) => console.error(err));
+});
+
+function persistAdvisorSettings() {
+  saveAdvisorSettings({ enabled: llmAdvisorEnabled, model: llmAdvisorModel });
+}
+
+optLlmAdvisor?.addEventListener('change', () => {
+  llmAdvisorEnabled = !!optLlmAdvisor.checked;
+  persistAdvisorSettings();
+  if (!lastExport?.plan) {
+    if (!llmAdvisorEnabled && advisorPanel) {
+      advisorPanel.classList.add('hidden');
+      advisorPanel.innerHTML = '';
+    }
+    return;
+  }
+  runAdvisorForPlan(lastExport.item, lastExport.plan).catch((err) => console.error(err));
+});
+
+optLlmModel?.addEventListener('change', () => {
+  llmAdvisorModel = (optLlmModel.value || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+  persistAdvisorSettings();
+  if (llmAdvisorEnabled && lastExport?.plan) {
+    runAdvisorForPlan(lastExport.item, lastExport.plan).catch((err) => console.error(err));
+  }
 });
 
 stepsContainer.addEventListener('keydown', (e) => {
@@ -1364,13 +1634,7 @@ async function copyPlanFeedback() {
 }
 
 async function showPlan(item, raw) {
-  const plan = await generateCraftSteps(item, (p) => {
-    if (p.phase === 'loading-data' || p.phase === 'loading-knowledge') setLoading(true, 'Loading craft data…');
-    else if (p.phase === 'matching-mods') setLoading(true, 'Matching mods…');
-    else if (p.phase === 'searching' || p.phase === 'planning') {
-      setLoading(true, p.total ? `Searching methods ${p.current}/${p.total}…` : 'Planning craft…');
-    } else if (p.phase === 'done') setLoading(true, 'Picking cheapest…');
-  }, {
+  const plan = await generateCraftSteps(item, handleProgress, {
     preferFracture: preferFractureEnabled,
     preserveSpecialSources: preserveSpecialEnabled,
     solverDebug: solverDebugEnabled,
@@ -1385,6 +1649,8 @@ async function showPlan(item, raw) {
   results.classList.remove('hidden');
   setHasItem(true);
   await syncBuilderFromItem(item, plan, { force: true });
+  // Advisor after EV ranking — never changes winner/costs
+  runAdvisorForPlan(item, plan).catch((err) => console.error(err));
 }
 
 async function analyze(raw) {
@@ -1396,6 +1662,7 @@ async function analyze(raw) {
   if (analyzing) return;
 
   hideError();
+  resetThoughtLog();
   setLoading(true, 'Loading craft data…');
   exportStatus.textContent = '';
   emptyState.classList.remove('hidden');
@@ -1416,6 +1683,7 @@ async function analyze(raw) {
 async function analyzeBuiltItem(item) {
   if (analyzing) return;
   hideError();
+  resetThoughtLog();
   setLoading(true, 'Loading craft data…');
   exportStatus.textContent = '';
   emptyState.classList.remove('hidden');
@@ -1936,14 +2204,20 @@ function clearResults() {
   preferFractureEnabled = true;
   preserveSpecialEnabled = true;
   solverDebugEnabled = false;
+  advisorSeq += 1;
   if (optPreserveSpecial) optPreserveSpecial.checked = true;
   if (optSolverDebug) optSolverDebug.checked = false;
+  if (advisorPanel) {
+    advisorPanel.classList.add('hidden');
+    advisorPanel.innerHTML = '';
+  }
   exportStatus.textContent = '';
   results.classList.add('hidden');
   emptyState.classList.remove('hidden');
   setHasItem(false);
   hideError();
   statusEl.textContent = '';
+  resetThoughtLog();
   resetBuilder();
 }
 

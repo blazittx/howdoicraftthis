@@ -42,7 +42,12 @@ import {
 import { haveKey } from './stateKey.js';
 import { MACRO_IDS, discoverEntropyChains } from './macros.js';
 import { beamTrim, makeFrontierEntry } from './pruning.js';
-import { lowerBound, rankCoupledSubsystems, completedSideBonus } from './heuristics.js';
+import {
+  lowerBound,
+  rankCoupledSubsystems,
+  completedSideBonus,
+  analyzeTagSideClusters,
+} from './heuristics.js';
 import { donorMiniPlan as donorMiniPlanCore, donorSearch } from './donorSearch.js';
 
 const MAX_DEPTH = 4;
@@ -291,7 +296,14 @@ export function sequentialRemaining(haveKeys, ctx) {
 
   const { kb, baseTags, prices } = ctx;
   const ilvl = ctx.ilvl ?? ctx.itemMeta?.itemLevel ?? 1;
-  const macros = discoverEntropyChains(rem, ctx);
+  const tagClusters = ctx.tagClusters ?? analyzeTagSideClusters(rem);
+  const macros = discoverEntropyChains(rem, { ...ctx, tagClusters });
+  const harvestOrder = tagClusters.preferredLockSide
+    ? tagClusters.sideOrder
+    : ['suffix', 'prefix'];
+  const exaltOrder = tagClusters.preferredLockSide
+    ? tagClusters.sideOrder
+    : ['prefix', 'suffix'];
   if (!kb || !baseTags) {
     return {
       ev: usePlannerEv ? ctx.sequentialCost : rem.reduce((s, m) => s + ctx.costOne(m), 0),
@@ -326,7 +338,7 @@ export function sequentialRemaining(haveKeys, ctx) {
     occupied = collectOccupiedGroups([...haveMods, essM, ...fish]);
   }
 
-  for (const side of ['suffix', 'prefix']) {
+  for (const side of harvestOrder) {
     const sideRem = rem.filter((m) => m.gen === side && m.harvests?.length);
     if (!sideRem.length) continue;
     const shared = sharedHarvest(sideRem);
@@ -377,10 +389,17 @@ export function sequentialRemaining(haveKeys, ctx) {
     for (const g of m.groups ?? []) occupied.add(g);
   }
 
-  for (const gen of ['prefix', 'suffix']) {
+  for (const gen of exaltOrder) {
     const goals = rem.filter((m) => m.gen === gen);
     if (!goals.length) continue;
-    const assist = bestCannotRollAssist(kb, baseTags, ilvl, gen, goals, { occupiedGroups: occupied });
+    const preferBlocked = [];
+    for (const c of tagClusters.clusters ?? []) {
+      if (c.oppositeSide === gen) preferBlocked.push(...(c.cannotRollHints ?? []));
+    }
+    const assist = bestCannotRollAssist(kb, baseTags, ilvl, gen, goals, {
+      occupiedGroups: occupied,
+      preferBlockedTags: preferBlocked,
+    });
     const divineSep = ctx.planOpts?.divineSeparate !== false;
     if (assist) {
       if (!divineSep) ev += costBag({ divine: 2 }, prices);

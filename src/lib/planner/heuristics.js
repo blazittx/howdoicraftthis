@@ -90,6 +90,123 @@ export function completedSideBonus(state, neededByGen) {
   return bonus;
 }
 
+/**
+ * Strategy-relevant mod tags for side-lock / cannot-roll planning.
+ * Drawn from harvest families + cannot-roll constraints — not item recipes.
+ */
+export const SIDE_LOCK_TAGS = new Set([
+  'attack',
+  'caster',
+  'critical',
+  'defence',
+  'defences',
+  'life',
+  'speed',
+  'chaos',
+  'fire',
+  'cold',
+  'lightning',
+  'physical',
+  'elemental',
+]);
+
+function sideLabel(side, { plural = false } = {}) {
+  if (side === 'suffix') return plural ? 'suffixes' : 'suffix';
+  if (side === 'prefix') return plural ? 'prefixes' : 'prefix';
+  return String(side ?? '');
+}
+
+/** Normalize defence aliases; drop noise tags. */
+export function normalizeStrategyTag(t) {
+  const s = String(t ?? '')
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+  if (s === 'defences') return 'defence';
+  return SIDE_LOCK_TAGS.has(s) ? s : null;
+}
+
+function modStrategyTags(m) {
+  const out = new Set();
+  for (const t of m?.tags ?? []) {
+    const n = normalizeStrategyTag(t);
+    if (n) out.add(n);
+  }
+  for (const h of m?.harvests ?? []) {
+    for (const t of h.tags ?? []) {
+      const n = normalizeStrategyTag(t);
+      if (n) out.add(n);
+    }
+  }
+  return out;
+}
+
+/**
+ * Detect natural tag clusters on desired affix sides (e.g. many suffixes share `attack`).
+ * Used to prefer finish→protect (SCBC/PCBC) then cannot-roll on the open side.
+ * Numbers still come from engine pools — this only ranks search / thought hints.
+ */
+export function analyzeTagSideClusters(mods) {
+  const bySide = { prefix: [], suffix: [] };
+  for (const m of mods ?? []) {
+    if (m.crafted || m.method === 'bench') continue;
+    const g = m.gen === 'suffix' ? 'suffix' : m.gen === 'prefix' ? 'prefix' : null;
+    if (!g) continue;
+    bySide[g].push(m);
+  }
+
+  const clusters = [];
+  for (const side of ['suffix', 'prefix']) {
+    const sideMods = bySide[side];
+    if (sideMods.length < 2) continue;
+    const tagMods = new Map();
+    for (const m of sideMods) {
+      for (const t of modStrategyTags(m)) {
+        if (!tagMods.has(t)) tagMods.set(t, []);
+        tagMods.get(t).push(m);
+      }
+    }
+    for (const [tag, covered] of tagMods) {
+      if (covered.length < 2) continue;
+      const protect =
+        side === 'suffix' ? 'suffixesCannotBeChanged' : 'prefixesCannotBeChanged';
+      const opposite = side === 'suffix' ? 'prefix' : 'suffix';
+      // Complementary cannot-roll tags often shrink the *other* pool (KB: attack↔caster).
+      const complementHints =
+        tag === 'attack' ? ['caster'] : tag === 'caster' ? ['attack'] : [];
+      const lockShort = side === 'suffix' ? 'SCBC' : 'PCBC';
+      const rollHints = complementHints
+        .map((t) => t[0].toUpperCase() + t.slice(1))
+        .join('/');
+      clusters.push({
+        side,
+        tag,
+        count: covered.length,
+        fraction: covered.length / sideMods.length,
+        mods: covered,
+        labels: covered.map((m) => m.short ?? m.text),
+        protectMetacraft: protect,
+        oppositeSide: opposite,
+        cannotRollHints: complementHints,
+        thought: `Desired ${sideLabel(side, { plural: true })} share ${tag} tags → consider ${lockShort} after finishing them${
+          rollHints
+            ? `; Cannot Roll ${rollHints} may shrink ${sideLabel(opposite)} pool for remaining`
+            : ''
+        }…`,
+      });
+    }
+  }
+  clusters.sort((a, b) => b.count - a.count || b.fraction - a.fraction);
+  const preferredLockSide = clusters[0]?.side ?? null;
+  const sideOrder =
+    preferredLockSide === 'prefix' ? ['prefix', 'suffix'] : ['suffix', 'prefix'];
+  return { clusters, bySide, preferredLockSide, sideOrder };
+}
+
+/** One-line thought summaries for the live log (engine numbers not invented). */
+export function tagClusterThoughtLines(analysis) {
+  return (analysis?.clusters ?? []).slice(0, 4).map((c) => c.thought);
+}
+
 /** Planning options: tier / divine / bench reservation (§74–76). */
 export function defaultPlanOptions(opts = {}) {
   return {

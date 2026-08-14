@@ -677,6 +677,132 @@ kbd {
   color: var(--gold-dim);
 }
 
+.thought-process {
+  margin: 0.65rem 0 0;
+  border: 1px solid rgba(201, 162, 39, 0.18);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+  max-width: 100%;
+}
+
+.thought-process.hidden {
+  display: none;
+}
+
+.thought-process-summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  user-select: none;
+}
+
+.thought-process-summary::-webkit-details-marker {
+  display: none;
+}
+
+.thought-process-summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.4rem;
+  color: var(--gold-dim);
+  transition: transform 0.12s ease;
+}
+
+.thought-process[open] .thought-process-summary::before {
+  transform: rotate(90deg);
+}
+
+.thought-log {
+  max-height: min(42vh, 280px);
+  overflow-y: auto;
+  padding: 0 0.75rem 0.7rem;
+  font-family: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+  -webkit-overflow-scrolling: touch;
+}
+
+.thought-line {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.thought-line.is-stream {
+  color: var(--text);
+}
+
+.thought-line.is-decision {
+  color: var(--gold-dim);
+}
+
+.thought-llm-input {
+  margin: 0.35rem 0 0.5rem;
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 0.15rem 0.55rem 0.45rem;
+}
+
+.thought-llm-input > summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold-dim);
+  padding: 0.35rem 0;
+  user-select: none;
+}
+
+.thought-llm-input > summary::-webkit-details-marker {
+  display: none;
+}
+
+.thought-llm-input > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.35rem;
+  transition: transform 0.12s ease;
+}
+
+.thought-llm-input[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.thought-llm-summary {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.thought-llm-json {
+  margin: 0;
+  max-height: min(28vh, 220px);
+  overflow: auto;
+  padding: 0.45rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .thought-log {
+    max-height: min(36vh, 220px);
+    font-size: 0.74rem;
+  }
+}
+
 .section-label {
   font-size: 0.72rem;
   font-weight: 600;
@@ -1396,10 +1522,24 @@ button:disabled {
   user-select: none;
 }
 
-.plan-opt input {
+.plan-opt input[type='checkbox'] {
   width: 1rem;
   height: 1rem;
   accent-color: var(--gold);
+}
+
+.plan-opt-model {
+  gap: 0.35rem;
+}
+
+.plan-opt-model input[type='text'] {
+  width: 8.5rem;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text);
+  background: var(--bg-elevated, #141418);
+  border: 1px solid var(--border, #2a2a32);
+  border-radius: 4px;
 }
 
 .step-risk {
@@ -1494,19 +1634,57 @@ button:disabled {
 
 .stages-panel,
 .rejected-panel,
-.solver-debug-panel {
+.solver-debug-panel,
+.advisor-panel {
   margin-bottom: 1.25rem;
 }
 
 .stages-panel h4,
 .rejected-panel h4,
-.solver-debug-panel h4 {
+.solver-debug-panel h4,
+.advisor-panel h4 {
   margin: 0 0 0.65rem;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-dim);
   font-weight: 600;
+}
+
+.advisor-summary {
+  margin: 0 0 0.55rem;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.advisor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.advisor-item {
+  font-size: 0.86rem;
+  color: var(--text-dim);
+}
+
+.advisor-kind {
+  display: inline-block;
+  margin-right: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold, #c9a227);
+}
+
+.advisor-status {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-dim);
 }
 
 .stage-list,

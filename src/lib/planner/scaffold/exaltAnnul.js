@@ -73,7 +73,18 @@ function multiExaltBagEv(kb, tags, ilvl, goals, prices, { openSlot = true, occup
  * beats harvest (and plain exalt) for every remaining goal on that gen, commit assist
  * and mark goals so harvest is skipped.
  */
-function applyCannotRollExaltAssist(kb, baseTags, ilvl, openMods, influence, steps, costs, prices, allMods) {
+function applyCannotRollExaltAssist(
+  kb,
+  baseTags,
+  ilvl,
+  openMods,
+  influence,
+  steps,
+  costs,
+  prices,
+  allMods,
+  tagClusters = null
+) {
   const byGen = { prefix: [], suffix: [] };
   for (const m of openMods) {
     if (!m.gen || isBenchMod(m) || m._done) continue;
@@ -81,13 +92,22 @@ function applyCannotRollExaltAssist(kb, baseTags, ilvl, openMods, influence, ste
   }
   const tagsBase = influence ? withInfluenceTags(baseTags, influence) : baseTags;
   const modList = allMods ?? openMods;
-  for (const gen of ['prefix', 'suffix']) {
+  const genOrder = tagClusters?.preferredLockSide
+    ? tagClusters.sideOrder
+    : ['prefix', 'suffix'];
+  // Prefer cannot-roll tags hinted by opposite-side clusters (attack↔caster, …).
+  const preferByGen = { prefix: [], suffix: [] };
+  for (const c of tagClusters?.clusters ?? []) {
+    for (const t of c.cannotRollHints ?? []) preferByGen[c.oppositeSide].push(t);
+  }
+  for (const gen of genOrder) {
     const goals = byGen[gen];
     if (goals.length < 1) continue;
     const occ = occupiedGroupsNow(modList, gen);
     const assist = bestCannotRollAssist(kb, tagsBase, ilvl, gen, goals, {
       minFraction: 0.25,
       occupiedGroups: occ,
+      preferBlockedTags: preferByGen[gen],
     });
 
     const plain = multiExaltBagEv(kb, tagsBase, ilvl, goals, prices, {

@@ -80,6 +80,11 @@
         </div>
 
         <p id="status" class="status" aria-live="polite"></p>
+
+        <details id="thought-process" class="thought-process hidden">
+          <summary class="thought-process-summary">Thought process</summary>
+          <div id="thought-log" class="thought-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+        </details>
       </section>
 
       <!-- Off-screen catcher so Chromium fires paste when no visible input is focused -->
@@ -106,6 +111,14 @@
             <input type="checkbox" id="opt-solver-debug" />
             <span>Solver debug</span>
           </label>
+          <label class="plan-opt" title="Optional local Ollama advisor — explains EV; never overrides costs. See docs/LLM-ADVISOR.md">
+            <input type="checkbox" id="opt-llm-advisor" />
+            <span>Local LLM advisor (Ollama)</span>
+          </label>
+          <label class="plan-opt plan-opt-model" title="Ollama model tag">
+            <span>Model</span>
+            <input type="text" id="opt-llm-model" value="llama3.2:3b" spellcheck="false" autocomplete="off" />
+          </label>
         </div>
 
         <div class="plan-block">
@@ -118,6 +131,7 @@
         <div id="alternatives-panel" class="alternatives-panel hidden"></div>
         <div id="rejected-panel" class="rejected-panel hidden"></div>
         <div id="solver-debug-panel" class="solver-debug-panel hidden"></div>
+        <div id="advisor-panel" class="advisor-panel hidden"></div>
         <div id="tips-container" class="tips-container"></div>
 
         <div class="results-toolbar">

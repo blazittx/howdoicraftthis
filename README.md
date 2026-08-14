@@ -22,6 +22,12 @@ npm run electron:dev
 
 Runs Vite + Electron desktop window.
 
+## Local LLM advisor (optional)
+
+EV ranking stays authoritative. An optional Ollama-backed advisor can **explain** plans, flag inconsistent provided fields, and suggest search expansions — it never invents gold/dust/p% or replaces `V(S)`.
+
+See [docs/LLM-ADVISOR.md](docs/LLM-ADVISOR.md): install Ollama → `ollama pull llama3.2:3b` → enable **Local LLM advisor** in plan options.
+
 ## Knowledge base (PoE1 only)
 
 ```bash

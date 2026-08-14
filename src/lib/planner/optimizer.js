@@ -9,9 +9,11 @@ import { classifyPlan, planSummaryLine } from '../planClass.js';
 import { recommendInfluenceAcquisition, formatCostBreakdown, chaosCost } from '../craftKnowledge.js';
 import { considerRecombinator } from '../recombinatorSearch.js';
 import { solveValue, roundEv, modKey, sequentialRemaining } from './valueFunction.js';
-import { fractureByEv, defaultPlanOptions, baseAcquisitionOp, rankCoupledSubsystems } from './heuristics.js';
+import { fractureByEv, defaultPlanOptions, baseAcquisitionOp, rankCoupledSubsystems, analyzeTagSideClusters, tagClusterThoughtLines } from './heuristics.js';
 import { terminalEquivalent } from './stateKey.js';
 import { discoverEntropyChains } from './macros.js';
+import { reportProgress } from '../progress.js';
+import { formatPctPrecise } from '../pricing/recombEconomics.js';
 
 /**
  * Legacy sequential step materializer — strategy decisions do NOT live there.
@@ -69,7 +71,10 @@ function pickFractureByEv(mods, ctx) {
  * Main production optimizer (§1–5, §94 emerge — no hardcoded wand/chest recipes).
  */
 export async function optimizeCraft(item, onProgress, opts = {}) {
-  onProgress?.({ phase: 'loading-knowledge' });
+  await reportProgress(onProgress, {
+    phase: 'loading-knowledge',
+    message: 'Loading craft knowledge…',
+  });
   const kb = await loadKnowledgeBase();
   const planOpts = defaultPlanOptions(opts);
   const base = getBaseInfo(kb, item.baseName);
@@ -80,7 +85,10 @@ export async function optimizeCraft(item, onProgress, opts = {}) {
   const cannotRoll = resolveCannotRoll(item, base, kb.cannotRoll);
   const itemClass = base?.item_class ?? normalizeItemClass(item.itemClass);
 
-  onProgress?.({ phase: 'optimizing' });
+  await reportProgress(onProgress, {
+    phase: 'optimizing',
+    message: 'Optimizing craft — sequential · fracture · recombinator…',
+  });
   // Materialize sequential scaffold for steps + classified mods (not strategy)
   const scaffold = await materializeSequential(item, onProgress, { ...opts, ...planOpts });
   const seqBest = scaffold.best;
@@ -118,6 +126,10 @@ export async function optimizeCraft(item, onProgress, opts = {}) {
   };
 
   const baseOp = baseAcquisitionOp(itemMeta, prices, recommendInfluenceAcquisition);
+  await reportProgress(onProgress, {
+    phase: 'building-routes',
+    message: 'Scoring fracture by downstream EV…',
+  });
   const fracPick = pickFractureByEv(mods, {
     kb,
     baseTags,
@@ -127,7 +139,27 @@ export async function optimizeCraft(item, onProgress, opts = {}) {
     costOne,
     planOpts,
   });
+  if (fracPick && fracPick.value > 0) {
+    const fracMod = fracPick.mod.short ?? fracPick.mod.text;
+    await reportProgress(onProgress, {
+      phase: 'building-routes',
+      message: `Fracture candidate: ${fracMod} · value ~${roundEv(fracPick.value)}c`,
+      route: 'fracture',
+      mod: fracMod,
+      value: roundEv(fracPick.value),
+    });
+  } else {
+    await reportProgress(onProgress, {
+      phase: 'building-routes',
+      message: 'No positive-EV fracture candidate',
+      route: 'fracture',
+    });
+  }
 
+  await reportProgress(onProgress, {
+    phase: 'comparing-ev',
+    message: 'Solving V(S) / Q(S,O) over sequential · recomb partitions…',
+  });
   const solved = solveValue({
     mods,
     sequentialCost: seqBest.totalCost,
@@ -141,6 +173,35 @@ export async function optimizeCraft(item, onProgress, opts = {}) {
     displayedChance: opts.displayedChance ?? opts.predictableChance ?? null,
   });
 
+  const qSeq = roundEv(solved.sequential?.ev ?? seqBest.totalCost);
+  const qUnpred = roundEv(
+    solved.best?.method === 'recombine' ? solved.best.ev : solved.best?.recombAlt?.ev
+  );
+  const qPred = roundEv(
+    solved.best?.method === 'predictableRecombine'
+      ? solved.best.ev
+      : solved.best?.predictableAlt?.unranked
+        ? null
+        : solved.best?.predictableAlt?.ev
+  );
+  const vBest = roundEv(solved.best?.ev);
+  const qBits = [`sequential ~${qSeq}c`];
+  if (qUnpred != null) qBits.push(`unpredictable recomb ~${qUnpred}c`);
+  if (qPred != null) qBits.push(`predictable recomb ~${qPred}c`);
+  if (vBest != null) qBits.unshift(`V ≈ ${vBest}c`);
+  await reportProgress(onProgress, {
+    phase: 'comparing-ev',
+    message: `Q/EV: ${qBits.join(' · ')}`,
+    V: vBest,
+    Qsequential: qSeq,
+    Qunpredictable: qUnpred,
+    Qpredictable: qPred,
+  });
+
+  await reportProgress(onProgress, {
+    phase: 'recomb',
+    message: 'Evaluating recombinator economics & outcome mass…',
+  });
   const recomb = considerRecombinator({
     mods,
     sequentialCost: seqBest.totalCost,
@@ -164,10 +225,12 @@ export async function optimizeCraft(item, onProgress, opts = {}) {
   const alternatives = [...(seqBest.alternatives ?? [])];
   if (recomb?.alternative) alternatives.unshift(recomb.alternative);
 
-  const chains = discoverEntropyChains(
-    mods.filter((m) => !m.fractured && !m.crafted),
-    {}
-  );
+  const liveMods = mods.filter((m) => !m.fractured && !m.crafted);
+  const tagClusters = analyzeTagSideClusters(liveMods);
+  for (const line of tagClusterThoughtLines(tagClusters)) {
+    await reportProgress(onProgress, { phase: 'building-routes', message: line });
+  }
+  const chains = discoverEntropyChains(liveMods, { tagClusters });
   const coupled = rankCoupledSubsystems(mods, costOne);
 
   const solverDebug = {
@@ -179,19 +242,26 @@ export async function optimizeCraft(item, onProgress, opts = {}) {
       coupling: roundEv(c.coupling),
       cost: roundEv(c.cost),
     })),
-    entropyChains: chains.slice(0, 6).map((c) => ({ id: c.id, why: c.why })),
-    V: roundEv(solved.best?.ev),
-    Qsequential: roundEv(solved.sequential?.ev ?? seqBest.totalCost),
-    Qunpredictable: roundEv(
-      solved.best?.method === 'recombine' ? solved.best.ev : solved.best?.recombAlt?.ev
-    ),
-    Qpredictable: roundEv(
-      solved.best?.method === 'predictableRecombine'
-        ? solved.best.ev
-        : solved.best?.predictableAlt?.unranked
-          ? null
-          : solved.best?.predictableAlt?.ev
-    ),
+    entropyChains: chains.slice(0, 8).map((c) => ({
+      id: c.id,
+      why: c.why,
+      side: c.side,
+      tag: c.tag,
+      searchHint: !!c.searchHint,
+    })),
+    tagClusters: (tagClusters.clusters ?? []).slice(0, 6).map((c) => ({
+      side: c.side,
+      tag: c.tag,
+      count: c.count,
+      protect: c.protectMetacraft,
+      cannotRollHints: c.cannotRollHints,
+      mods: c.labels,
+    })),
+    preferredLockSide: tagClusters.preferredLockSide,
+    V: vBest,
+    Qsequential: qSeq,
+    Qunpredictable: qUnpred,
+    Qpredictable: qPred,
     operatorsCompeting: solved.operatorsCompeting,
     predictableUnranked: !!solved.best?.predictableAlt?.unranked || opts.displayedChance == null,
     baseAcquisition: baseOp,
@@ -206,6 +276,42 @@ export async function optimizeCraft(item, onProgress, opts = {}) {
     economicsInvalid: recomb?.economics?.economicsInvalid ?? false,
     impracticalReason: recomb?.economics?.impracticalReason ?? null,
   };
+
+  const mass =
+    recomb?.economics?.outcomeMass ??
+    recomb?.outcomeMass ??
+    recomb?.comparison?.recombinator?.economics?.outcomeMass ??
+    recomb?.comparison?.predictableRecombinator?.economics?.outcomeMass ??
+    null;
+  if (mass && typeof mass === 'object') {
+    const parts = [];
+    if (mass.final != null) parts.push(`${formatPctPrecise(mass.final)} final`);
+    if (mass.salvageBenchOnly != null) parts.push(`${formatPctPrecise(mass.salvageBenchOnly)} bench`);
+    if (mass.salvageCraftNoRecomb != null) {
+      parts.push(`${formatPctPrecise(mass.salvageCraftNoRecomb)} craft`);
+    }
+    if (mass.salvageRequiringAnotherRecombination != null) {
+      parts.push(`${formatPctPrecise(mass.salvageRequiringAnotherRecombination)} recomb-again`);
+    }
+    if (mass.brickRestart != null) parts.push(`${formatPctPrecise(mass.brickRestart)} restart`);
+    if (mass.sum != null) parts.push(`sum ${formatPctPrecise(mass.sum)}`);
+    if (parts.length) {
+      await reportProgress(onProgress, {
+        phase: 'recomb',
+        message: `Outcome mass: ${parts.join(' · ')}`,
+        outcomeMass: mass,
+      });
+    }
+  }
+
+  for (const s of recomb?.steps ?? []) {
+    if (s.stage !== 'donor' && s.operator !== 'recombDonor') continue;
+    await reportProgress(onProgress, {
+      phase: 'donor',
+      message: s.detail ? `${s.action} — ${s.detail}` : String(s.action ?? 'Donor mini-plan'),
+      ev: s.expectedCostChaos ?? s.expectedCost ?? undefined,
+    });
+  }
 
   const rejectedStrategies = [];
   if (recomb?.comparison?.recombinator && recomb.comparison.winner !== 'recombinator') {
@@ -230,6 +336,30 @@ export async function optimizeCraft(item, onProgress, opts = {}) {
       ev: seqBest.totalCost,
     });
   }
+
+  for (const r of rejectedStrategies) {
+    const evBit = r.ev != null && Number.isFinite(r.ev) ? ` (EV ~${roundEv(r.ev)}c)` : '';
+    const why = r.whyLost ? `: ${r.whyLost}` : '';
+    await reportProgress(onProgress, {
+      phase: 'rejected',
+      message: `Rejected ${r.id}${evBit}${why}`,
+      id: r.id,
+      ev: r.ev,
+      whyLost: r.whyLost,
+    });
+  }
+
+  const winnerName = recomb?.won ? recomb.name : seqBest.name;
+  const winnerEv = recomb?.won ? roundEv(recomb.totalCost) : roundEv(seqBest.totalCost);
+  await reportProgress(onProgress, {
+    phase: 'done',
+    message:
+      winnerEv != null
+        ? `Winner: ${winnerName} · ~${winnerEv}c`
+        : `Winner: ${winnerName}`,
+    winner: winnerName,
+    ev: winnerEv,
+  });
 
   let best;
   if (recomb?.won && recomb.steps?.length) {

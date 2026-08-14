@@ -1,22 +1,22 @@
 === howdoicraftthis test suite ===
 KB loaded
-PASS  parser (7ms)
-PASS  knowledge (32ms)
-PASS  weights (57ms)
-PASS  mechanics (20ms)
-PASS  harvest (7ms)
-PASS  essence (8ms)
-PASS  fossils (220ms)
-PASS  unveil (3ms)
+PASS  parser (11ms)
+PASS  knowledge (28ms)
+PASS  weights (77ms)
+PASS  mechanics (25ms)
+PASS  harvest (9ms)
+PASS  essence (11ms)
+PASS  fossils (232ms)
+PASS  unveil (2ms)
 PASS  eldritch (6ms)
-PASS  recombinator (66ms)
-PASS  optimizer (17ms)
-PASS  sanity (6ms)
-PASS  monteCarlo (17ms)
-PASS  regression (11ms)
-PASS  benchmarks (28347ms)
+PASS  recombinator (122ms)
+PASS  optimizer (22ms)
+PASS  sanity (7ms)
+PASS  monteCarlo (19ms)
+PASS  regression (15ms)
+PASS  benchmarks (31998ms)
 ---
-passed=15 skipped=0 failed=0 elapsed=29132ms
+passed=15 skipped=0 failed=0 elapsed=32913ms
   [PASS] parser
   [PASS] knowledge
   [PASS] weights
@@ -34,4 +34,4 @@ passed=15 skipped=0 failed=0 elapsed=29132ms
   [PASS] benchmarks
 
 exit_code=0
-inventory=[{"id":"parser","status":"PASS","ms":7},{"id":"knowledge","status":"PASS","ms":32},{"id":"weights","status":"PASS","ms":57},{"id":"mechanics","status":"PASS","ms":20},{"id":"harvest","status":"PASS","ms":7},{"id":"essence","status":"PASS","ms":8},{"id":"fossils","status":"PASS","ms":220},{"id":"unveil","status":"PASS","ms":3},{"id":"eldritch","status":"PASS","ms":6},{"id":"recombinator","status":"PASS","ms":66},{"id":"optimizer","status":"PASS","ms":17},{"id":"sanity","status":"PASS","ms":6},{"id":"monteCarlo","status":"PASS","ms":17},{"id":"regression","status":"PASS","ms":11},{"id":"benchmarks","status":"PASS","ms":28347}]
+inventory=[{"id":"parser","status":"PASS","ms":11},{"id":"knowledge","status":"PASS","ms":28},{"id":"weights","status":"PASS","ms":77},{"id":"mechanics","status":"PASS","ms":25},{"id":"harvest","status":"PASS","ms":9},{"id":"essence","status":"PASS","ms":11},{"id":"fossils","status":"PASS","ms":232},{"id":"unveil","status":"PASS","ms":2},{"id":"eldritch","status":"PASS","ms":6},{"id":"recombinator","status":"PASS","ms":122},{"id":"optimizer","status":"PASS","ms":22},{"id":"sanity","status":"PASS","ms":7},{"id":"monteCarlo","status":"PASS","ms":19},{"id":"regression","status":"PASS","ms":15},{"id":"benchmarks","status":"PASS","ms":31998}]

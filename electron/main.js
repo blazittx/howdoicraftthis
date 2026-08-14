@@ -1,6 +1,7 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ollamaChat, ollamaChatStream, ollamaPing } from './llmBridge.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isDev = !app.isPackaged;
@@ -36,6 +37,7 @@ function createWindow() {
     minHeight: 500,
     backgroundColor: '#0a0a0c',
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
     },
@@ -49,7 +51,43 @@ function createWindow() {
   }
 }
 
+function registerLlmIpc() {
+  ipcMain.handle('llm:ping', async () => ollamaPing());
+  ipcMain.handle('llm:chat', async (_evt, body) => {
+    const model = body?.model || 'llama3.2:3b';
+    const messages = body?.messages;
+    if (!Array.isArray(messages) || !messages.length) {
+      throw new Error('llm:chat requires messages[]');
+    }
+    return ollamaChat({
+      model,
+      messages,
+      format: body?.format ?? 'json',
+    });
+  });
+  ipcMain.handle('llm:chat-stream', async (evt, body) => {
+    const model = body?.model || 'llama3.2:3b';
+    const messages = body?.messages;
+    if (!Array.isArray(messages) || !messages.length) {
+      throw new Error('llm:chat-stream requires messages[]');
+    }
+    return ollamaChatStream({
+      model,
+      messages,
+      format: body?.format ?? 'json',
+      onToken: (acc) => {
+        try {
+          evt.sender.send('llm:chat-token', acc);
+        } catch {
+          /* window closed */
+        }
+      },
+    });
+  });
+}
+
 app.whenReady().then(() => {
+  registerLlmIpc();
   buildMenu();
   createWindow();
 });

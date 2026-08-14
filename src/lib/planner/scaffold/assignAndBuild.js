@@ -74,10 +74,12 @@ import {
   affixGen,
 } from './exaltAnnul.js';
 import { essenceExtraRollsByGen } from '../../mechanics/affixCounts.js';
+import { analyzeTagSideClusters } from '../heuristics.js';
 
 function assignAndBuild(item, mods, kb, baseTags, minIlvl, drivers, itemClass, opts = {}) {
   const preferFractureEnabled = opts.preferFracture !== false;
   const prices = kb.prices;
+  const tagClusters = analyzeTagSideClusters(mods);
   const costs = {};
   let steps = [];
   const tips = [];
@@ -87,6 +89,10 @@ function assignAndBuild(item, mods, kb, baseTags, minIlvl, drivers, itemClass, o
   for (const m of mods) {
     m.candidates = candidatesFor(kb, itemClass, baseTags, minIlvl, m, occupiedGroupsNow(mods), mods);
     m.best = m.candidates[0];
+  }
+
+  for (const c of (tagClusters.clusters ?? []).slice(0, 3)) {
+    tips.push(c.thought);
   }
 
   const fractured = mods.filter((m) => m.fractured);
@@ -949,12 +955,17 @@ function assignAndBuild(item, mods, kb, baseTags, minIlvl, drivers, itemClass, o
       steps,
       costs,
       prices,
-      mods
+      mods,
+      tagClusters
     );
   }
 
   // 5. Harvest fills — ONLY when Eldritch/essence-fish-all cannot finish (e.g. weapons)
-  for (const side of ['suffix', 'prefix']) {
+  // Prefer finishing a tag-clustered side first so SCBC/PCBC can lock it.
+  const harvestSides = tagClusters.preferredLockSide
+    ? tagClusters.sideOrder
+    : ['suffix', 'prefix'];
+  for (const side of harvestSides) {
     const sideMods = open().filter(
       (m) => m.gen === side && m.harvests.length && !isInfluenceGoal(m) && !m._skipHarvest
     );

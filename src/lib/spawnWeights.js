@@ -801,6 +801,9 @@ export function poolWeightMinusGroups(kb, baseTags, ilvl, generation, blocked = 
 export function bestCannotRollAssist(kb, baseTags, ilvl, generation, goals, opts = {}) {
   const minFraction = opts.minFraction ?? 0.25;
   const occupied = opts.occupiedGroups ?? [];
+  const preferBlocked = new Set(
+    (opts.preferBlockedTags ?? []).map((t) => String(t).toLowerCase().replace(/\s+/g, '_'))
+  );
   const list = (goals ?? []).filter(Boolean);
   if (!list.length || !generation) return null;
 
@@ -845,10 +848,13 @@ export function bestCannotRollAssist(kb, baseTags, ilvl, generation, goals, opts
     const removed = Math.max(0, poolBefore - poolAfter);
     const fraction = removed / poolBefore;
     if (fraction < minFraction - 1e-12) continue;
+    const preferBoost = blocked.some((t) => preferBlocked.has(String(t).toLowerCase())) ? 1 : 0;
     if (
       !best ||
-      removed > best.removedWeight + 1e-9 ||
-      (Math.abs(removed - best.removedWeight) < 1e-9 && fraction > best.fraction)
+      preferBoost > best.preferBoost ||
+      (preferBoost === best.preferBoost &&
+        (removed > best.removedWeight + 1e-9 ||
+          (Math.abs(removed - best.removedWeight) < 1e-9 && fraction > best.fraction)))
     ) {
       best = {
         id: c.id,
@@ -860,6 +866,7 @@ export function bestCannotRollAssist(kb, baseTags, ilvl, generation, goals, opts
         removedWeight: removed,
         fraction,
         tags: tagged,
+        preferBoost,
       };
     }
   }
